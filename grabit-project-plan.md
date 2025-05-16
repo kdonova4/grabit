@@ -657,7 +657,7 @@ src
 - **Admins can view all user payment histories**
 
 ### Reviews
-- **Buyers can leave reveiws and number ratings for sellers after purchasing a product from them**
+- **Buyers can leave reviews and number ratings for sellers after purchasing a product from them**
 - **Buyers can only reveiw sellers they have bought from**
 - **Only one review per product bought from a seller**
 - **Buyer can only leave review after product is delivered**
