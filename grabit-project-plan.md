@@ -93,11 +93,13 @@ This web app will serve as a place where users can be buyers or sellers, or both
 - **Shopping Cart**
 - **Watchlist**
 - **Order**
+- **OrderItem**
 - **Payment**
 - **Shipment**
 - **Review**
 - **Coupon**
 - **Image**
+- **Address**
 
 ## User Model
 
@@ -118,7 +120,6 @@ Holds data that pertains to the products of the application
 - **productId**: Uniquely identifies each product
 - **postedAt**: Timestamp the product was posted at - **[REQUIRED]**
 - **saleType**: Type of product - **[REQUIRED]**
-- **categoryId**: What category the product is in - **[REQUIRED]**
 - **name**: The product name - **[REQUIRED]**
 - **description**: describes the product - **[REQUIRED]**
 - **location**: Address product is shipping from - **[REQUIRED]**
@@ -238,6 +239,7 @@ Holds information for reviews for a seller
 - **reviewText**: The body of the review - **[REQUIRED]**
 - **userId**: User who made the review - **[REQUIRED]**
 - **sellerId**: The seller that is being reviewed - **[REQUIRED]**
+- **productId**: The product the review was made off of - **[REQUIRED]**
 - **createdAt**: Timestamp for review - **[REQUIRED]**
 
 ## Coupon Model
@@ -261,11 +263,22 @@ Holds information for each image uploaded
 - **imageURL**: url for image - **[REQUIRED]**
 - **productId**: the product the image is for - **[REQUIRED]**
 
+## Address Model
+
+Holds information for an address of a user
+
+### Data
+- **addressId**: Uniquely Identifies each Address
+- **street**: street name - **[REQUIRED]**
+- **city**: city name - **[REQUIRED]**
+- **state**: state - **[REQUIRED]**
+- **zip_code**: zip code - **[REQUIRED]**
+- **country**: country name - **[REQUIRED]**
+- **userId**: the user the address belongs to - **[REQUIRED]**
+
 ## Other Validation Rules
 
-### Product 
-- ****
-- ****
+
 
 ## Other Classes
 
@@ -310,6 +323,26 @@ Holds information for each image uploaded
 - **OUTFORDELIVERY**
 - **DELIVERED**
 
+
+## Database Tables
+- **app_user**
+- **app_role**
+- **app_user_role**
+- **product**
+- **category**
+- **product_category**
+- **bid**
+- **offer**
+- **shopping_cart**
+- **watchlist**
+- **order**
+- **order_item**
+- **payment**
+- **shipment**
+- **review**
+- **coupon**
+- **image**
+
 ```
 src
 ├───main
@@ -323,20 +356,85 @@ src
 │               ├───controllers
 │               │       GlobalExceptionHandler.java
 │               │       ErrorResponse.java
+│               │       ProductController.java
+│               │       CategoryController.java
+│               │       ProductCategoryController.java
+│               │       BidController.java
+│               │       OfferController.java
+│               │       ShoppingCartController.java
+│               │       WatchlistController.java
+│               │       OrderController.java
+│               │       OrderItemController.java
+│               │       PaymentController.java
+│               │       ShipmentController.java
+│               │       ReviewController.java
+│               │       CouponController.java
+│               │       ImageController.java
+|               |       AddressController.java
 │               │       
 │               ├───data
-│               │       GamePlatformJdbctemplateRepository.java  -- concrete repository
-│               │       GamePlatformRepository.java      -- repository interface
-│               │
+│               │       AppUserRepository.java      
+│               │       ProductRepository.java      
+│               │       CategoryRepository.java      
+│               │       ProductCategoryRepository.java      
+│               │       BidRepository.java      
+│               │       OfferRepository.java      
+│               │       ShoppingCartRepository.java      
+│               │       WatchlistRepository.java      
+│               │       OrderRepository.java      
+│               │       OrderItemRepository.java      
+│               │       PaymentRepository.java      
+│               │       ShipmentRepository.java      
+│               │       ReviewRepository.java      
+│               │       CouponRepository.java      
+│               │       ImageRepository.java
+|               |       AddressRepository.java      
+|               |
 │               ├───domain
 │               │       Result.java          -- domain result for handling success/failure
 │               │       ResultType.java         -- enum value for Result
-│               │       
+│               │       ProductService.java -- holds validation/business logic for Product and ProductCategory
+│               │       CategoryService.java
+│               │       BidService.java
+│               │       OfferService.java
+│               │       ShoppingCartService.java
+│               │       WatchlistService.java
+│               │       OrderService.java
+│               │       OrderItemService.java
+│               │       PaymentService.java
+│               │       ShipmentService.java
+│               │       ReviewService.java
+│               │       CouponService.java
+│               │       ImageService.java
+|               |       AddressService.java
 │               │
 │               ├───models
-│               │       User.java     -- user model
-│               │       
-│               │
+│               │       User.java     
+│               │       Product.java
+│               │       Category.java
+│               │       ProductCategory.java
+│               │       Bid.java
+│               │       Offer.java
+│               │       ShoppingCart.java
+│               │       Watchlist.java
+│               │       Order.java
+│               │       OrderItem.java
+│               │       Payment.java
+│               │       Shipment.java
+│               │       Review.java
+│               │       Coupon.java
+│               │       Image.java
+|               |       Address.java
+│               |
+|               ├───Enums
+|               |     SaleType.java
+|               |     DiscountType.java
+|               |     OrderStatus.java
+|               |     ProductStatus.java
+|               |     ConditionType.java
+|               |     ShipmentStatus.java
+|               |       
+|               |
 |               └───security
 │                       AppUserService.java         -- user validation/rules
 │                       JwtConverter.java         
@@ -349,36 +447,55 @@ src
         └───project
             └───grabit
                 ├───controller
-│               │       
-│               │       
-│               │       
-|               |       
-|               |       
-|               |       
-|               |       
-|               |         
-│               │       
-│               │       
+│               │       ProductControllerTest.java
+│               │       CategoryControllerTest.java
+│               │       ProductCategoryControllerTest.java
+│               │       BidControllerTest.java
+│               │       OfferControllerTest.java
+│               │       ShoppingCartControllerTest.java
+│               │       WatchlistControllerTest.java
+│               │       OrderControllerTest.java
+│               │       OrderItemControllerTest.java
+│               │       PaymentControllerTest.java
+│               │       ShipmentControllerTest.java
+│               │       ReviewControllerTest.java
+│               │       CouponControllerTest.java
+│               │       ImageControllerTest.java
+|               |       AddressControllerTest.java
                 │
                 ├───domain
-│               │           
-│               │            
-│               │              
-│               │          
-│               │           
-│               │            
-│               │            
-│               │          
+│               │       ProductServiceTest.java 
+│               │       CategoryServiceTest.java
+│               │       BidServiceTest.java
+│               │       OfferServiceTest.java
+│               │       ShoppingCartServiceTest.java
+│               │       WatchlistServiceTest.java
+│               │       OrderServiceTest.java
+│               │       OrderItemRServiceTest.java
+│               │       PaymentServiceTest.java
+│               │       ShipmentServiceTest.java
+│               │       ReviewServiceTest.java
+│               │       CouponServiceTest.java
+│               │       ImageServiceTest.java
+|               |       AddressServiceTest.java
 │               │            
                 └───data
-│               │         
-│               │         
-│               │       
-│               │       
-│               │       
-│               │        
-│               │       
-│               │       
+│               │       AppUserRepositoryTest.java      
+│               │       ProductRepositoryTest.java      
+│               │       CategoryRepositoryTest.java      
+│               │       ProductCategoryRepositoryTest.java      
+│               │       BidRepositoryTest.java      
+│               │       OfferRepositoryTest.java      
+│               │       ShoppingCartRepositoryTest.java      
+│               │       WatchlistRepositoryTest.java      
+│               │       OrderRepositoryTest.java      
+│               │       OrderItemRepositoryTest.java      
+│               │       PaymentRepositoryTest.java      
+│               │       ShipmentRepositoryTest.java      
+│               │       ReviewRepositoryTest.java      
+│               │       CouponRepositoryTest.java      
+│               │       ImageRepositoryTest.java  
+|               |       AddressRepositoryTest.java
 │               │       
 ```
 
@@ -386,5 +503,175 @@ src
 
 ## Models
 
-### Model.User
+### Model.Product
+- `private int productId`
+- `private Timestamp postedAt`
+- `private SaleType saleType`
+- `private String name`
+- `private String description`
+- `private BigDecimal price`
+- `private ConditionType condition`
+- `private int quantity`
+- `private ProductStatus status`
+- `private LocalDate auctionEndTime`
 - `private int userId`
+
+### Model.Category
+- `private int categoryId`
+- `private String categoryName`
+
+### Model.Bid
+- `private int bidId`
+- `private BigDecimal amount`
+- `private Timestamp placedAt`
+- `private Product product`
+- `private User user`
+
+### Model.Offer
+- `private int offerId`
+- `private BigDecimal amount`
+- `private String message`
+- `private Product product`
+- `private User user`
+
+### Model.ShoppingCart
+- `private int shoopingCarId`
+- `private Product product`
+- `private int quantity`
+- `private User user`
+
+### Model.Watchlist
+- `private int watchId`
+- `private Product product`
+- `private User user`
+
+### Model.Order
+- `private int orderId`
+- `private User user`
+- `private Timestamp orderedAt`
+- `private Address shippingAddress`
+- `private Address billingAddress`
+- `private BigDecimal totalAmount`
+- `private Payment payment`
+- `private Shipment shipment`
+- `private OrderStatus status`
+
+### Model.OrderItem
+- `private int orderItemId`
+- `private Order order`
+- `private Product product`
+- `private int quantity`
+- `private BigDecimal unitPrice`
+- `private BigDecimal subTotal`
+
+### Model.Payment
+- `private int paymentId`
+- `private Order order`
+- `private BigDecimal amount`
+- `private Timestamp paidAt`
+
+### Model.Shipment
+- `private int shipmentId`
+- `private Order order`
+- `private ShipmentStatus status`
+- `private String trackingNumber`
+- `private Timestamp shippedAt`
+- `private Timestamp deliveredAt`
+
+### Model.Review
+- `private int reviewId`
+- `private int rating`
+- `private String reviewText`
+- `private User user`
+- `private User seller`
+- `private Product product`
+- `private Timestamp createdAt`
+
+### Model.Coupon
+- `private int couponId`
+- `private String couponCode`
+- `private int discount`
+- `private DiscountType type`
+- `private LocalDate expireDate`
+- `private boolean isActive`
+
+### Model.Image
+- `private int imageId`
+- `private String imageURL`
+- `private Product product`
+
+### Model.Address
+- `private int addressId`
+- `private String street`
+- `private String city`
+- `private String state`
+- `private String zipCode`
+- `private String country`
+- `private User user`
+
+## App Functionality
+
+### Products
+- **Selling User can add products**
+- **Buying User can buy products, changing their status**
+- **Products can be found by name, category**
+- **Products can be filtered by condition type, category, location, price**
+- **Products can be in mulitple categories**
+- **Products should support pagination and optional sorting (by price, date posted, etc.)**
+- **Products can be found based on their status**
+- **Products can be found by their seller**
+- **Only sellers can post products and remove their own products**
+- **Admins can remove all products**
+
+### Categories
+- **Categories can be added or removed by an Admin**
+
+### Bids
+- **Bids can be made by buying users**
+- **Bids can be removed by bidding user aslong as ther is more than 12 hours before end time**
+- **Admins can remove any bid**
+- **Bids are found by the product**
+- **Bids are sorted by most recent to least**
+
+### Offers
+- **Made buy buying users to sellers for a product**
+- **Sellers can accept or refuse the offer**
+- **Buyers can send a message along with an offer**
+- **Offers Expire after 24 hours**
+- **Accepted Offers must be confirmed by user in 24 hours or they are expired**
+
+### Shopping Cart
+- **Holds products for user**
+- **Entering cart will prompt a check of the status of all products in cart, any invalid items will be removed**
+
+### Watchlist
+- **A list of items to watch**
+- **Will list the status of products as well**
+
+### Shipments
+- **Shipments can be seen on profile page**
+- **Shipments will change status over time**
+
+### Reviews
+- **Buyers can leave reveiws and number ratings for sellers after purchasing a product from them**
+- **Buyers can only reveiw sellers they have bought from**
+- **Only one review per product bought from a seller**
+- **Buyer can only leave review after product is delivered**
+- **Buyer can edit or delete review**
+- **Admin can remove any reviews**
+- **seller cannot remove or edit reviews**
+
+### Coupons
+- **Admins add or remove coupons**
+- **Coupons have expired date**
+
+### Image
+- **Sellers will need to upload at least one iamge for a product**
+- **Images will be uploaded to cloud provider, Cloudinary**
+
+### Address
+- **Sellers will need to add an address to their profile before they add any products to sell**
+- **Buyers add address at checkout**
+
+
+
