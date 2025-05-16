@@ -652,6 +652,10 @@ src
 - **Shipments can be seen on profile page**
 - **Shipments will change status over time**
 
+### Payments
+- **Users can view their own payment history**
+- **Admins can view all user payment histories**
+
 ### Reviews
 - **Buyers can leave reveiws and number ratings for sellers after purchasing a product from them**
 - **Buyers can only reveiw sellers they have bought from**
