@@ -342,6 +342,7 @@ Holds information for an address of a user
 - **review**
 - **coupon**
 - **image**
+- **address**
 
 ```
 src
