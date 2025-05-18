@@ -27,6 +27,7 @@ public class Offer {
     @Column(name="sent_at", nullable = false, updatable = false, insertable = false)
     private Timestamp sentAt;
 
+    @Column(name = "offer_message")
     private String message;
 
     @ManyToOne(optional = false)

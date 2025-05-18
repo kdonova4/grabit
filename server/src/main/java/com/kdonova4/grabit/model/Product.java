@@ -41,7 +41,7 @@ public class Product {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "product_condition", nullable = false)
     private ConditionType condition;
 
     @Column(nullable = false)

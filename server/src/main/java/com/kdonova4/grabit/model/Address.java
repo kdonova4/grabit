@@ -17,19 +17,19 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int addressId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String street;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String city;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String state;
 
-    @Column(name = "zip_code", nullable = false)
+    @Column(name = "zip_code", nullable = false, length = 50)
     private String zipCode;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String country;
 
     @ManyToOne(optional = false)

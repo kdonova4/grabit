@@ -15,9 +15,9 @@ import java.math.BigDecimal;
 public class OrderProduct {
 
     @Id
-    @Column(name = "order_item_id")
+    @Column(name = "order_product_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int orderItemId;
+    private int orderProductId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "order_id", nullable = false)
