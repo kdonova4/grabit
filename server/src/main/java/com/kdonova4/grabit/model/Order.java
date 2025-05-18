@@ -1,0 +1,55 @@
+package com.kdonova4.grabit.model;
+
+import com.kdonova4.grabit.enums.OrderStatus;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Table(name = "order")
+public class Order {
+
+    @Id
+    @Column(name = "order_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private int orderId;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "app_user_id", nullable = false)
+    private AppUser user;
+
+    @Column(name="ordered_at", nullable = false, updatable = false, insertable = false)
+    private Timestamp orderedAt;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "shipping_address_id", nullable = false)
+    private Address shippingAddress;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "billing_address_id", nullable = false)
+    private Address billingAddress;
+
+    @Column(name = "total_amount", nullable = false)
+    private BigDecimal totalAmount;
+
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    private Payment payment;
+
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    private Shipment shipment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderProduct> orderProducts;
+}
