@@ -173,6 +173,3 @@ create table image (
 	product_id int not null,
 	foreign key (product_id) references product(product_id) on delete cascade
 );
-
-
-

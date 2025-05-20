@@ -40,12 +40,6 @@ public class Order {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private Payment payment;
-
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private Shipment shipment;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
