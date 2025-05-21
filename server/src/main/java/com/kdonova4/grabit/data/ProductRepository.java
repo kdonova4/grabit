@@ -6,6 +6,8 @@ import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,15 +16,19 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findByUser(AppUser user);
 
-    List<Product> findBySaleType(SaleType saleType);
-
-    List<Product> findByCondition(ConditionType condition);
-
-    List<Product> findByProductStatus(ProductStatus productStatus);
-
-    List<Product> findByPriceGreaterThan(BigDecimal price);
-    List<Product> findByPriceLessThan(BigDecimal price);
-    List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
-
-    List<Product> findBProductName(String productName);
+    @Query("SELECT p FROM Product p WHERE "
+    + "(:productName IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :productName, '%'))) AND "
+    + "(:minPrice IS NULL OR p.price >= :minPrice) AND "
+    + "(:maxPrice IS NULL OR p.price <= :maxPrice) AND "
+    + "(:status IS NULL OR p.productStatus = :status) AND "
+    + "(:condition IS NULL OR p.condition = :condition) AND "
+    + "(:saleType IS NULL OR p.saleType = :saleType)")
+    List<Product> search(
+            @Param("productName") String productName,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("status") ProductStatus status,
+            @Param("condition") ConditionType condition,
+            @Param("saleType") SaleType saleType
+    );
 }

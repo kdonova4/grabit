@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -14,8 +15,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AppUser {
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -41,4 +43,16 @@ public class AppUser {
     private Set<AppRole> roles;
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppUser appUser = (AppUser) o;
+        return appUserId == appUser.appUserId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(appUserId);
+    }
 }
