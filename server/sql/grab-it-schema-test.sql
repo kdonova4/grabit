@@ -1,6 +1,6 @@
-drop schema if exists grab_it_test cascade;
-create schema grab_it_test;
-set search_path to grab_it_test;
+DROP SCHEMA IF EXISTS grab_it_test CASCADE;
+CREATE SCHEMA grab_it_test;
+SET search_path TO grab_it_test;
 
 create table category (
 	category_id serial primary key,
@@ -174,57 +174,57 @@ create table image (
 	foreign key (product_id) references product(product_id) on delete cascade
 );
 
-create or replace procedure grab_it_test.set_known_good_state()
+create or replace procedure set_known_good_state()
 language plpgsql
 as
 $$
 begin
-
+	set search_path to grab_it_test;
 	-- Product dependencies
 	DELETE FROM watchlist;
-	DELETE FROM shopping_cart;
-	DELETE FROM order_product;
-	DELETE FROM shipment;
-	DELETE FROM payment;
-	DELETE FROM offer;
-	DELETE FROM bid;
-	DELETE FROM product_category;
-	DELETE FROM image;
-	DELETE FROM review;
+	DELETE FROM grab_it_test.shopping_cart;
+	DELETE FROM grab_it_test.order_product;
+	DELETE FROM grab_it_test.shipment;
+	DELETE FROM grab_it_test.payment;
+	DELETE FROM grab_it_test.offer;
+	DELETE FROM grab_it_test.bid;
+	DELETE FROM grab_it_test.product_category;
+	DELETE FROM grab_it_test.image;
+	DELETE FROM grab_it_test.review;
 	
 	-- Order & coupon
-	DELETE FROM coupon;
-	DELETE FROM purchase_order;
+	DELETE FROM grab_it_test.coupon;
+	DELETE FROM grab_it_test.purchase_order;
 	
 	-- Product & category
-	DELETE FROM product;
-	DELETE FROM category;
+	DELETE FROM grab_it_test.product;
+	DELETE FROM grab_it_test.category;
 	
 	-- Address & user roles
-	DELETE FROM address;
-	DELETE FROM app_user_role;
+	DELETE FROM grab_it_test.address;
+	DELETE FROM grab_it_test.app_user_role;
 	
 	-- Roles and users
-	DELETE FROM app_role;
-	DELETE FROM app_user;
+	DELETE FROM grab_it_test.app_role;
+	DELETE FROM grab_it_test.app_user;
 
-	alter sequence grab_it_test.watch_id_seq restart with 1;
-	alter sequence shopping_cart_id_seq restart with 1;
-	alter sequence order_product_id_seq restart with 1;
-	alter sequence shipment_id_seq restart with 1;
-	alter sequence payment_id_seq restart with 1;
-	alter sequence offer_id_seq restart with 1;
-	alter sequence bid_id_seq restart with 1;
-	alter sequence product_category_id_seq restart with 1;
-	alter sequence image_id_seq restart with 1;
-	alter sequence review_id_seq restart with 1;
-	alter sequence coupon_id_seq restart with 1;
-	alter sequence order_id_seq restart with 1;
-	alter sequence product_id_seq restart with 1;
-	alter sequence category_id_seq restart with 1;
-	alter sequence address_id_seq restart with 1;
-	alter sequence app_role_id_seq restart with 1;
-	alter sequence app_user_id_seq restart with 1;
+	alter sequence watchlist_watch_id_seq restart with 1;
+	alter sequence grab_it_test.shopping_cart_shopping_cart_id_seq restart with 1;
+	alter sequence grab_it_test.order_product_order_product_id_seq restart with 1;
+	alter sequence grab_it_test.shipment_shipment_id_seq restart with 1;
+	alter sequence grab_it_test.payment_payment_id_seq restart with 1;
+	alter sequence grab_it_test.offer_offer_id_seq restart with 1;
+	alter sequence grab_it_test.bid_bid_id_seq restart with 1;
+	alter sequence grab_it_test.product_category_product_category_id_seq restart with 1;
+	alter sequence grab_it_test.image_image_id_seq restart with 1;
+	alter sequence grab_it_test.review_review_id_seq restart with 1;
+	alter sequence grab_it_test.coupon_coupon_id_seq restart with 1;
+	alter sequence grab_it_test.purchase_order_order_id_seq restart with 1;
+	alter sequence grab_it_test.product_product_id_seq restart with 1;
+	alter sequence grab_it_test.category_category_id_seq restart with 1;
+	alter sequence grab_it_test.address_address_id_seq restart with 1;
+	alter sequence grab_it_test.app_role_app_role_id_seq restart with 1;
+	alter sequence grab_it_test.app_user_app_user_id_seq restart with 1;
 
 	INSERT INTO category (category_name) VALUES
 	('Electronics'),
@@ -300,3 +300,5 @@ begin
 
 end
 $$
+
+

@@ -1,10 +1,7 @@
 package com.kdonova4.grabit.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.userdetails.User;
 
 import java.util.Objects;
@@ -20,7 +17,7 @@ public class AppUser {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "app_user_id")
     private int appUserId;
 
@@ -36,6 +33,7 @@ public class AppUser {
     @Column(nullable = false)
     private boolean disabled;
 
+    @ToString.Exclude
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "app_user_role",
         joinColumns = @JoinColumn(name = "app_user_id"),

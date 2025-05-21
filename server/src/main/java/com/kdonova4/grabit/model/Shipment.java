@@ -17,7 +17,7 @@ public class Shipment {
 
     @Id
     @Column(name = "shipment_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int shipmentId;
 
     @OneToOne(optional = false)

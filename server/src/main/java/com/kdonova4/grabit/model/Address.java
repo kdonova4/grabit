@@ -14,7 +14,7 @@ public class Address {
 
     @Id
     @Column(name = "address_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int addressId;
 
     @Column(nullable = false, length = 50)

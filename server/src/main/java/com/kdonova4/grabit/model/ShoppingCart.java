@@ -14,7 +14,7 @@ public class ShoppingCart {
 
     @Id
     @Column(name = "shopping_cart_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int shoppingCartId;
 
     @ManyToOne(optional = false)

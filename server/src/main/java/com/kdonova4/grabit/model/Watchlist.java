@@ -14,7 +14,7 @@ public class Watchlist {
 
     @Id
     @Column(name = "watch_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int watchId;
 
     @ManyToOne(optional = false)

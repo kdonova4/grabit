@@ -18,7 +18,7 @@ public class Offer {
 
     @Id
     @Column(name = "offer_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int offerId;
 
     @Column(name = "offer_amount", nullable = false)

@@ -14,7 +14,7 @@ public class ProductCategory {
 
     @Id
     @Column(name = "product_category_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int productCategoryId;
 
     @ManyToOne(optional = false)

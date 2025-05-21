@@ -14,7 +14,7 @@ public class Image {
 
     @Id
     @Column(name = "image_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int imageId;
 
     @Column(name = "image_url", nullable = false)

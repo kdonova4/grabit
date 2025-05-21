@@ -21,7 +21,7 @@ public class Product {
 
     @Id
     @Column(name="product_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int productId;
 
     @Column(name="posted_at", nullable = false, updatable = false, insertable = false)

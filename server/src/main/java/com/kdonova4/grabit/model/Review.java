@@ -16,7 +16,7 @@ public class Review {
 
     @Id
     @Column(name = "review_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reviewId;
 
     @Column(nullable = false)

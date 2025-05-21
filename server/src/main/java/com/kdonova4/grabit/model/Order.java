@@ -19,7 +19,7 @@ public class Order {
 
     @Id
     @Column(name = "order_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int orderId;
 
     @ManyToOne(optional = false)

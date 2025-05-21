@@ -16,7 +16,7 @@ public class OrderProduct {
 
     @Id
     @Column(name = "order_product_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int orderProductId;
 
     @ManyToOne(optional = false)

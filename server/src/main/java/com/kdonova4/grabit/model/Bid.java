@@ -17,7 +17,7 @@ public class Bid {
 
     @Id
     @Column(name = "bid_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int bidId;
 
     @Column(name = "bid_amount", nullable = false)
