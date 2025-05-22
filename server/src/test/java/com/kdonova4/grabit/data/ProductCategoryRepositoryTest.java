@@ -45,7 +45,7 @@ public class ProductCategoryRepositoryTest {
         Optional<Category> category = categoryRepository.findById(1);
         List<ProductCategory> productCategories = repository.findByCategory(category.get());
 
-        assertEquals(1, productCategories.size());
+        assertEquals(2, productCategories.size());
     }
 
     @Test
@@ -66,13 +66,13 @@ public class ProductCategoryRepositoryTest {
         ProductCategory productCategory = new ProductCategory(0, product.get(), category.get());
         repository.save(productCategory);
 
-        assertEquals(3, repository.findAll().size());
+        assertEquals(4, repository.findAll().size());
     }
 
     @Test
     void shouldDelete() {
         repository.deleteById(1);
 
-        assertEquals(1, repository.findAll().size());
+        assertEquals(2, repository.findAll().size());
     }
 }

@@ -610,6 +610,178 @@ src
 - `private String country`
 - `private User user`
 
+## Services
+
+### AppUser Service
+- Create
+
+#### Validation & Business Logic
+- Username must be unique
+- Password must be 8 or more characters
+- Password must contain a digit, a letter, and a non-digit/non-letter
+- email must be unique
+- username, password and email cannot be null
+
+### AppRole Service
+- role name cannot be blank or null
+
+### Category Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Category Name cannot be null
+
+### Address Service
+- Create
+- Update
+
+#### Validation & Business Logic
+- Street cannot be null
+- City cannot be null
+- State cannot be null
+- Zip Code cannot be null
+- Country cannot be null
+- App User cannot be null
+
+### Bid Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Bid Amount cannot be less than or equal to the price of the product being bid on
+- Timestamp cannot be in the future
+- Product cannot be null and must exist
+- user cannot be null and must exist
+
+### Offer Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Offer Amount cannot be equal to the price of the product
+- Product must be BUY_NOW type
+- Sent At cannot be in the future
+- Message cannot be llonger than 200 characters
+- user cannot be null and must exist
+- product cannot be null and must exist
+
+### Coupon Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Coupon Code must be 16 characters
+- discount cannot be negative
+- discount cannot be more than 100 if DiscountType is Percentage
+- Is Active cannot be null
+
+### Image Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Image URL cannot be null
+- Product must exist and cannot be null
+
+### Order Service
+- Create
+
+#### Vallidation & Business Logic
+- User must exist and cannot be null
+- Ordered At must be in the past
+- Shipping and Billing Addresses must exist and cannot be null
+- total Amount is the amount of money from the OrderProducts associated with this order
+- OrderStatus cannot be null
+
+### OrderProduct Service
+- Create
+
+#### Validation & Business Logic
+- Order must exist and cannot be null
+- Product must exist and cannot be null
+- quantity must be 1 or greater
+- Unit Price must be the same as the price of the product at the time of purchase
+- Sub Total is the Unit Price * Quantity
+
+### Payment Service
+- Create
+
+#### Validation & Business Logic
+- Order must exist and cannot be null
+- amount paid must add up to the Total Amount from Order
+- Paid At must be in the past
+
+### Product Service
+- Create
+- Update
+- Delete
+
+#### Validation & Business Logic
+- Product Status defaults to ACTIVE
+- Any Auction that ends if bids were made the Top bid will be made the Winning Bid
+- Auction End is required if Sale Type is AUCTION
+- price cannot be negative
+- Posted At must be in the past
+- product name cannot be blank or null
+- description cannot be blank or null
+- description must be at or under 500 characters
+- Quantity must be 1 or greater
+- Product Status id required
+- User must exist and cannot be null
+
+### ProductCategory Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- product cannot be null and must exist
+- category cannot be null and must exist
+
+### Review Service
+- Create
+- Update
+- Delete
+
+#### Validation & Business Logic
+- rating must be from 1 to 5
+- review must be equal to or less than 500 characters
+- Posted By must exist and cannot be null
+- seller must exist and cannot be null
+- product must exist and cannot be null
+- created at must be in the past
+- One Review per product on from seller
+- user can only review a seller once their shipment has been delivered
+
+### Shipment Service
+- Create
+
+#### Validation & Business Logic
+- Order must exist and cannot be null
+- Shipment Status cannot be null
+- Tracking number must be 18 characters
+- shipped at must be in the past
+- Once Shipment Status is changed to Delivered the deleivered at date must be added
+
+### ShoppingCart Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Product must exist and cannot be null
+- User must exist and cannot be null
+- only one combination of user and product allowed, no duplicate items in the shopping cart
+- quantity must be 1 or greater, cannot be higher than the products availiable quantity
+
+### Watchlist Service
+- Create
+- Delete
+
+#### Validation & Business Logic
+- Product must exist and cannot be null
+- User must exist and cannot be null
+- only one combination of user and product allowed, no duplicate items in the watch list
+
 ## App Functionality
 
 ### Products

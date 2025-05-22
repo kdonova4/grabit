@@ -54,6 +54,9 @@ public class Product {
     @Column(name = "auction_end")
     private LocalDate auctionEnd;
 
+    @Column(name = "winning_bid")
+    private BigDecimal winningBid;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser user;

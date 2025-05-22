@@ -34,6 +34,6 @@ public class Shipment {
     @Column(name="shipped_at", nullable = false, updatable = false, insertable = false)
     private Timestamp shippedAt;
 
-    @Column(name="delivered_at", nullable = false, updatable = false, insertable = false)
+    @Column(name="delivered_at", updatable = false, insertable = false)
     private Timestamp deliveredAt;
 }
