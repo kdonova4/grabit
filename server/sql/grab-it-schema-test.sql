@@ -51,6 +51,7 @@ create table product (
 	product_status varchar(50) not null check (product_status in ('ACTIVE', 'SOLD', 'REMOVED', 'EXPIRED', 'HELD')),
 	auction_end date,
 	app_user_id int not null,
+	winning_bid numeric(10, 2),
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade
 );
 
@@ -253,14 +254,15 @@ begin
 	('123 Main St', 'Springfield', 'IL', '62704', 'USA', 1),
 	('456 Elm St', 'Greenville', 'TX', '75401', 'USA', 2);
 
-	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, app_user_id) VALUES
-	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, 2),
-	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, 2),
-	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', 2);
+	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, app_user_id) VALUES
+	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, 2),
+	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, 2),
+	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, 2);
 
 	INSERT INTO product_category (product_id, category_id) VALUES
 	(1, 1),
-	(2, 2);
+	(2, 1),
+	(3, 2);
 
 	INSERT INTO bid (bid_amount, product_id, app_user_id) VALUES
 	(35.00, 2, 1),
@@ -300,5 +302,4 @@ begin
 
 end
 $$
-
 
