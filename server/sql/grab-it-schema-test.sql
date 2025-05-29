@@ -78,7 +78,7 @@ create table offer (
 	offer_amount numeric(10,2) not null,
 	sent_at timestamp default current_timestamp,
 	offer_message varchar(200),
-	expire_date timestamp not null,
+	expire_date timestamp default (current_date + interval '2 days'),
 	app_user_id int not null,
 	product_id int not null,
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade,

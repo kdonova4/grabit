@@ -3,10 +3,12 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.OrderProductRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.OrderProduct;
 import com.kdonova4.grabit.model.Product;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,6 +82,20 @@ public class OrderProductService {
 
         if(order.isEmpty()) {
             result.addMessages("ORDER MUST EXIST", ResultType.INVALID);
+        }
+
+        if(orderProduct.getQuantity() < 1) {
+            result.addMessages("QUANTITY MUST BE 1 OR GREATER", ResultType.INVALID);
+        }
+
+        if(product.get().getSaleType() == SaleType.AUCTION) {
+            if(orderProduct.getUnitPrice().compareTo(product.get().getWinningBid()) != 0) {
+                result.addMessages("UNIT PRICE IS NOT SET TO WINNING BID", ResultType.INVALID);
+            }
+        } else {
+            if(orderProduct.getUnitPrice().compareTo(product.get().getPrice()) != 0) {
+                result.addMessages("UNIT PRICE IS NOT EQUAL TO SALE PRICE", ResultType.INVALID);
+            }
         }
 
         return result;

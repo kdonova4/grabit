@@ -6,6 +6,7 @@ import com.kdonova4.grabit.model.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
@@ -15,4 +16,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     List<Review> findBySeller(AppUser seller);
 
+    List<Review> findByPostedByAndSeller(AppUser postedBy, AppUser seller);
+
+    Optional<Review> findByPostedByAndProduct(AppUser postedBy, Product product);
 }
