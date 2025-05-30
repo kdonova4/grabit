@@ -4,10 +4,11 @@ import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.model.Address;
 import com.kdonova4.grabit.model.AppUser;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
+@Service
 public class AddressService {
 
     private final AddressRepository repository;

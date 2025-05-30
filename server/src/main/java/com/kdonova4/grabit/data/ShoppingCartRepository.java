@@ -13,4 +13,6 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Inte
     List<ShoppingCart> findByUser(AppUser user);
 
     Optional<ShoppingCart> findByUserAndProduct(AppUser user, Product product);
+
+    void deleteByUser(AppUser user);
 }

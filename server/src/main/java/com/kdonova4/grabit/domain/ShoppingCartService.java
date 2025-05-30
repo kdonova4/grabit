@@ -3,6 +3,7 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.ShoppingCartRepository;
+import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
 
 import java.util.List;
@@ -50,6 +51,10 @@ public class ShoppingCartService {
         shoppingCart = repository.save(shoppingCart);
         result.setPayload(shoppingCart);
         return result;
+    }
+
+    public void deleteByUser(AppUser user) {
+        repository.deleteByUser(user);
     }
 
     public boolean deleteById(int id) {
@@ -102,6 +107,10 @@ public class ShoppingCartService {
 
         if(shoppingCart.getQuantity() > product.get().getQuantity()) {
             result.addMessages("QUANTITY CANNOT BE HIGHER THAN PRODUCT AVAILABLE", ResultType.INVALID);
+        }
+
+        if(product.get().getSaleType() == SaleType.AUCTION) {
+            result.addMessages("CANNOT ADD AUCTION ITEMS TO CART", ResultType.INVALID);
         }
 
         return result;
