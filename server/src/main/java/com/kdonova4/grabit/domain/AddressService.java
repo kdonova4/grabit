@@ -38,6 +38,11 @@ public class AddressService {
             return result;
         }
 
+        if(address.getAddressId() != 0) {
+            result.addMessages("AddressId CANNOT BE SET for 'add' operation", ResultType.INVALID);
+            return result;
+        }
+
         address = repository.save(address);
         result.setPayload(address);
         return result;

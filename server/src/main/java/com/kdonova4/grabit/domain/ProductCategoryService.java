@@ -96,6 +96,10 @@ public class ProductCategoryService {
             result.addMessages("CATEGORY MUST EXIST", ResultType.INVALID);
         }
 
+        if(repository.findByCategoryAndProduct(productCategory.getCategory(), productCategory.getProduct()).isPresent()) {
+            result.addMessages("CANNOT ADD DUPLICATE CATEGORY", ResultType.INVALID);
+        }
+
         return result;
     }
 

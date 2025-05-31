@@ -4,6 +4,7 @@ import com.kdonova4.grabit.data.CouponRepository;
 import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.model.Coupon;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,6 +81,10 @@ public class CouponService {
             result.addMessages("DISCOUNT TYPE IS REQUIRED", ResultType.INVALID);
         } else if(coupon.getDiscountType() == DiscountType.PERCENTAGE && coupon.getDiscount() > 100) {
             result.addMessages("DISCOUNT CANNOT BE GREATER THAN 100 WHEN DISCOUNT TYPE IS PERCENTAGE", ResultType.INVALID);
+        }
+
+        if(coupon.getExpireDate().isBefore(LocalDateTime.now())) {
+            result.addMessages("EXPIRE DATE MUST BE IN THE FUTURE", ResultType.INVALID);
         }
 
         if(repository.findByCouponCode(coupon.getCouponCode()).isPresent()) {

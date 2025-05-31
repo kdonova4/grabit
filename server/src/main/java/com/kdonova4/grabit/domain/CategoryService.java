@@ -36,6 +36,11 @@ public class CategoryService {
             return result;
         }
 
+        if(category.getCategoryId() != 0) {
+            result.addMessages("CategoryId CANNOT BE SET for 'add' operation", ResultType.INVALID);
+            return result;
+        }
+
         category = repository.save(category);
         result.setPayload(category);
         return result;
