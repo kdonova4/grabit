@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="product")
@@ -52,7 +53,7 @@ public class Product {
     private ProductStatus productStatus;
 
     @Column(name = "auction_end")
-    private LocalDate auctionEnd;
+    private LocalDateTime auctionEnd;
 
     @Column(name = "winning_bid")
     private BigDecimal winningBid;

@@ -87,7 +87,7 @@ public class ShipmentService {
 
         if(shipment.getTrackingNumber() == null || shipment.getTrackingNumber().isBlank()) {
             result.addMessages("TRACKING NUMBER CANNOT BE NULL OR BLANK", ResultType.INVALID);
-        } else if(shipment.getTrackingNumber().length() == 18) {
+        } else if(shipment.getTrackingNumber().length() != 18) {
             result.addMessages("TRACKING NUMBER MUST BE 18 CHARACTERS", ResultType.INVALID);
         }
 

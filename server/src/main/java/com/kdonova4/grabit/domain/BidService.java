@@ -74,32 +74,38 @@ public class BidService {
             return result;
         }
 
-        if(bid.getProduct() == null) {
-            result.addMessages("PRODUCT CANNOT BE NULL", ResultType.INVALID);
+        if(bid.getProduct() == null || bid.getProduct().getProductId() <= 0) {
+            result.addMessages("PRODUCT IS REQUIRED", ResultType.INVALID);
+            return result;
         }
 
-        if(bid.getUser() == null) {
-            result.addMessages("USER CANNOT BE NULL", ResultType.INVALID);
+        if(bid.getUser() == null || bid.getUser().getAppUserId() <= 0) {
+            result.addMessages("USER IS REQUIRED", ResultType.INVALID);
+            return result;
         }
 
-        if(bid.getUser().getAppUserId() <= 0 || appUserRepository.findById(bid.getUser().getAppUserId()).isEmpty()) {
-            result.addMessages("USER MUST EXIST", ResultType.INVALID);
-        }
+        Optional<Product> product = productRepository.findById(bid.getProduct().getProductId());
+        Optional<AppUser> appUser = appUserRepository.findById(bid.getUser().getAppUserId());
 
-        if(bid.getProduct().getProductId() <= 0 || productRepository.findById(bid.getProduct().getProductId()).isEmpty()) {
+        if(product.isEmpty()) {
             result.addMessages("PRODUCT MUST EXIST", ResultType.INVALID);
+            return result;
+        }
+
+        if(appUser.isEmpty()) {
+            result.addMessages("USER MUST EXIST", ResultType.INVALID);
+            return result;
         }
 
         if(bid.getPlacedAt() == null) {
             result.addMessages("PLACED AT CANNOT BE NULL", ResultType.INVALID);
-        }
-
-        if(bid.getPlacedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
+        } else if(bid.getPlacedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
             result.addMessages("PLACED AT MUST BE IN THE PAST", ResultType.INVALID);
         }
 
+
         if(bid.getBidAmount().compareTo(bid.getProduct().getPrice()) <= 0) {
-            result.addMessages("BID AMOUNT CANNOT BE EQUAL TO OR LLESS THAN PRICE OF PRODUCT", ResultType.INVALID);
+            result.addMessages("BID AMOUNT CANNOT BE EQUAL TO OR LESS THAN PRICE OF PRODUCT", ResultType.INVALID);
         }
 
         return result;

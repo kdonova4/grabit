@@ -80,20 +80,27 @@ public class OfferService {
             return result;
         }
 
-        if(offer.getProduct() == null) {
-            result.addMessages("PRODUCT CANNOT BE NULL", ResultType.INVALID);
+        if(offer.getProduct() == null || offer.getProduct().getProductId() <= 0) {
+            result.addMessages("PRODUCT IS REQUIRED", ResultType.INVALID);
+            return result;
         }
 
-        if(offer.getUser() == null) {
-            result.addMessages("USER CANNOT BE NULL", ResultType.INVALID);
+        if(offer.getUser() == null || offer.getUser().getAppUserId() <= 0) {
+            result.addMessages("USER IS REQUIRED", ResultType.INVALID);
+            return result;
         }
 
-        if(offer.getUser().getAppUserId() <= 0 || appUserRepository.findById(offer.getUser().getAppUserId()).isEmpty()) {
-            result.addMessages("USER MUST EXIST", ResultType.INVALID);
-        }
+        Optional<Product> product = productRepository.findById(offer.getProduct().getProductId());
+        Optional<AppUser> appUser = appUserRepository.findById(offer.getUser().getAppUserId());
 
-        if(offer.getProduct().getProductId() <= 0 || productRepository.findById(offer.getProduct().getProductId()).isEmpty()) {
+        if(product.isEmpty()) {
             result.addMessages("PRODUCT MUST EXIST", ResultType.INVALID);
+            return result;
+        }
+
+        if(appUser.isEmpty()) {
+            result.addMessages("USER MUST EXIST", ResultType.INVALID);
+            return result;
         }
 
         Optional<Product> productOpt = productRepository.findById(offer.getProduct().getProductId());
@@ -103,6 +110,7 @@ public class OfferService {
 
         if(offer.getSentAt() == null) {
             result.addMessages("SENT AT CANNOT BE NULL", ResultType.INVALID);
+            return result;
         }
 
         if(offer.getSentAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
