@@ -14,8 +14,6 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository repository;
-    private final ProductRepository productRepository;
-    private final ShoppingCartRepository shoppingCartRepository;
     private final AddressRepository addressRepository;
     private final AppUserRepository appUserRepository;
     private final OrderProductRepository orderProductRepository;
@@ -25,10 +23,8 @@ public class OrderService {
     private final ShoppingCartService shoppingCartService;
     private final ProductService productService;
 
-    public OrderService(OrderRepository repository, ProductRepository productRepository, ShoppingCartRepository shoppingCartRepository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductRepository orderProductRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
+    public OrderService(OrderRepository repository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductRepository orderProductRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
         this.repository = repository;
-        this.productRepository = productRepository;
-        this.shoppingCartRepository = shoppingCartRepository;
         this.addressRepository = addressRepository;
         this.appUserRepository = appUserRepository;
         this.orderProductRepository = orderProductRepository;
