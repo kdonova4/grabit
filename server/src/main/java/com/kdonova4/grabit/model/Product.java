@@ -61,4 +61,19 @@ public class Product {
     @ManyToOne(optional = false)
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser user;
+
+    public Product(Product source) {
+        this.productId = source.getProductId();
+        this.postedAt = source.getPostedAt();
+        this.saleType = source.getSaleType();
+        this.productName = source.getProductName();
+        this.description = source.getDescription();
+        this.price = source.getPrice();
+        this.condition = source.getCondition();
+        this.quantity = source.getQuantity();
+        this.productStatus = source.getProductStatus();
+        this.auctionEnd = source.getAuctionEnd();
+        this.winningBid = source.getWinningBid();
+        this.user = source.getUser();
+    }
 }

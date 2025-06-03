@@ -1,6 +1,7 @@
 package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.AppUserRepository;
+import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository repository;
     private final AppUserRepository appUserRepository;
+    private final BidRepository bidRepository;
 
-    public ProductService(ProductRepository repository, AppUserRepository appUserRepository) {
+    public ProductService(ProductRepository repository, AppUserRepository appUserRepository, BidRepository bidRepository) {
         this.repository = repository;
         this.appUserRepository = appUserRepository;
+        this.bidRepository = bidRepository;
     }
 
     public List<Product> findAll() {
@@ -88,7 +91,7 @@ public class ProductService {
     }
 
     public boolean deleteById(int id) {
-        if(repository.findById(id).isPresent() && repository.findById(id).get().getProductStatus() == ProductStatus.ACTIVE) {
+        if(repository.findById(id).isPresent() && repository.findById(id).get().getProductStatus() != ProductStatus.SOLD) {
             repository.deleteById(id);
             return true;
         } else {
@@ -145,6 +148,23 @@ public class ProductService {
 
         if(product.getQuantity() <= 0) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
+        }
+
+        if(product.getSaleType() == SaleType.AUCTION && product.getQuantity() != 1) {
+            result.addMessages("PRODUCTS THAT ARE AUCTIONS MUST HAVE A QUANTITY OF ONE", ResultType.INVALID);
+        }
+
+        if(product.getCondition() == null) {
+            result.addMessages("CONDITION IS REQUIRED", ResultType.INVALID);
+        }
+
+        if(product.getProductId() != 0) {
+            if(!bidRepository.findByProduct(product).isEmpty()) {
+                result.addMessages("CANNOT UPDATE PRODUCT THAT HAS ACTIVE BIDS", ResultType.INVALID);
+            }
+            if(product.getProductStatus() != ProductStatus.ACTIVE) {
+                result.addMessages("CANNOT UPDATE PRODUCT THAT IS NOT ACTIVE", ResultType.INVALID);
+            }
         }
 
         return result;

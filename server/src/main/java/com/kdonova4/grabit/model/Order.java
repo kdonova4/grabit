@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,4 +47,15 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
+
+    public Order(Order source) {
+        this.orderId = source.getOrderId();
+        this.user = source.getUser();
+        this.shippingAddress = source.getShippingAddress();
+        this.billingAddress = source.getBillingAddress();
+        this.orderedAt = source.getOrderedAt();
+        this.totalAmount = source.getTotalAmount();
+        this.orderStatus = source.getOrderStatus();
+        this.orderProducts = new ArrayList<>(source.getOrderProducts());
+    }
 }

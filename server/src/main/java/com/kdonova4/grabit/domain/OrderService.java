@@ -2,12 +2,14 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.enums.OrderStatus;
+import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,14 +99,9 @@ public class OrderService {
         Payment payment = checkout.getPayment();
         payment.setOrder(order);
 
-        Result<Shipment> shipmentResult = shipmentService.create(shipment);
-        if(!shipmentResult.isSuccess()) {
-            result.addMessages(shipmentResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
-
 
         List<ShoppingCart> cartList = checkout.getCartItems();
+        List<OrderProduct> orderProducts = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
         for(ShoppingCart item : cartList) {
             if(item.getProduct().getQuantity() < item.getQuantity()) {
@@ -112,16 +109,43 @@ public class OrderService {
                 return result;
             }
 
-            OrderProduct op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice(), null);
+            OrderProduct op = getOrderProduct(item, order);
+            orderProducts.add(op);
+
+            total = total.add(op.getUnitPrice().multiply(BigDecimal.valueOf(op.getQuantity())));
+        }
+
+        order.setTotalAmount(total);
+        payment.setAmountPaid(total);
+
+        result = validate(order);
+        Result<Order> totalResult = validateAmounts(order, orderProducts);
+        if(!result.isSuccess() || !totalResult.isSuccess()) {
+            result.addMessages(totalResult.getMessages().toString(), ResultType.INVALID);
+            return result;
+        }
+
+        order = repository.save(order);
+
+        Result<Shipment> shipmentResult = shipmentService.create(shipment);
+        if(!shipmentResult.isSuccess()) {
+            result.addMessages(shipmentResult.getMessages().toString(), ResultType.INVALID);
+            return result;
+        }
+
+        Result<Payment> paymentResult = paymentService.create(payment);
+
+        if(!paymentResult.isSuccess()) {
+            result.addMessages(paymentResult.getMessages().toString(), ResultType.INVALID);
+            return result;
+        }
+
+        for(OrderProduct op : orderProducts) {
             Result<OrderProduct> orderProductResult = orderProductService.create(op);
-
-
             if(!orderProductResult.isSuccess()) {
                 result.addMessages(orderProductResult.getMessages().toString(), ResultType.INVALID);
                 return result;
             }
-
-            total = total.add(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
         shoppingCartService.deleteByUser(order.getUser());
@@ -133,21 +157,43 @@ public class OrderService {
             productService.update(product);
         }
 
-        order.setTotalAmount(total);
-        payment.setAmountPaid(total);
-
-        order = repository.save(order);
-
-        Result<Payment> paymentResult = paymentService.create(payment);
-
-        if(!paymentResult.isSuccess()) {
-            result.addMessages(paymentResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
-
         result.setPayload(order);
 
         return result;
+    }
+
+    public Result<Order> update(Order order) {
+        Result<Order> result = validate(order);
+
+        if(!result.isSuccess()) {
+            return result;
+        }
+
+        if(order.getOrderId() <= 0) {
+            result.addMessages("ORDER ID MUST BE SET", ResultType.INVALID);
+            return result;
+        }
+
+        Optional<Order> oldOrder = repository.findById(order.getOrderId());
+        if(oldOrder.isPresent()) {
+            repository.save(order);
+            return result;
+        } else {
+            result.addMessages("ORDER " + order.getOrderId() + " NOT FOUND", ResultType.NOT_FOUND);
+            return result;        }
+    }
+
+    private static OrderProduct getOrderProduct(ShoppingCart item, Order order) {
+        BigDecimal unitPrice = item.getProduct().getPrice();
+        BigDecimal subTotal = new BigDecimal(item.getQuantity()).multiply(unitPrice);
+
+        OrderProduct op;
+        if(item.getProduct().getSaleType() == SaleType.BUY_NOW) {
+            op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice(), subTotal);
+        } else {
+            op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getWinningBid(), item.getProduct().getWinningBid());
+        }
+        return op;
     }
 
     private void finalizeOrder(Order order, List<ShoppingCart> items) {
@@ -164,6 +210,16 @@ public class OrderService {
 
         if(order.getUser() == null || order.getUser().getAppUserId() <= 0) {
             result.addMessages("USER IS REQUIRED", ResultType.INVALID);
+            return result;
+        }
+
+        if(order.getShippingAddress() == null || order.getShippingAddress().getAddressId() <= 0) {
+            result.addMessages("SHIPPING ADDRESS IS REQUIRED", ResultType.INVALID);
+            return result;
+        }
+
+        if(order.getBillingAddress() == null || order.getBillingAddress().getAddressId() <= 0) {
+            result.addMessages("BILLING ADDRESS IS REQUIRED", ResultType.INVALID);
             return result;
         }
 
@@ -196,17 +252,24 @@ public class OrderService {
 
         // totalAmount must be equal to the orderProducts totals combined
         if(order.getOrderId() != 0) {
-            List<OrderProduct> orderProducts = orderProductRepository.findByOrder(order);
-            BigDecimal total = BigDecimal.ZERO;;
-            for(OrderProduct op : orderProducts) {
-                total = total.add(op.getSubTotal());
-            }
 
-            if(order.getTotalAmount().compareTo(total) != 0) {
-                result.addMessages("ORDER TOTAL INVALID, DOES NOT ADD UP TO TOTAL FROM PRODUCTS IN ORDER", ResultType.INVALID);
-            }
         }
 
+
+        return result;
+    }
+
+
+    private Result<Order> validateAmounts(Order order, List<OrderProduct> orderProducts) {
+        Result<Order> result = new Result<>();
+        BigDecimal total = BigDecimal.ZERO;
+        for(OrderProduct op : orderProducts) {
+            total = total.add(op.getSubTotal());
+        }
+
+        if(order.getTotalAmount().compareTo(total) != 0) {
+            result.addMessages("ORDER TOTAL INVALID, DOES NOT ADD UP TO TOTAL FROM PRODUCTS IN ORDER", ResultType.INVALID);
+        }
 
         return result;
     }
