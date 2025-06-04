@@ -99,6 +99,8 @@ public class ProductService {
         }
     }
 
+
+
     private Result<Product> validate(Product product) {
         Result<Product> result = new Result<>();
 

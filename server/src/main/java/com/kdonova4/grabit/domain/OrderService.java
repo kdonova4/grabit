@@ -18,18 +18,16 @@ public class OrderService {
     private final OrderRepository repository;
     private final AddressRepository addressRepository;
     private final AppUserRepository appUserRepository;
-    private final OrderProductRepository orderProductRepository;
     private final OrderProductService orderProductService;
     private final ShipmentService shipmentService;
     private final PaymentService paymentService;
     private final ShoppingCartService shoppingCartService;
     private final ProductService productService;
 
-    public OrderService(OrderRepository repository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductRepository orderProductRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
+    public OrderService(OrderRepository repository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
         this.repository = repository;
         this.addressRepository = addressRepository;
         this.appUserRepository = appUserRepository;
-        this.orderProductRepository = orderProductRepository;
         this.orderProductService = orderProductService;
         this.shipmentService = shipmentService;
         this.paymentService = paymentService;
@@ -93,27 +91,22 @@ public class OrderService {
 
         order = repository.save(order);
 
+        // setup shipment
         Shipment shipment = checkout.getShipment();
-        shipment.setOrder(order);
-
         Payment payment = checkout.getPayment();
+        List<ShoppingCart> cartList = checkout.getCartItems();
+
+        shipment.setOrder(order);
         payment.setOrder(order);
 
-
-        List<ShoppingCart> cartList = checkout.getCartItems();
         List<OrderProduct> orderProducts = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
-        for(ShoppingCart item : cartList) {
-            if(item.getProduct().getQuantity() < item.getQuantity()) {
-                result.addMessages("Product " + item.getProduct().getProductName() + " is out of stock", ResultType.INVALID);
-                return result;
-            }
 
-            OrderProduct op = getOrderProduct(item, order);
-            orderProducts.add(op);
+        Result<Order> stockResult = validateStock(cartList);
+        if(!stockResult.isSuccess())
+            return stockResult;
 
-            total = total.add(op.getUnitPrice().multiply(BigDecimal.valueOf(op.getQuantity())));
-        }
+        total = setupOrderProducts(cartList, order, orderProducts, total);
 
         order.setTotalAmount(total);
         payment.setAmountPaid(total);
@@ -127,39 +120,24 @@ public class OrderService {
 
         order = repository.save(order);
 
-        Result<Shipment> shipmentResult = shipmentService.create(shipment);
-        if(!shipmentResult.isSuccess()) {
-            result.addMessages(shipmentResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
 
-        Result<Payment> paymentResult = paymentService.create(payment);
+        Result<Order> finalizeResult = finalizeOrder(order, shipment, payment, orderProducts, cartList);
 
-        if(!paymentResult.isSuccess()) {
-            result.addMessages(paymentResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
-
-        for(OrderProduct op : orderProducts) {
-            Result<OrderProduct> orderProductResult = orderProductService.create(op);
-            if(!orderProductResult.isSuccess()) {
-                result.addMessages(orderProductResult.getMessages().toString(), ResultType.INVALID);
-                return result;
-            }
-        }
-
-        shoppingCartService.deleteByUser(order.getUser());
-
-        for(ShoppingCart item : cartList) {
-            Product product = item.getProduct();
-
-            product.setQuantity(product.getQuantity() - item.getQuantity());
-            productService.update(product);
-        }
+        if (!finalizeResult.isSuccess())
+            return finalizeResult;
 
         result.setPayload(order);
-
         return result;
+    }
+
+    private static BigDecimal setupOrderProducts(List<ShoppingCart> cartList, Order order, List<OrderProduct> orderProducts, BigDecimal total) {
+        for(ShoppingCart item : cartList) {
+            OrderProduct op = getOrderProduct(item, order);
+            orderProducts.add(op);
+
+            total = total.add(op.getUnitPrice().multiply(BigDecimal.valueOf(op.getQuantity())));
+        }
+        return total;
     }
 
     public Result<Order> update(Order order) {
@@ -196,11 +174,55 @@ public class OrderService {
         return op;
     }
 
-    private void finalizeOrder(Order order, List<ShoppingCart> items) {
+    private Result<Order> finalizeOrder(Order order, Shipment shipment, Payment payment, List<OrderProduct> orderProducts, List<ShoppingCart> cartList) {
+        Result<Order> result = new Result<>();
 
+        Result<Shipment> shipmentResult = shipmentService.create(shipment);
+        if(!shipmentResult.isSuccess()) {
+            result.addMessages(shipmentResult.getMessages().toString(), ResultType.INVALID);
+            return result;
+        }
+
+        Result<Payment> paymentResult = paymentService.create(payment);
+
+        if(!paymentResult.isSuccess()) {
+            result.addMessages(paymentResult.getMessages().toString(), ResultType.INVALID);
+            return result;
+        }
+
+        for(OrderProduct op : orderProducts) {
+            Result<OrderProduct> orderProductResult = orderProductService.create(op);
+            if(!orderProductResult.isSuccess()) {
+                result.addMessages(orderProductResult.getMessages().toString(), ResultType.INVALID);
+                return result;
+            }
+        }
+
+        shoppingCartService.deleteByUser(order.getUser());
+
+        for(ShoppingCart item : cartList) {
+            Product product = item.getProduct();
+
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productService.update(product);
+        }
+
+        return result;
+    }
+    
+    private Result<Order> validateStock(List<ShoppingCart> cartList) {
+        Result<Order> result = new Result<>();
+        for(ShoppingCart item : cartList) {
+            if(item.getProduct().getQuantity() < item.getQuantity()) {
+                result.addMessages("Product " + item.getProduct().getProductName() + " is out of stock", ResultType.INVALID);
+                return result;
+            }
+        }
+        
+        return result;
     }
 
-    private Result<Order> validate(Order order) {
+    Result<Order> validate(Order order) {
         Result<Order> result = new Result<>();
 
         if(order == null) {
@@ -260,7 +282,7 @@ public class OrderService {
     }
 
 
-    private Result<Order> validateAmounts(Order order, List<OrderProduct> orderProducts) {
+    Result<Order> validateAmounts(Order order, List<OrderProduct> orderProducts) {
         Result<Order> result = new Result<>();
         BigDecimal total = BigDecimal.ZERO;
         for(OrderProduct op : orderProducts) {

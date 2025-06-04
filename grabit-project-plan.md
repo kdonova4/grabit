@@ -2,7 +2,7 @@
 
 ## High-Level Overview
 
-This web app will serve as a place where users can be buyers or sellers, or both. They will be able to bid on items, buy items, make offers. They can also list their own items and monitor them, select and respond to offers, see bids on their items in real time. Users can wishlist items, apply coupon codes, browse by category and location, dicover items listed near them. 
+This web app will serve as a place where users can be buyers or sellers, or both. They will be able to bid on items, buy items, make offers. They can also list their own items and monitor them, select and respond to offers, see bids on their items in real time. Users can wishlist items, apply coupon codes, browse by category. 
 
 ## Technologies
 - **Backend**
