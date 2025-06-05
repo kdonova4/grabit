@@ -1,6 +1,7 @@
 package com.kdonova4.grabit.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.security.core.userdetails.User;
 
@@ -23,6 +24,7 @@ public class AppUser {
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
+
 
     @Column(nullable = false, unique = true, length = 254)
     private String email;
