@@ -36,7 +36,7 @@ public class AppUserService implements UserDetailsService {
 
     private final Map<String, Integer> verificationCodes = new ConcurrentHashMap<>();
 
-    public Optional<AppUser> getUserById(int id) {
+    public Optional<AppUser> findUserById(int id) {
         return repository.findById(id);
     }
 

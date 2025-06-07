@@ -15,8 +15,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class AppUser {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "app_user_id")
@@ -54,5 +52,14 @@ public class AppUser {
     @Override
     public int hashCode() {
         return Objects.hash(appUserId);
+    }
+
+    public AppUser(AppUser source) {
+        this.appUserId = source.getAppUserId();
+        this.username = source.getUsername();
+        this.email = source.getEmail();
+        this.password = source.getPassword();
+        this.disabled = source.isDisabled();
+        this.roles = source.getRoles();
     }
 }
