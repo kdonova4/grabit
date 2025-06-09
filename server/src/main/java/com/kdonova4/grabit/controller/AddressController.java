@@ -1,12 +1,14 @@
 package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.AddressService;
+import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.model.Address;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,5 +68,32 @@ public class AddressController {
         return ResponseEntity.ok(address.get());
     }
 
+    @PostMapping
+    @Operation(summary = "Add An Address")
+    public ResponseEntity<Object> create(@RequestBody Address address) {
+        Result<Address> result = service.create(address);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{addressId}")
+    @Operation(summary = "Updates An Address")
+    public ResponseEntity<Object> update(@PathVariable int addressId, @RequestBody Address address) {
+        if(addressId != address.getAddressId()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        Result<Address> result = service.update(address);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return new ResponseEntity<>(result.getPayload(), HttpStatus.NO_CONTENT);
+    }
 
 }
