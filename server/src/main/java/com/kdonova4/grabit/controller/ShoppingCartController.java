@@ -1,13 +1,17 @@
 package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.ProductService;
+import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.ShoppingCartService;
 import com.kdonova4.grabit.model.AppUser;
+import com.kdonova4.grabit.model.Image;
+import com.kdonova4.grabit.model.Product;
 import com.kdonova4.grabit.model.ShoppingCart;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,5 +55,55 @@ public class ShoppingCartController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/user/{userId}/product/{productId}")
+    @Operation(summary = "Finds Shopping Cart Items By User And Product")
+    public ResponseEntity<ShoppingCart> findByUserProduct(@PathVariable int userId, @PathVariable int productId) {
+        Optional<AppUser> appUser = appUserService.findUserById(userId);
+        Optional<Product> product = productService.findById(productId);
+
+        if(appUser.isEmpty() || product.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<ShoppingCart> shoppingCart = service.findByUserAndProduct(appUser.get(), product.get());
+
+        if(shoppingCart.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(shoppingCart.get());
+    }
+
+    @GetMapping("/{cartId}")
+    @Operation(summary = "Finds A Cart Item By ID")
+    public ResponseEntity<ShoppingCart> findById(@PathVariable int cartId) {
+        Optional<ShoppingCart> cart = service.findById(cartId);
+
+        if(cart.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(cart.get());
+    }
+
+    @PostMapping
+    @Operation(summary = "Creates A ShoppingCart Item")
+    public ResponseEntity<Object> create(@RequestBody ShoppingCart shoppingCart) {
+        Result<ShoppingCart> result = service.create(shoppingCart);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{cartId}")
+    @Operation(summary = "Deletes A Cart Item")
+    public ResponseEntity<Object> deleteById(@PathVariable int cartId) {
+        service.deleteById(cartId);
+        return ResponseEntity.noContent().build();
     }
 }
