@@ -5,12 +5,14 @@ import com.kdonova4.grabit.data.ShipmentRepository;
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Shipment;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ShipmentService {
 
     private final ShipmentRepository repository;

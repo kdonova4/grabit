@@ -6,10 +6,12 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.model.Category;
 import com.kdonova4.grabit.model.Product;
 import com.kdonova4.grabit.model.ProductCategory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ProductCategoryService {
 
     private final ProductCategoryRepository repository;

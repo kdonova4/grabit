@@ -7,12 +7,14 @@ import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Offer;
 import com.kdonova4.grabit.model.Product;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class OfferService {
     private final OfferRepository repository;
     private final AppUserRepository appUserRepository;

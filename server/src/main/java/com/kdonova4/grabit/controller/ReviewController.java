@@ -71,7 +71,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("seller/{{sellerId}")
+    @GetMapping("seller/{sellerId}")
     @Operation(summary = "Finds Reviews For Seller")
     public ResponseEntity<List<Review>> findBySeller(@PathVariable int sellerId) {
         Optional<AppUser> appUser = appUserService.findUserById(sellerId);

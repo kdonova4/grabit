@@ -7,10 +7,12 @@ import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Product;
 import com.kdonova4.grabit.model.ShoppingCart;
 import com.kdonova4.grabit.model.Watchlist;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class WatchlistService {
 
     private final WatchlistRepository repository;

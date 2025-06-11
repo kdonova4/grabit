@@ -5,10 +5,12 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.ShoppingCartRepository;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ShoppingCartService {
 
     private final ShoppingCartRepository repository;

@@ -48,9 +48,10 @@ create table product (
 	price numeric(10,2) not null,
 	product_condition varchar(50) not null check (product_condition in ('NEW', 'GOOD', 'EXCELLENT', 'FAIR', 'USED', 'REFURBISHED', 'DAMAGED')),
 	quantity int not null,
-	product_status varchar(50) not null check (product_status in ('ACTIVE', 'SOLD', 'REMOVED', 'EXPIRED', 'HELD')),
+	product_status varchar(50) not null DEFAULT 'ACTIVE' check (product_status in ('ACTIVE', 'SOLD', 'REMOVED', 'EXPIRED', 'HELD')),
 	auction_end date,
 	app_user_id int not null,
+	winning_bid numeric(10, 2),
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade
 );
 
@@ -77,7 +78,7 @@ create table offer (
 	offer_amount numeric(10,2) not null,
 	sent_at timestamp default current_timestamp,
 	offer_message varchar(200),
-	expire_date timestamp not null,
+	expire_date timestamp default (current_date + interval '2 days'),
 	app_user_id int not null,
 	product_id int not null,
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade,
@@ -91,7 +92,7 @@ create table purchase_order (
 	shipping_address_id int not null,
 	billing_address_id int not null,
 	total_amount numeric(10,2) not null,
-	order_status varchar(50) not null check (order_status in ('PENDING', 'SUCCESS', 'FAILED')),
+	order_status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (order_status IN ('PENDING', 'SUCCESS', 'FAILED')),
 	foreign key (app_user_id) references app_user(app_user_id),
 	foreign key (shipping_address_id) references address(address_id),
 	foreign key (billing_address_id) references address(address_id)
@@ -173,3 +174,4 @@ create table image (
 	product_id int not null,
 	foreign key (product_id) references product(product_id) on delete cascade
 );
+

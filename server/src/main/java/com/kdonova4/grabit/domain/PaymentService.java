@@ -4,6 +4,7 @@ import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.PaymentRepository;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Payment;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class PaymentService {
     private final PaymentRepository repository;
     private final OrderRepository orderRepository;
