@@ -7,11 +7,13 @@ import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.OrderProduct;
 import com.kdonova4.grabit.model.Product;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class OrderProductService {
     private final OrderProductRepository repository;
     private final ProductRepository productRepository;

@@ -4,6 +4,7 @@ import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class OrderService {
 
     private final OrderRepository repository;

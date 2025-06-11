@@ -12,11 +12,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Service
 public class AppUserService implements UserDetailsService {
     private final AppUserRepository repository;
     private final AppRoleRepository appRoleRepository;
@@ -33,6 +35,10 @@ public class AppUserService implements UserDetailsService {
     }
 
     private final Map<String, Integer> verificationCodes = new ConcurrentHashMap<>();
+
+    public Optional<AppUser> findUserById(int id) {
+        return repository.findById(id);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,6 +57,8 @@ public class AppUserService implements UserDetailsService {
         validatePassword(password);
         validateEmail(email);
 
+        password = passwordEncoder.encode(password);
+
         Set<AppRole> userRoles = roles.stream()
                 .map(roleName -> appRoleRepository.findByRoleName(roleName)
                         .orElseThrow(() -> new IllegalArgumentException("Role Not Found: " + roleName)))
@@ -62,10 +70,31 @@ public class AppUserService implements UserDetailsService {
 
         int code = new Random().nextInt(900000) + 100000;
 
-        verificationCodes.put(email, code);
-        emailService.sendConfirmationEmail(email, code);
+        try {
+            emailService.sendConfirmationEmail(email, code);
+            verificationCodes.put(email, code);
+            return repository.save(appUser);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failure to send confirmation email");
+        }
 
-        return repository.save(appUser);
+    }
+
+    public AppUser addSellerRole(AppUser user) {
+        if(addressRepository.findAddressByUser(user).isEmpty()) {
+            throw new ValidationException("User needs one Address associated with thier account to register as seller");
+        }
+
+
+
+        AppRole appRole = appRoleRepository.findByRoleName("SELLER").orElseThrow(() -> new ValidationException("Seller role DOES NOT EXIST"));
+
+
+        Set<AppRole> newRoles = new HashSet<>(user.getRoles());
+        newRoles.add(appRole);
+        user.setRoles(newRoles);
+
+        return repository.save(user);
     }
 
     public boolean validateCode(String email, int code) {

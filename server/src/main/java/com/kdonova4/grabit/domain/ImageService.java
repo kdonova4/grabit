@@ -4,10 +4,12 @@ import com.kdonova4.grabit.data.ImageRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.model.Image;
 import com.kdonova4.grabit.model.Product;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ImageService {
 
     private final ImageRepository repository;

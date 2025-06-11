@@ -3,11 +3,13 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.CouponRepository;
 import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.model.Coupon;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class CouponService {
 
     private final CouponRepository repository;
