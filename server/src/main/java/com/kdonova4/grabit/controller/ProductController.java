@@ -25,8 +25,8 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000"})
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Bid Controller", description = "Bid Operations")
-@RequestMapping("/api/v1/bids")
+@Tag(name = "Product Controller", description = "Product Operations")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService service;

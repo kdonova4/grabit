@@ -67,7 +67,7 @@ public class PaymentController {
     }
 
     @GetMapping("amount/less-than/{amount}")
-    @Operation(summary = "Finds Payments That Are Greater Than Amount")
+    @Operation(summary = "Finds Payments That Are Less Than Amount")
     public ResponseEntity<List<Payment>> findByAmountPaidLessThan(@PathVariable BigDecimal amount) {
         List<Payment> payments = service.findByAmountPaidLessThan(amount);
 

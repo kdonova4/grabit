@@ -164,6 +164,10 @@ public class AppUserService implements UserDetailsService {
         if(!email.contains("@") || !email.contains(".")) {
             throw new ValidationException("Email appears to be invalid");
         }
+
+        if(repository.findByEmail(email).isPresent()) {
+            throw new ValidationException("Email Already In Use");
+        }
     }
 
 }
