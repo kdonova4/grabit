@@ -16,6 +16,8 @@ public interface AppUserRepository extends JpaRepository<AppUser, Integer> {
 
     Optional<AppUser> findByEmail(String Email);
 
+    Optional<AppUser> findByUsernameAndEmailAndPassword(String username, String email, String password);
+
     @Query("SELECT u FROM AppUser u JOIN FETCH u.roles WHERE u.id = :id")
     Optional<AppUser> findByIdWithRoles(@Param("id") Integer id);
 
