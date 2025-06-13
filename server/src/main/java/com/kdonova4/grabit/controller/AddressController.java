@@ -35,10 +35,6 @@ public class AddressController {
     public ResponseEntity<List<Address>> findAll() {
         List<Address> addresses = service.findAll();
 
-        if(addresses.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(addresses);
     }
 
@@ -93,7 +89,7 @@ public class AddressController {
             return ErrorResponse.build(result);
         }
 
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

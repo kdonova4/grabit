@@ -37,7 +37,7 @@ public class CouponController {
         return ResponseEntity.ok(coupons);
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/coupon/{code}")
     @Operation(summary = "Finds A Coupon Using The Code Associated With The Coupon")
     public ResponseEntity<Coupon> findByCouponCode(@PathVariable String code) {
         Optional<Coupon> coupon = service.findByCouponCode(code);

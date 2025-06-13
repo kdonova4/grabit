@@ -4,14 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.data.CategoryRepository;
+import com.kdonova4.grabit.data.CouponRepository;
+import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.model.AppRole;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Category;
+import com.kdonova4.grabit.model.Coupon;
 import com.kdonova4.grabit.security.JwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,24 +20,23 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.postgresql.hostchooser.HostRequirement.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CategoryControllerTest {
+public class CouponControllerTest {
 
     @MockBean
-    CategoryRepository repository;
+    CouponRepository repository;
 
     @MockBean
     AppUserRepository appUserRepository;
@@ -67,42 +67,90 @@ public class CategoryControllerTest {
 
     @Test
     void findAllShouldReturn200() throws Exception {
-        var request = get("/api/v1/categories");
+        var request = get("/api/v1/coupons");
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
     }
 
     @Test
-    void findByIdShouldReturn404WhenIdNotFound() throws Exception {
-        when(repository.findById(1)).thenReturn(Optional.empty());
+    void findByCouponCodeShouldReturn200() throws Exception {
+        Coupon coupon = new Coupon(1, "savesavesavern10", 15, DiscountType.PERCENTAGE, LocalDateTime.now().plusDays(7), true);
 
-        var request = get("/api/v1/categories/1");
+        when(repository.findByCouponCode(coupon.getCouponCode())).thenReturn(Optional.of(coupon));
+
+        String couponJson = jsonMapper.writeValueAsString(coupon);
+
+        var request = get("/api/v1/coupons/coupon/savesavesavern10");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(couponJson));
+
+    }
+
+    @Test
+    void findByMissingCouponCodeShouldReturn404() throws Exception {
+
+        when(repository.findByCouponCode("savesavesavern10")).thenReturn(Optional.empty());
+
+
+        var request = get("/api/v1/coupons/coupon/savesavesavern10");
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void createShouldReturn400WhenEmpty() throws Exception {
-        var request = post("/api/v1/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token);
+    void findByIsActiveShouldReturn200() throws Exception {
+        Coupon coupon = new Coupon(1, "savesavesavern10", 15, DiscountType.PERCENTAGE, LocalDateTime.now().plusDays(7), true);
+
+        when(repository.findByIsActive(coupon.isActive())).thenReturn(List.of(coupon));
+
+        String couponJson = jsonMapper.writeValueAsString(List.of(coupon));
+
+        var request = get("/api/v1/coupons/active/" + coupon.isActive());
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(content().json(couponJson));
+    }
+
+    @Test
+    void findByIdShouldReturn200WhenIdFound() throws Exception {
+        Coupon coupon = new Coupon(1, "savesavesavern10", 15, DiscountType.PERCENTAGE, LocalDateTime.now().plusDays(7), true);
+
+        when(repository.findById(1)).thenReturn(Optional.of(coupon));
+
+        String couponJson = jsonMapper.writeValueAsString(coupon);
+
+        var request = get("/api/v1/coupons/1");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(couponJson));
+    }
+
+    @Test
+    void findByIdShouldReturn404WhenIdNotFound() throws Exception {
+        when(repository.findById(1)).thenReturn(Optional.empty());
+
+        var request = get("/api/v1/coupons/1");
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void createShouldReturn400WhenInvalid() throws Exception {
-        Category category = new Category();
+        Coupon coupon = new Coupon();
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        String couponJson = jsonMapper.writeValueAsString(coupon);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/coupons")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(couponJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
@@ -110,14 +158,14 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn415WhenMultipart() throws Exception {
-        Category category = new Category();
+        Coupon coupon = new Coupon();
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        String couponJson = jsonMapper.writeValueAsString(coupon);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/coupons")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(couponJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isUnsupportedMediaType());
@@ -125,18 +173,18 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Category category = new Category(0, "Test");
-        Category expected = new Category(1, "Test");
+        Coupon coupon = new Coupon(0, "savesavesavern10", 15, DiscountType.PERCENTAGE, LocalDateTime.now().plusDays(7), true);
+        Coupon expected = new Coupon(1, "savesavesavern10", 15, DiscountType.PERCENTAGE, LocalDateTime.now().plusDays(7), true);
 
-        when(repository.save(any(Category.class))).thenReturn(expected);
+        when(repository.save(any(Coupon.class))).thenReturn(expected);
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        String couponJson = jsonMapper.writeValueAsString(coupon);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/coupons")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(couponJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated())
@@ -147,7 +195,7 @@ public class CategoryControllerTest {
     void deleteShouldReturn204NoContent() throws Exception {
         doNothing().when(repository).deleteById(1);
 
-        var request = delete("/api/v1/categories/1")
+        var request = delete("/api/v1/coupons/1")
                 .header("Authorization", "Bearer " + token);
 
 

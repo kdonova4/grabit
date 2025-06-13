@@ -85,7 +85,10 @@ public class CouponService {
             result.addMessages("DISCOUNT CANNOT BE GREATER THAN 100 WHEN DISCOUNT TYPE IS PERCENTAGE", ResultType.INVALID);
         }
 
-        if(coupon.getExpireDate().isBefore(LocalDateTime.now())) {
+
+        if(coupon.getExpireDate() == null) {
+            result.addMessages("EXPIRE DATE IS REQUIRED", ResultType.INVALID);
+        } else if(coupon.getExpireDate().isBefore(LocalDateTime.now())) {
             result.addMessages("EXPIRE DATE MUST BE IN THE FUTURE", ResultType.INVALID);
         }
 
