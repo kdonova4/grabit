@@ -3,15 +3,13 @@ package com.kdonova4.grabit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.data.CategoryRepository;
-import com.kdonova4.grabit.model.AppRole;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Category;
+import com.kdonova4.grabit.enums.DiscountType;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.JwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,24 +17,24 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.postgresql.hostchooser.HostRequirement.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CategoryControllerTest {
+public class AddressControllerTest {
 
     @MockBean
-    CategoryRepository repository;
+    AddressRepository repository;
 
     @MockBean
     AppUserRepository appUserRepository;
@@ -67,17 +65,54 @@ public class CategoryControllerTest {
 
     @Test
     void findAllShouldReturn200() throws Exception {
-        var request = get("/api/v1/categories");
+        var request = get("/api/v1/addresses");
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
     }
 
     @Test
+    void findByUserShouldReturn200IfFound() throws Exception {
+        var request = get("/api/v1/addresses/user/1");
+        Address address = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
+
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(repository.findAddressByUser(any(AppUser.class))).thenReturn(List.of(address));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findByUserShouldReturn404IfNotFound() throws Exception {
+        var request = get("/api/v1/addresses/user/1");
+
+        when(appUserRepository.findById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void findByIdShouldReturn200WhenIdFound() throws Exception {
+        Address address = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
+
+        when(repository.findById(1)).thenReturn(Optional.of(address));
+
+        String addressJson = jsonMapper.writeValueAsString(address);
+
+        var request = get("/api/v1/addresses/1");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(addressJson));
+    }
+
+    @Test
     void findByIdShouldReturn404WhenIdNotFound() throws Exception {
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        var request = get("/api/v1/categories/1");
+        var request = get("/api/v1/addresses/1");
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
@@ -85,7 +120,7 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn400WhenEmpty() throws Exception {
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token);
 
@@ -95,14 +130,14 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn400WhenInvalid() throws Exception {
-        Category category = new Category();
+        Address address = new Address();
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        String addressJson = jsonMapper.writeValueAsString(address);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(addressJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
@@ -110,14 +145,14 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn415WhenMultipart() throws Exception {
-        Category category = new Category();
+        Address address = new Address();
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        String addressJson = jsonMapper.writeValueAsString(address);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/addresses")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(addressJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isUnsupportedMediaType());
@@ -125,15 +160,17 @@ public class CategoryControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Category category = new Category(0, "Test");
-        Category expected = new Category(1, "Test");
+        Address address = new Address(0, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
+        Address expected = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
 
-        when(repository.save(any(Category.class))).thenReturn(expected);
 
-        String categoryJson = jsonMapper.writeValueAsString(category);
+        when(repository.save(any(Address.class))).thenReturn(expected);
+        when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
+
+        String categoryJson = jsonMapper.writeValueAsString(address);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
-        var request = post("/api/v1/categories")
+        var request = post("/api/v1/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
                 .content(categoryJson);
@@ -144,12 +181,22 @@ public class CategoryControllerTest {
     }
 
     @Test
-    void deleteShouldReturn204NoContent() throws Exception {
-        doNothing().when(repository).deleteById(1);
+    void updateShouldReturn204() throws Exception {
+        Address address = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
+        Address expected = new Address(1, "3504 Rune Rd", "Waxhaw", "NC", "28173", "USA", user);
 
-        var request = delete("/api/v1/categories/1")
-                .header("Authorization", "Bearer " + token);
 
+        when(repository.save(any(Address.class))).thenReturn(expected);
+        when(repository.findById(1)).thenReturn(Optional.of(address));
+        when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
+
+        String categoryJson = jsonMapper.writeValueAsString(address);
+        String expectedJson = jsonMapper.writeValueAsString(expected);
+
+        var request = put("/api/v1/addresses/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(categoryJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());

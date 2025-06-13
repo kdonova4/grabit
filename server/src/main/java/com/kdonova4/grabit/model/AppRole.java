@@ -1,5 +1,6 @@
 package com.kdonova4.grabit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +24,6 @@ public class AppRole {
 
     @ToString.Exclude
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Set<AppUser> users;
 }
