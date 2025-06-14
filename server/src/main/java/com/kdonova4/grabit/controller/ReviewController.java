@@ -156,7 +156,7 @@ public class ReviewController {
             return ErrorResponse.build(result);
         }
 
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{reviewId}")
