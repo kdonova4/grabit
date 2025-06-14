@@ -4,9 +4,7 @@ import com.kdonova4.grabit.domain.OrderService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.ShipmentService;
 import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Payment;
 import com.kdonova4.grabit.model.Shipment;
-import com.kdonova4.grabit.model.Watchlist;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,12 +20,12 @@ import java.util.Optional;
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Shipment Controller", description = "Shipment Operations")
 @RequestMapping("/api/v1/shipments")
-public class ShippingController {
+public class ShipmentController {
 
     private final ShipmentService service;
     private final OrderService orderService;
 
-    public ShippingController(ShipmentService service, OrderService orderService) {
+    public ShipmentController(ShipmentService service, OrderService orderService) {
         this.service = service;
         this.orderService = orderService;
     }
