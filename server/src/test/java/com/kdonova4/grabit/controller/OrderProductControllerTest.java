@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -29,6 +30,8 @@ import java.util.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -67,7 +70,7 @@ public class OrderProductControllerTest {
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
 
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
         order = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
 
 
@@ -88,5 +91,117 @@ public class OrderProductControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void findByOrderShouldReturn404() throws Exception {
+        var request = get("/api/v1/order-products/order/1");
+
+
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void findByProductShouldReturn200() throws Exception {
+        var request = get("/api/v1/order-products/product/1");
+
+        OrderProduct orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
+
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        when(repository.findByOrder(any(Order.class))).thenReturn(List.of(orderProduct));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findByProductShouldReturn404() throws Exception {
+        var request = get("/api/v1/order-products/product/1");
+
+
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void findByIdShouldReturn200WhenIdFound() throws Exception {
+        OrderProduct orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
+
+        when(repository.findById(1)).thenReturn(Optional.of(orderProduct));
+
+        String orderJson = jsonMapper.writeValueAsString(orderProduct);
+
+        var request = get("/api/v1/order-products/1");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(content().json(orderJson));
+    }
+
+    @Test
+    void findByIdShouldReturn404WhenIdNotFound() throws Exception {
+        when(repository.findById(1)).thenReturn(Optional.empty());
+
+        var request = get("/api/v1/order-products/1");
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createShouldReturn400WhenInvalid() throws Exception {
+        OrderProduct orderProduct = new OrderProduct();
+
+        String orderJson = jsonMapper.writeValueAsString(orderProduct);
+
+        var request = post("/api/v1/order-products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(orderJson);
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createShouldReturn415WhenMultipart() throws Exception {
+        OrderProduct orderProduct = new OrderProduct();
+
+        String orderJson = jsonMapper.writeValueAsString(orderProduct);
+
+        var request = post("/api/v1/product-categories")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .header("Authorization", "Bearer " + token)
+                .content(orderJson);
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    @Test
+    void createShouldReturn201() throws Exception {
+        OrderProduct orderProduct = new OrderProduct(0, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
+        OrderProduct expected = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
+
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
+        when(repository.save(any(OrderProduct.class))).thenReturn(expected);
+
+        String orderJson = jsonMapper.writeValueAsString(orderProduct);
+        String expectedJson = jsonMapper.writeValueAsString(expected);
+
+        var request = post("/api/v1/order-products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(orderJson);
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(content().json(expectedJson));
     }
 }

@@ -68,7 +68,7 @@ public class ShipmentController {
         return ResponseEntity.ok(shipment.get());
     }
 
-    @GetMapping("/{shippingId}")
+    @GetMapping("/{shipmentId}")
     @Operation(summary = "Finds A Shipment By ID")
     public ResponseEntity<Shipment> findById(@PathVariable int shipmentId) {
         Optional<Shipment> shipment = service.findById(shipmentId);
