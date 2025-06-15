@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AddressControllerTest {
@@ -167,13 +169,13 @@ public class AddressControllerTest {
         when(repository.save(any(Address.class))).thenReturn(expected);
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String categoryJson = jsonMapper.writeValueAsString(address);
+        String addressJson = jsonMapper.writeValueAsString(address);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(addressJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated())
@@ -190,13 +192,13 @@ public class AddressControllerTest {
         when(repository.findById(1)).thenReturn(Optional.of(address));
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String categoryJson = jsonMapper.writeValueAsString(address);
+        String addressJson = jsonMapper.writeValueAsString(address);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = put("/api/v1/addresses/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .content(categoryJson);
+                .content(addressJson);
 
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());

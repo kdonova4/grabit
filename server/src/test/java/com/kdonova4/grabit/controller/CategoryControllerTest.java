@@ -5,18 +5,25 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.CategoryRepository;
+import com.kdonova4.grabit.domain.CategoryService;
+import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.ResultType;
 import com.kdonova4.grabit.model.AppRole;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Category;
 import com.kdonova4.grabit.security.JwtConverter;
+import com.kdonova4.grabit.security.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashSet;
@@ -31,7 +38,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+
+@WebMvcTest(CategoryController.class)
+@Import(SecurityConfig.class)
 @AutoConfigureMockMvc
 public class CategoryControllerTest {
 
@@ -39,13 +48,16 @@ public class CategoryControllerTest {
     CategoryRepository repository;
 
     @MockBean
+    CategoryService service;
+
+    @MockBean
     AppUserRepository appUserRepository;
+
+    @MockBean
+    JwtConverter jwtConverter;  // <-- mock JwtConverter to avoid context issues
 
     @Autowired
     MockMvc mockMvc;
-
-    @Autowired
-    JwtConverter jwtConverter;
 
     String token;
 
@@ -60,7 +72,11 @@ public class CategoryControllerTest {
         user.setRoles(Set.of(role));
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
+
+        // mock token return value
+        when(jwtConverter.getTokenFromUser(any())).thenReturn("fake-jwt-token");
         token = jwtConverter.getTokenFromUser(user);
+
         jsonMapper.registerModule(new JavaTimeModule());
         jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
@@ -99,6 +115,11 @@ public class CategoryControllerTest {
 
         String categoryJson = jsonMapper.writeValueAsString(category);
 
+        Result<Category> result = new Result<>();
+        result.addMessages("Invalid", ResultType.INVALID);
+
+        when(service.create(any(Category.class))).thenReturn(result);
+
         var request = post("/api/v1/categories")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
@@ -128,7 +149,10 @@ public class CategoryControllerTest {
         Category category = new Category(0, "Test");
         Category expected = new Category(1, "Test");
 
-        when(repository.save(any(Category.class))).thenReturn(expected);
+        Result<Category> result = new Result<>();
+        result.setPayload(expected);
+
+        when(service.create(any(Category.class))).thenReturn(result);
 
         String categoryJson = jsonMapper.writeValueAsString(category);
         String expectedJson = jsonMapper.writeValueAsString(expected);

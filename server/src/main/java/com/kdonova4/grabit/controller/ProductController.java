@@ -6,10 +6,7 @@ import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.Review;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -61,17 +58,31 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    @GetMapping("/{productId}")
+    @Operation(summary = "Finds A Product By ID")
+    public ResponseEntity<Product> findById(@PathVariable int productId) {
+        Optional<Product> product = service.findById(productId);
+
+        if(product.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(product.get());
+    }
+
     @GetMapping("/search")
     @Operation(summary = "Finds By Search")
-    public ResponseEntity<List<Product>> search(@RequestParam String productName,
-                                                @RequestParam BigDecimal minPrice,
-                                                @RequestParam BigDecimal maxPrice,
-                                                @RequestParam ProductStatus status,
-                                                @RequestParam ConditionType condition,
-                                                @RequestParam SaleType saleType,
-                                                @RequestParam int categoryId) {
+    public ResponseEntity<List<Product>> search(@RequestParam(required = false) String productName,
+                                                @RequestParam(required = false) BigDecimal minPrice,
+                                                @RequestParam(required = false) BigDecimal maxPrice,
+                                                @RequestParam(required = false) ProductStatus status,
+                                                @RequestParam(required = false) ConditionType condition,
+                                                @RequestParam(required = false) SaleType saleType,
+                                                @RequestParam(required = false) Integer categoryId) {
 
-        Category category = categoryService.findById(categoryId).orElse(null);
+        Category category = (categoryId != null)
+                ? categoryService.findById(categoryId).orElse(null)
+                : null;
 
         List<Product> products = service.search(productName, minPrice, maxPrice, status, condition, saleType, category);
 
@@ -108,8 +119,8 @@ public class ProductController {
 
     @DeleteMapping("/{productId}")
     @Operation(summary = "Deletes A Product")
-    public ResponseEntity<Object> deleteById(@PathVariable int reviewId) {
-        service.deleteById(reviewId);
+    public ResponseEntity<Object> deleteById(@PathVariable int productId) {
+        service.deleteById(productId);
         return ResponseEntity.noContent().build();
     }
 }
