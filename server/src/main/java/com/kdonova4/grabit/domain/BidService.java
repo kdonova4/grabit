@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 @Service
 public class BidService {
@@ -36,6 +37,14 @@ public class BidService {
 
     public List<Bid> findByProduct(Product product) {
         return repository.findByProduct(product);
+    }
+
+    public List<Bid> findByProductOrderByBidAmountDesc(Product product) {
+        return repository.findByProductOrderByBidAmountDesc(product);
+    }
+
+    public Optional<Bid> findFirstByUserAndProductOrderByBidAmountDesc(AppUser user, Product product) {
+        return repository.findFirstByUserAndProductOrderByBidAmountDesc(user, product);
     }
 
     public Optional<Bid> findById(int id) {
@@ -109,6 +118,16 @@ public class BidService {
         if(bid.getBidAmount().compareTo(bid.getProduct().getPrice()) <= 0) {
             result.addMessages("BID AMOUNT CANNOT BE EQUAL TO OR LESS THAN PRICE OF PRODUCT", ResultType.INVALID);
         }
+
+        Optional<Bid> highestUserBid = findFirstByUserAndProductOrderByBidAmountDesc(appUser.get(), product.get());
+
+        if(highestUserBid.isPresent()) {
+            if(bid.getBidAmount().compareTo(highestUserBid.get().getBidAmount()) <= 0) {
+                result.addMessages("BID AMOUNT CANNOT BE LESS THAN OR EQUAL TO PREVIOUS BIDS", ResultType.INVALID);
+            }
+        }
+
+
 
         return result;
     }
