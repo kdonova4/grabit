@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000"})
@@ -25,11 +27,12 @@ public class BidController {
     private final BidService service;
     private final ProductService productService;
     private final AppUserService appUserService;
-
-    public BidController(BidService service, ProductService productService, AppUserService appUserService) {
+    private final SimpMessagingTemplate messagingTemplate;
+    public BidController(BidService service, ProductService productService, AppUserService appUserService, SimpMessagingTemplate messagingTemplate) {
         this.service = service;
         this.productService = productService;
         this.appUserService = appUserService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping
@@ -88,6 +91,20 @@ public class BidController {
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
         }
+
+        List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(bid.getProduct());
+
+        List<BidMessage> bidMessages = updatedBids.stream()
+                        .map(b -> new BidMessage(
+                                b.getUser().getAppUserId(),
+                                b.getProduct().getProductId(),
+                                b.getBidAmount()
+                        ))
+                                .toList();
+
+
+        messagingTemplate.convertAndSend("/topic/bids/" + bid.getProduct().getProductId(), bidMessages);
+        System.out.println("SENT MESSAGE WEBSOCKET");
 
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
