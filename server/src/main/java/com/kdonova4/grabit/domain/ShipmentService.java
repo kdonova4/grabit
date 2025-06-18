@@ -59,6 +59,28 @@ public class ShipmentService {
         return result;
     }
 
+    public Result<Shipment> update(Shipment shipment) {
+        Result<Shipment> result = validate(shipment);
+
+        if(!result.isSuccess()) {
+            return result;
+        }
+
+        if(shipment.getShipmentId() <= 0) {
+            result.addMessages("SHIPMENT ID MUST BE SET", ResultType.INVALID);
+            return result;
+        }
+
+        Optional<Shipment> oldShipment = repository.findById(shipment.getShipmentId());
+        if(oldShipment.isPresent()) {
+            repository.save(shipment);
+            return result;
+        } else {
+            result.addMessages("SHIPMENT " + shipment.getShipmentId() + " NOT FOUND", ResultType.NOT_FOUND);
+            return result;
+        }
+    }
+
     public Result<Shipment> validate(Shipment shipment) {
         Result<Shipment> result = new Result<>();
 

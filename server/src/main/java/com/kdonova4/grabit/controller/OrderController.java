@@ -73,7 +73,7 @@ public class OrderController {
     }
 
     @GetMapping("/billing-address/{addressId}")
-    @Operation(summary = "Finds Order By Shipping Address")
+    @Operation(summary = "Finds Order By Billing Address")
     public ResponseEntity<List<Order>> findByBillingAddress(@PathVariable int addressId) {
         Optional<Address> address = addressService.findById(addressId);
 

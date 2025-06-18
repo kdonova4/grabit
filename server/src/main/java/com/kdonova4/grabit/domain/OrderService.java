@@ -4,6 +4,8 @@ import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,9 @@ public class OrderService {
     private final PaymentService paymentService;
     private final ShoppingCartService shoppingCartService;
     private final ProductService productService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     public OrderService(OrderRepository repository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
         this.repository = repository;
@@ -125,8 +130,12 @@ public class OrderService {
 
         Result<Order> finalizeResult = finalizeOrder(order, shipment, payment, orderProducts, cartList);
 
+
+
         if (!finalizeResult.isSuccess())
             return finalizeResult;
+
+        eventPublisher.publishEvent(new OrderPlacedEvent(order.getOrderId()));
 
         result.setPayload(order);
         return result;
@@ -136,6 +145,7 @@ public class OrderService {
         for(ShoppingCart item : cartList) {
             OrderProduct op = getOrderProduct(item, order);
             orderProducts.add(op);
+
 
             total = total.add(op.getUnitPrice().multiply(BigDecimal.valueOf(op.getQuantity())));
         }
@@ -173,6 +183,8 @@ public class OrderService {
         } else {
             op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getWinningBid(), item.getProduct().getWinningBid());
         }
+
+        op.setOrder(order);
         return op;
     }
 
@@ -206,9 +218,14 @@ public class OrderService {
             Product product = item.getProduct();
 
             product.setQuantity(product.getQuantity() - item.getQuantity());
-            productService.update(product);
+            Result<Product> productResult = productService.update(product);
+            if(!productResult.isSuccess()) {
+                result.addMessages(productResult.getMessages().toString(), ResultType.INVALID);
+                return result;
+            }
         }
 
+        eventPublisher.publishEvent(new ShipmentPlacedEvent(shipmentResult.getPayload().getShipmentId()));
         return result;
     }
     

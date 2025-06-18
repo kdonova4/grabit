@@ -1,10 +1,9 @@
 package com.kdonova4.grabit.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kdonova4.grabit.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -14,7 +13,8 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "purchase_order")
 public class Order {
 
@@ -45,7 +45,7 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
 
     public Order(Order source) {

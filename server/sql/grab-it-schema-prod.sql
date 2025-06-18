@@ -175,3 +175,75 @@ create table image (
 	foreign key (product_id) references product(product_id) on delete cascade
 );
 
+
+INSERT INTO category (category_name) VALUES
+	('Electronics'),
+	('Books'),
+	('Clothing');
+
+	INSERT INTO app_user (username, email, password_hash) VALUES
+	('alice', 'alice@example.com', '$2y$10$5XmabI6UghCVaIDJrvgHxeWe.vhe6Htd.QANZJ4RIkPzPHtpirP0y'),
+	('bob', 'bob@example.com', '$2y$10$5XmabI6UghCVaIDJrvgHxeWe.vhe6Htd.QANZJ4RIkPzPHtpirP0y'),
+	('dono2223', 'dono2223@gmail.com', '$2y$10$5XmabI6UghCVaIDJrvgHxeWe.vhe6Htd.QANZJ4RIkPzPHtpirP0y'),
+	('kevin123', 'kevin123@gmail.com', '$2y$10$5XmabI6UghCVaIDJrvgHxeWe.vhe6Htd.QANZJ4RIkPzPHtpirP0y');
+
+	INSERT INTO app_role (role_name) VALUES
+	('USER'),
+	('SELLER'),
+	('ADMIN');
+
+	INSERT INTO app_user_role (app_user_id, app_role_id) VALUES
+	(1, 1),
+	(2, 2),
+	(2, 1),
+	(3, 3),
+	(4, 1);
+
+	INSERT INTO address (street, city, "state", zip_code, country, app_user_id) VALUES
+	('123 Main St', 'Springfield', 'IL', '62704', 'USA', 1),
+	('456 Elm St', 'Greenville', 'TX', '75401', 'USA', 2);
+
+	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, app_user_id) VALUES
+	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, 2),
+	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, 2),
+	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, 2);
+
+	INSERT INTO product_category (product_id, category_id) VALUES
+	(1, 1),
+	(2, 1),
+	(3, 2);
+
+	INSERT INTO offer (offer_amount, offer_message, expire_date, app_user_id, product_id) VALUES
+	(900.00, 'Would you take less please im poor?', current_timestamp + interval '2 day', 4, 1);
+
+	INSERT INTO purchase_order (app_user_id, shipping_address_id, billing_address_id, total_amount, order_status) VALUES
+	(1, 1, 1, 1500.00, 'PENDING');
+
+	INSERT INTO payment (order_id, amount_paid) VALUES
+	(1, 1500.00);
+
+	INSERT INTO shipment (order_id, shipment_status, tracking_number) VALUES
+	(1, 'PENDING', 'TRACK1234511111111');
+
+	INSERT INTO order_product (order_id, product_id, quantity, unit_price, sub_total) VALUES
+	(1, 2, 1, 1500.00, 1500.00);
+
+	INSERT INTO shopping_cart (product_id, quantity, app_user_id) VALUES
+	(2, 1, 1);
+
+	INSERT INTO watchlist (product_id, app_user_id) VALUES
+	(3, 2);
+
+	INSERT INTO review (rating, review_text, posted_by_id, seller_id, product_id) VALUES
+	(5, 'Great seller, cant wait!', 1, 2, 2);
+
+	INSERT INTO coupon (coupon_code, discount, discount_type, expire_date, is_active) VALUES
+	('SAVE10', 10, 'PERCENTAGE', current_timestamp + interval '7 day', true);
+
+	INSERT INTO image (image_url, product_id) VALUES
+	('http://example.com/laptop.jpg', 1),
+	('http://example.com/pc.jpg', 2),
+	('http://example.com/books.jpg', 3);
+
+
+select * from bid;

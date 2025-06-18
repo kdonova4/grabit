@@ -41,7 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CategoryController.class)
 @Import(SecurityConfig.class)
-@AutoConfigureMockMvc
 public class CategoryControllerTest {
 
     @MockBean
