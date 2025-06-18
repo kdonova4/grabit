@@ -148,7 +148,7 @@ public class ProductService {
             result.addMessages("PRODUCT DESCRIPTION CANNOT BE GREATER THAN 500 CHARACTERS", ResultType.INVALID);
         }
 
-        if(product.getQuantity() <= 0) {
+        if(product.getQuantity() < 0) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
         }
 

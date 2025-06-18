@@ -28,6 +28,7 @@ public class BidController {
     private final ProductService productService;
     private final AppUserService appUserService;
     private final SimpMessagingTemplate messagingTemplate;
+
     public BidController(BidService service, ProductService productService, AppUserService appUserService, SimpMessagingTemplate messagingTemplate) {
         this.service = service;
         this.productService = productService;
@@ -112,7 +113,25 @@ public class BidController {
     @DeleteMapping("/{bidId}")
     @Operation(summary = "Deletes A Bid")
     public ResponseEntity<Object> deleteById(@PathVariable int bidId) {
-        service.deleteById(bidId);
+
+        Optional<Bid> bid = service.findById(bidId);
+
+        if(service.deleteById(bidId) && bid.isPresent()) {
+            List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(bid.get().getProduct());
+
+            List<BidMessage> bidMessages = updatedBids.stream()
+                    .map(b -> new BidMessage(
+                            b.getUser().getAppUserId(),
+                            b.getProduct().getProductId(),
+                            b.getBidAmount()
+                    ))
+                    .toList();
+
+
+            messagingTemplate.convertAndSend("/topic/bids/" + bid.get().getProduct().getProductId(), bidMessages);
+            System.out.println("SENT MESSAGE WEBSOCKET");
+        }
+
         return ResponseEntity.noContent().build();
     }
 }

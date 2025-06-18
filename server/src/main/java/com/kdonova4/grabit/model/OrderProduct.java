@@ -1,5 +1,7 @@
 package com.kdonova4.grabit.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +21,9 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int orderProductId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnore
     private Order order;
 
     @ManyToOne(optional = false)

@@ -2,16 +2,15 @@ package com.kdonova4.grabit.model;
 
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "shipment")
 public class Shipment {
 
@@ -34,6 +33,6 @@ public class Shipment {
     @Column(name="shipped_at", nullable = false, updatable = false, insertable = false)
     private Timestamp shippedAt;
 
-    @Column(name="delivered_at", updatable = false, insertable = false)
+    @Column(name="delivered_at", insertable = false)
     private Timestamp deliveredAt;
 }

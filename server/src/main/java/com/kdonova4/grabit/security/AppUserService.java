@@ -40,6 +40,10 @@ public class AppUserService implements UserDetailsService {
         return repository.findById(id);
     }
 
+    public Optional<AppUser> findByUsername(String username) {
+        return repository.findByUsername(username);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<AppUser> appUser = repository.findByUsername(username);
