@@ -246,4 +246,8 @@ INSERT INTO category (category_name) VALUES
 	('http://example.com/books.jpg', 3);
 
 
-select * from bid;
+
+select * from purchase_order;
+
+select * from shipment;
+

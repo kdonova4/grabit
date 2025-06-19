@@ -1,9 +1,11 @@
 package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.*;
+import com.kdonova4.grabit.domain.mapper.OrderMapper;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.security.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,9 @@ public class OrderService {
 
     private final OrderRepository repository;
     private final AddressRepository addressRepository;
+    private final AddressService addressService;
     private final AppUserRepository appUserRepository;
+    private final AppUserService appUserService;
     private final OrderProductService orderProductService;
     private final ShipmentService shipmentService;
     private final PaymentService paymentService;
@@ -31,10 +35,12 @@ public class OrderService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    public OrderService(OrderRepository repository, AddressRepository addressRepository, AppUserRepository appUserRepository, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
+    public OrderService(OrderRepository repository, AddressRepository addressRepository, AddressService addressService, AppUserRepository appUserRepository, AppUserService appUserService, OrderProductService orderProductService, ShipmentService shipmentService, PaymentService paymentService, ShoppingCartService shoppingCartService, ProductService productService) {
         this.repository = repository;
         this.addressRepository = addressRepository;
+        this.addressService = addressService;
         this.appUserRepository = appUserRepository;
+        this.appUserService = appUserService;
         this.orderProductService = orderProductService;
         this.shipmentService = shipmentService;
         this.paymentService = paymentService;
@@ -82,74 +88,21 @@ public class OrderService {
         return repository.findById(id);
     }
 
-    @Transactional
-    public Result<Order> create(CheckoutRequest checkout) {
-        Order order = checkout.getOrder();
-        Result<Order> result = validate(order);
+    private Order setupOrder(OrderCreateDTO orderDTO) {
+        AppUser user = appUserService.findUserById(orderDTO.getUserId()).orElse(null);
+        Address shipping = addressService.findById(orderDTO.getShippingAddressId()).orElse(null);
+        Address billing = addressService.findById(orderDTO.getBillingAddressId()).orElse(null);
 
-        if(!result.isSuccess()) {
-            return result;
-        }
-
-        if(order.getOrderId() != 0) {
-            result.addMessages("OrderId CANNOT BE SET for 'add' operation", ResultType.INVALID);
-            return result;
-        }
-
-        order = repository.save(order);
-
-        // setup shipment
-        Shipment shipment = checkout.getShipment();
-        Payment payment = checkout.getPayment();
-        List<ShoppingCart> cartList = checkout.getCartItems();
-
-        shipment.setOrder(order);
-        payment.setOrder(order);
-
-        List<OrderProduct> orderProducts = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO;
-
-        Result<Order> stockResult = validateStock(cartList);
-        if(!stockResult.isSuccess())
-            return stockResult;
-
-        total = setupOrderProducts(cartList, order, orderProducts, total);
-
-        order.setTotalAmount(total);
-        payment.setAmountPaid(total);
-
-        result = validate(order);
-        Result<Order> totalResult = validateAmounts(order, orderProducts);
-        if(!result.isSuccess() || !totalResult.isSuccess()) {
-            result.addMessages(totalResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
-
-        order = repository.save(order);
-
-
-        Result<Order> finalizeResult = finalizeOrder(order, shipment, payment, orderProducts, cartList);
-
-
-
-        if (!finalizeResult.isSuccess())
-            return finalizeResult;
-
-        eventPublisher.publishEvent(new OrderPlacedEvent(order.getOrderId()));
-
-        result.setPayload(order);
-        return result;
+        return OrderMapper.fromDTO(orderDTO, user, shipping, billing);
     }
 
-    private static BigDecimal setupOrderProducts(List<ShoppingCart> cartList, Order order, List<OrderProduct> orderProducts, BigDecimal total) {
-        for(ShoppingCart item : cartList) {
-            OrderProduct op = getOrderProduct(item, order);
-            orderProducts.add(op);
+    @Transactional
+    public Result<Order> create(OrderCreateDTO orderCreateDTO) {
 
 
-            total = total.add(op.getUnitPrice().multiply(BigDecimal.valueOf(op.getQuantity())));
-        }
-        return total;
+
+
+        return null;
     }
 
     public Result<Order> update(Order order) {
@@ -170,64 +123,13 @@ public class OrderService {
             return result;
         } else {
             result.addMessages("ORDER " + order.getOrderId() + " NOT FOUND", ResultType.NOT_FOUND);
-            return result;        }
-    }
-
-    private static OrderProduct getOrderProduct(ShoppingCart item, Order order) {
-        BigDecimal unitPrice = item.getProduct().getPrice();
-        BigDecimal subTotal = new BigDecimal(item.getQuantity()).multiply(unitPrice);
-
-        OrderProduct op;
-        if(item.getProduct().getSaleType() == SaleType.BUY_NOW) {
-            op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice(), subTotal);
-        } else {
-            op = new OrderProduct(0, order, item.getProduct(), item.getQuantity(), item.getProduct().getWinningBid(), item.getProduct().getWinningBid());
-        }
-
-        op.setOrder(order);
-        return op;
-    }
-
-    private Result<Order> finalizeOrder(Order order, Shipment shipment, Payment payment, List<OrderProduct> orderProducts, List<ShoppingCart> cartList) {
-        Result<Order> result = new Result<>();
-
-        Result<Shipment> shipmentResult = shipmentService.create(shipment);
-        if(!shipmentResult.isSuccess()) {
-            result.addMessages(shipmentResult.getMessages().toString(), ResultType.INVALID);
             return result;
         }
-
-        Result<Payment> paymentResult = paymentService.create(payment);
-
-        if(!paymentResult.isSuccess()) {
-            result.addMessages(paymentResult.getMessages().toString(), ResultType.INVALID);
-            return result;
-        }
-
-        for(OrderProduct op : orderProducts) {
-            Result<OrderProduct> orderProductResult = orderProductService.create(op);
-            if(!orderProductResult.isSuccess()) {
-                result.addMessages(orderProductResult.getMessages().toString(), ResultType.INVALID);
-                return result;
-            }
-        }
-
-        shoppingCartService.deleteByUser(order.getUser());
-
-        for(ShoppingCart item : cartList) {
-            Product product = item.getProduct();
-
-            product.setQuantity(product.getQuantity() - item.getQuantity());
-            Result<Product> productResult = productService.update(product);
-            if(!productResult.isSuccess()) {
-                result.addMessages(productResult.getMessages().toString(), ResultType.INVALID);
-                return result;
-            }
-        }
-
-        eventPublisher.publishEvent(new ShipmentPlacedEvent(shipmentResult.getPayload().getShipmentId()));
-        return result;
     }
+
+
+
+
     
     private Result<Order> validateStock(List<ShoppingCart> cartList) {
         Result<Order> result = new Result<>();
