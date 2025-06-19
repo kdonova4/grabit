@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckoutRequest {
-    private Order order;
-    private Shipment shipment;
-    private Payment payment;
-    private List<ShoppingCart> cartItems;
+public class AppUserDTO {
+    private int userId;
+    private String username;
+    private String email;
+    private List<String> roles;
 }
