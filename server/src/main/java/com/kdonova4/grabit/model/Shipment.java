@@ -3,6 +3,9 @@ package com.kdonova4.grabit.model;
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
+
 
 import java.sql.Timestamp;
 
@@ -25,11 +28,12 @@ public class Shipment {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "shipment_status", nullable = false)
-    private ShipmentStatus shipmentStatus;
+    private ShipmentStatus shipmentStatus = ShipmentStatus.PENDING;
 
     @Column(name = "tracking_number", unique = true, nullable = false)
     private String trackingNumber;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="shipped_at", nullable = false, updatable = false, insertable = false)
     private Timestamp shippedAt;
 

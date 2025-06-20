@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderProductDTO {
-
+public class PaymentResponseDTO {
+    private int paymentId;
     private int orderId;
-    private int productId;
-    private int quantity;
-    private BigDecimal subTotal;
+    private BigDecimal amountPaid;
+    private Timestamp paidAt;
 }

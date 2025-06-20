@@ -101,14 +101,6 @@ public class ShipmentService {
             return result;
         }
 
-        if(shipment.getShipmentStatus() == null) {
-            result.addMessages("SHIPMENT STATUS IS REQUIRED", ResultType.INVALID);
-        }
-
-        if(shipment.getShippedAt() == null || shipment.getShippedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("SHIPPED AT MUST NOT BE NULL OR IN THE FUTURE", ResultType.INVALID);
-        }
-
         if(shipment.getTrackingNumber() == null || shipment.getTrackingNumber().isBlank()) {
             result.addMessages("TRACKING NUMBER CANNOT BE NULL OR BLANK", ResultType.INVALID);
         } else if(shipment.getTrackingNumber().length() != 18) {

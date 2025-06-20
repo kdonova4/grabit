@@ -1,5 +1,6 @@
 package com.kdonova4.grabit.controller;
 
+import com.kdonova4.grabit.domain.CheckoutException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(DataIntegrityViolationException ex) {
         return ErrorResponse.build("Something went wrong in the database. " +
                 "Please ensure that any referenced records exist. Your request failed. :(");
+    }
+
+    @ExceptionHandler(CheckoutException.class)
+    public ResponseEntity<ErrorResponse> handleCheckoutException(CheckoutException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
