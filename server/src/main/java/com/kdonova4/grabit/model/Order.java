@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kdonova4.grabit.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,7 +29,8 @@ public class Order {
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser user;
 
-    @Column(name="ordered_at", nullable = false, updatable = false, insertable = false)
+    @Generated(event = EventType.INSERT)
+    @Column(name = "ordered_at", nullable = false, insertable = false, updatable = false)
     private Timestamp orderedAt;
 
     @ManyToOne(optional = false)
@@ -43,7 +46,7 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
-    private OrderStatus orderStatus;
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;

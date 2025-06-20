@@ -132,9 +132,6 @@ public class ProductService {
             result.addMessages("PRODUCT PRICE MUST BE GREATER THAN ZERO", ResultType.INVALID);
         }
 
-        if(product.getPostedAt() == null || product.getPostedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("POSTED AT MUST NOT BE NULL OR IN THE FUTURE", ResultType.INVALID);
-        }
 
         if(product.getProductName() == null || product.getProductName().isBlank()) {
             result.addMessages("PRODUCT NAME CANNOT BE NULL OR BLANK", ResultType.INVALID);
@@ -148,7 +145,7 @@ public class ProductService {
             result.addMessages("PRODUCT DESCRIPTION CANNOT BE GREATER THAN 500 CHARACTERS", ResultType.INVALID);
         }
 
-        if(product.getQuantity() < 0) {
+        if(product.getQuantity() <= 0 && product.getProductStatus() == ProductStatus.ACTIVE) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
         }
 
@@ -163,9 +160,6 @@ public class ProductService {
         if(product.getProductId() != 0) {
             if(!bidRepository.findByProduct(product).isEmpty()) {
                 result.addMessages("CANNOT UPDATE PRODUCT THAT HAS ACTIVE BIDS", ResultType.INVALID);
-            }
-            if(product.getProductStatus() != ProductStatus.ACTIVE) {
-                result.addMessages("CANNOT UPDATE PRODUCT THAT IS NOT ACTIVE", ResultType.INVALID);
             }
         }
 

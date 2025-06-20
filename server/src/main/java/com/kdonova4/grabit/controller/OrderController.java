@@ -137,15 +137,15 @@ public class OrderController {
         return ResponseEntity.ok(order.get());
     }
 
-    @PostMapping
-    @Operation(summary = "Creates An Order")
-    public ResponseEntity<Object> create(@RequestBody CheckoutRequest request) {
-        Result<Order> result = service.create(request);
-
-        if(!result.isSuccess()) {
-            return ErrorResponse.build(result);
-        }
-
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
-    }
+//    @PostMapping
+//    @Operation(summary = "Creates An Order")
+//    public ResponseEntity<Object> create(@RequestBody CheckoutRequest request) {
+//        Result<Order> result = service.create(request);
+//
+//        if(!result.isSuccess()) {
+//            return ErrorResponse.build(result);
+//        }
+//
+//        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+//    }
 }

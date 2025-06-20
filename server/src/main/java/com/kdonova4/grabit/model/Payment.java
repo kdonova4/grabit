@@ -2,6 +2,8 @@ package com.kdonova4.grabit.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -26,6 +28,7 @@ public class Payment {
     @Column(name = "amount_paid", nullable = false)
     private BigDecimal amountPaid;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="paid_at", nullable = false, updatable = false, insertable = false)
     private Timestamp paidAt;
 }

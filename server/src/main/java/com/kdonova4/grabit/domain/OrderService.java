@@ -96,13 +96,21 @@ public class OrderService {
         return OrderMapper.fromDTO(orderDTO, user, shipping, billing);
     }
 
-    @Transactional
-    public Result<Order> create(OrderCreateDTO orderCreateDTO) {
 
+    public Result<Order> create(Order order) {
+        Result<Order> result = validate(order);
 
+        if(!result.isSuccess())
+            return result;
 
+        if(order.getOrderId() != 0) {
+            result.addMessages("OrderId CANNOT BE SET for 'add' operation", ResultType.INVALID);
+            return result;
+        }
 
-        return null;
+        order = repository.save(order);
+        result.setPayload(order);
+        return result;
     }
 
     public Result<Order> update(Order order) {
@@ -127,10 +135,6 @@ public class OrderService {
         }
     }
 
-
-
-
-    
     private Result<Order> validateStock(List<ShoppingCart> cartList) {
         Result<Order> result = new Result<>();
         for(ShoppingCart item : cartList) {
@@ -183,19 +187,6 @@ public class OrderService {
         if(appUser.isEmpty()) {
             result.addMessages("USER MUST EXIST", ResultType.INVALID);
             return result;
-        }
-
-        if(order.getOrderedAt() == null || order.getOrderedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("CREATED AT MUST NOT BE NULL OR IN THE FUTURE", ResultType.INVALID);
-        }
-
-        if(order.getOrderStatus() == null) {
-            result.addMessages("ORDER STATUS IS REQUIRED", ResultType.INVALID);
-        }
-
-        // totalAmount must be equal to the orderProducts totals combined
-        if(order.getOrderId() != 0) {
-
         }
 
 

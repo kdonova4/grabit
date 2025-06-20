@@ -85,9 +85,6 @@ public class PaymentService {
             result.addMessages("AMOUNT PAID MUST EQUAL TO ORDER TOTAL", ResultType.INVALID);
         }
 
-        if(payment.getPaidAt() == null || payment.getPaidAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("PAID AT MUST NOT BE NULL OR IN THE FUTURE", ResultType.INVALID);
-        }
 
         return result;
     }
