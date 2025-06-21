@@ -2,13 +2,15 @@ package com.kdonova4.grabit.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.math.BigDecimal;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class BidMessage {
-    private int userId;
+@NoArgsConstructor
+public class WatchlistDTO {
+
+    private int watchId;
     private int productId;
-    private BigDecimal bidAmount;
+    private int userId;
+
 }

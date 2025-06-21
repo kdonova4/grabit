@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.sql.Timestamp;
 
@@ -37,6 +39,7 @@ public class Review {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="created_at", nullable = false, updatable = false, insertable = false)
     private Timestamp createdAt;
 

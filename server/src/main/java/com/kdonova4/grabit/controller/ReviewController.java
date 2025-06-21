@@ -3,10 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.ReviewService;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.Review;
-import com.kdonova4.grabit.model.Watchlist;
+import com.kdonova4.grabit.domain.mapper.ReviewMapper;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,15 +35,15 @@ public class ReviewController {
 
     @GetMapping
     @Operation(summary = "Finds All Reviews")
-    public ResponseEntity<List<Review>> findAll() {
+    public ResponseEntity<List<ReviewResponseDTO>> findAll() {
         List<Review> reviews = service.findAll();
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{postedBy}")
     @Operation(summary = "Finds Reviews Posted By User")
-    public ResponseEntity<List<Review>> findByPostedBy(@PathVariable int postedBy) {
+    public ResponseEntity<List<ReviewResponseDTO>> findByPostedBy(@PathVariable int postedBy) {
         Optional<AppUser> appUser = appUserService.findUserById(postedBy);
 
         if(appUser.isEmpty()) {
@@ -54,12 +52,12 @@ public class ReviewController {
 
         List<Review> reviews = service.findByPostedBy(appUser.get());
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds Reviews By Product")
-    public ResponseEntity<List<Review>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<ReviewResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isEmpty()) {
@@ -68,12 +66,12 @@ public class ReviewController {
 
         List<Review> reviews = service.findByProduct(product.get());
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
     @GetMapping("seller/{sellerId}")
     @Operation(summary = "Finds Reviews For Seller")
-    public ResponseEntity<List<Review>> findBySeller(@PathVariable int sellerId) {
+    public ResponseEntity<List<ReviewResponseDTO>> findBySeller(@PathVariable int sellerId) {
         Optional<AppUser> appUser = appUserService.findUserById(sellerId);
 
         if(appUser.isEmpty()) {
@@ -82,12 +80,12 @@ public class ReviewController {
 
         List<Review> reviews = service.findBySeller(appUser.get());
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}/seller/{sellerId}")
     @Operation(summary = "Finds Reviews For A Seller From A User")
-    public ResponseEntity<List<Review>> findByPostedByAndSeller(@PathVariable int userId, @PathVariable int sellerId) {
+    public ResponseEntity<List<ReviewResponseDTO>> findByPostedByAndSeller(@PathVariable int userId, @PathVariable int sellerId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
         Optional<AppUser> seller = appUserService.findUserById(sellerId);
 
@@ -97,12 +95,12 @@ public class ReviewController {
 
         List<Review> reviews = service.findByPostedByAndSeller(appUser.get(), seller.get());
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}/product/{productId}")
     @Operation(summary = "Finds A Review For A Product From A User")
-    public ResponseEntity<Review> findByPostedByAndProduct(@PathVariable int userId, @PathVariable int productId) {
+    public ResponseEntity<ReviewResponseDTO> findByPostedByAndProduct(@PathVariable int userId, @PathVariable int productId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
         Optional<Product> product = productService.findById(productId);
 
@@ -116,25 +114,25 @@ public class ReviewController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(review.get());
+        return ResponseEntity.ok(ReviewMapper.toResponseDTO(review.get()));
     }
 
     @GetMapping("/{reviewId}")
     @Operation(summary = "Finds A Review By ID")
-    public ResponseEntity<Review> findById(@PathVariable int reviewId) {
+    public ResponseEntity<ReviewResponseDTO> findById(@PathVariable int reviewId) {
         Optional<Review> review = service.findById(reviewId);
 
         if(review.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(review.get());
+        return ResponseEntity.ok(ReviewMapper.toResponseDTO(review.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A Review")
-    public ResponseEntity<Object> create(@RequestBody Review review) {
-        Result<Review> result = service.create(review);
+    public ResponseEntity<Object> create(@RequestBody ReviewCreateDTO reviewCreateDTO) {
+        Result<ReviewResponseDTO> result = service.create(reviewCreateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
@@ -145,12 +143,12 @@ public class ReviewController {
 
     @PutMapping("/{reviewId}")
     @Operation(summary = "Updates A Review")
-    public ResponseEntity<Object> update(@PathVariable int reviewId, @RequestBody Review review) {
-        if(reviewId != review.getReviewId()) {
+    public ResponseEntity<Object> update(@PathVariable int reviewId, @RequestBody ReviewUpdateDTO reviewUpdateDTO) {
+        if(reviewId != reviewUpdateDTO.getReviewId()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        Result<Review> result = service.update(review);
+        Result<ReviewResponseDTO> result = service.update(reviewUpdateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

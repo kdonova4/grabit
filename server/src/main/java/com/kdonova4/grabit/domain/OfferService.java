@@ -3,10 +3,9 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OfferRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.OfferMapper;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Offer;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -50,8 +49,14 @@ public class OfferService {
         return repository.findById(id);
     }
 
-    public Result<Offer> create(Offer offer) {
-        Result<Offer> result = validate(offer);
+    public Result<OfferResponseDTO> create(OfferCreateDTO offerCreateDTO) {
+
+        AppUser appUser = appUserRepository.findById(offerCreateDTO.getUserId()).orElse(null);
+        Product product = productRepository.findById(offerCreateDTO.getProductId()).orElse(null);
+
+        Offer offer = OfferMapper.toOffer(offerCreateDTO, appUser, product);
+
+        Result<OfferResponseDTO> result = validate(offer);
 
         if(!result.isSuccess())
             return result;
@@ -61,7 +66,7 @@ public class OfferService {
         }
 
         offer = repository.save(offer);
-        result.setPayload(offer);
+        result.setPayload(OfferMapper.toResponseDTO(offer));
         return result;
     }
 
@@ -74,8 +79,8 @@ public class OfferService {
         }
     }
 
-    private Result<Offer> validate(Offer offer) {
-        Result<Offer> result = new Result<>();
+    private Result<OfferResponseDTO> validate(Offer offer) {
+        Result<OfferResponseDTO> result = new Result<>();
 
         if(offer == null) {
             result.addMessages("OFFER CANNOT BE NULL", ResultType.INVALID);

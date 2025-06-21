@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -25,6 +27,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int productId;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="posted_at", nullable = false, updatable = false, insertable = false)
     private Timestamp postedAt;
 

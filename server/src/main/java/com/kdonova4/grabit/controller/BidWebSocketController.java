@@ -5,11 +5,10 @@ import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.model.AppUser;
 import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.BidMessage;
+import com.kdonova4.grabit.model.BidCreateDTO;
 import com.kdonova4.grabit.model.Product;
 import com.kdonova4.grabit.security.AppUserService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -32,7 +31,7 @@ public class BidWebSocketController {
     }
 
     @MessageMapping("/bids/place")
-    public void handleBid(BidMessage bidMessage) {
+    public void handleBid(BidCreateDTO bidMessage) {
         System.out.println("Received bid message: " + bidMessage);
         Optional<AppUser> appUser = appUserService.findUserById(bidMessage.getUserId());
         Optional<Product> product = productService.findById(bidMessage.getProductId());

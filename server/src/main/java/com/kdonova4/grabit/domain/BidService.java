@@ -3,10 +3,8 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
-import com.kdonova4.grabit.model.Address;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.domain.mapper.BidMapper;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -51,20 +49,26 @@ public class BidService {
         return repository.findById(id);
     }
 
-    public Result<Bid> create(Bid bid) {
-        Result<Bid> result = validate(bid);
+    public Result<BidResponseDTO> create(BidCreateDTO bid) {
+
+        Product product = productRepository.findById(bid.getProductId()).orElse(null);
+        AppUser user = appUserRepository.findById(bid.getUserId()).orElse(null);
+
+        Bid actual = BidMapper.toBid(bid, product, user);
+
+        Result<BidResponseDTO> result = validate(actual);
 
         if(!result.isSuccess()) {
             return result;
         }
 
-        if(bid.getBidId() != 0) {
+        if(actual.getBidId() != 0) {
             result.addMessages("BidID CANNOT BE SET for 'add' operation", ResultType.INVALID);
             return result;
         }
 
-        bid = repository.save(bid);
-        result.setPayload(bid);
+        actual = repository.save(actual);
+        result.setPayload(BidMapper.toResponseDTO(actual));
         return result;
     }
 
@@ -77,8 +81,8 @@ public class BidService {
         }
     }
 
-    private Result<Bid> validate(Bid bid) {
-        Result<Bid> result = new Result<>();
+    private Result<BidResponseDTO> validate(Bid bid) {
+        Result<BidResponseDTO> result = new Result<>();
 
         if(bid == null) {
             result.addMessages("RESULT CANNOT BE NULL", ResultType.INVALID);

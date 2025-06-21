@@ -2,7 +2,10 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.ImageRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ImageMapper;
 import com.kdonova4.grabit.model.Image;
+import com.kdonova4.grabit.model.ImageCreateDTO;
+import com.kdonova4.grabit.model.ImageResponseDTO;
 import com.kdonova4.grabit.model.Product;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +35,12 @@ public class ImageService {
         return repository.findById(id);
     }
 
-    public Result<Image> create(Image image) {
-        Result<Image> result = validate(image);
+    public Result<ImageResponseDTO> create(ImageCreateDTO imageCreateDTO) {
+
+        Product product = productRepository.findById(imageCreateDTO.getProductId()).orElse(null);
+        Image image = ImageMapper.toImage(imageCreateDTO, product);
+
+        Result<ImageResponseDTO> result = validate(image);
 
         if(!result.isSuccess())
             return result;
@@ -44,7 +51,7 @@ public class ImageService {
         }
 
         image = repository.save(image);
-        result.setPayload(image);
+        result.setPayload(ImageMapper.toResponseDTO(image));
         return result;
     }
 
@@ -57,8 +64,8 @@ public class ImageService {
         }
     }
 
-    private Result<Image> validate(Image image) {
-        Result<Image> result = new Result<>();
+    private Result<ImageResponseDTO> validate(Image image) {
+        Result<ImageResponseDTO> result = new Result<>();
 
         if(image == null) {
             result.addMessages("IMAGE CANNOT BE NULL", ResultType.INVALID);

@@ -3,9 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.ImageService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.domain.mapper.ImageMapper;
+import com.kdonova4.grabit.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,21 +32,21 @@ public class ImageController {
 
     @GetMapping
     @Operation(summary = "Finds All Images")
-    public ResponseEntity<List<Image>> findAll() {
+    public ResponseEntity<List<ImageResponseDTO>> findAll() {
         List<Image> images = service.findAll();
 
-        return ResponseEntity.ok(images);
+        return ResponseEntity.ok(images.stream().map(ImageMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds Images Associated With A Product")
-    public ResponseEntity<List<Image>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<ImageResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isPresent()) {
             List<Image> images = service.findByProduct(product.get());
 
-            return ResponseEntity.ok(images);
+            return ResponseEntity.ok(images.stream().map(ImageMapper::toResponseDTO).toList());
         }
 
         return ResponseEntity.notFound().build();
@@ -55,20 +54,20 @@ public class ImageController {
 
     @GetMapping("/{imageId}")
     @Operation(summary = "Finds A Image By ID")
-    public ResponseEntity<Image> findById(@PathVariable int imageId) {
+    public ResponseEntity<ImageResponseDTO> findById(@PathVariable int imageId) {
         Optional<Image> image = service.findById(imageId);
 
         if(image.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(image.get());
+        return ResponseEntity.ok(ImageMapper.toResponseDTO(image.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates An Image")
-    public ResponseEntity<Object> create(@RequestBody Image image) {
-        Result<Image> result = service.create(image);
+    public ResponseEntity<Object> create(@RequestBody ImageCreateDTO image) {
+        Result<ImageResponseDTO> result = service.create(image);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

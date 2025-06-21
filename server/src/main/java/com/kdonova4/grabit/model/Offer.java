@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -24,6 +26,7 @@ public class Offer {
     @Column(name = "offer_amount", nullable = false)
     private BigDecimal offerAmount;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="sent_at", nullable = false, updatable = false, insertable = false)
     private Timestamp sentAt;
 
@@ -38,6 +41,7 @@ public class Offer {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Generated(event = EventType.INSERT)
     @Column(name = "expire_date", nullable = false)
     private LocalDateTime expireDate;
 }

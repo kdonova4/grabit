@@ -3,9 +3,8 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.CategoryRepository;
 import com.kdonova4.grabit.data.ProductCategoryRepository;
 import com.kdonova4.grabit.data.ProductRepository;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ProductCategory;
+import com.kdonova4.grabit.domain.mapper.ProductCategoryMapper;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,8 +43,14 @@ public class ProductCategoryService {
         return repository.findById(id);
     }
 
-    public Result<ProductCategory> create(ProductCategory productCategory) {
-        Result<ProductCategory> result = validate(productCategory);
+    public Result<ProductCategoryResponseDTO> create(ProductCategoryCreateDTO productCategoryCreateDTO) {
+
+        Product product = productRepository.findById(productCategoryCreateDTO.getProductId()).orElse(null);
+        Category category = categoryRepository.findById(productCategoryCreateDTO.getCategoryId()).orElse(null);
+
+        ProductCategory productCategory = ProductCategoryMapper.toProductCategory(product, category);
+
+        Result<ProductCategoryResponseDTO> result = validate(productCategory);
 
         if(!result.isSuccess())
             return result;
@@ -56,7 +61,7 @@ public class ProductCategoryService {
         }
 
         productCategory = repository.save(productCategory);
-        result.setPayload(productCategory);
+        result.setPayload(ProductCategoryMapper.toResponseDTO(productCategory));
         return result;
     }
 
@@ -69,8 +74,8 @@ public class ProductCategoryService {
         }
     }
 
-    private Result<ProductCategory> validate(ProductCategory productCategory) {
-        Result<ProductCategory> result = new Result<>();
+    private Result<ProductCategoryResponseDTO> validate(ProductCategory productCategory) {
+        Result<ProductCategoryResponseDTO> result = new Result<>();
 
         if(productCategory == null) {
             result.addMessages("PRODUCT CATEGORY CANNOT BE NULL", ResultType.INVALID);

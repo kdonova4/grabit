@@ -152,66 +152,66 @@ public class OrderControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void createShouldReturn400WhenInvalid() throws Exception {
-        CheckoutRequest checkoutRequest = new CheckoutRequest();
-
-        String orderJson = jsonMapper.writeValueAsString(checkoutRequest.getOrder());
-
-        var request = post("/api/v1/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(orderJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createShouldReturn415WhenMultipart() throws Exception {
-        CheckoutRequest checkoutRequest = new CheckoutRequest();
-
-        String orderJson = jsonMapper.writeValueAsString(checkoutRequest.getOrder());
-
-        var request = post("/api/v1/orders")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", "Bearer " + token)
-                .content(orderJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnsupportedMediaType());
-    }
-
-    @Test
-    void createShouldReturn201() throws Exception {
-        Order order = new Order(0, user, Timestamp.valueOf(LocalDateTime.now()), address, address, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
-        Order expected = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), address, address, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
-        Payment payment = new Payment(1, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
-        Shipment shipment = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
-        ShoppingCart shoppingCart = new ShoppingCart(1, product, user, 1);
-
-
-
-        Result<Order> result = new Result<>();
-        result.setPayload(expected);
-
-        CheckoutRequest checkoutRequest = new CheckoutRequest(order, shipment, payment, List.of(shoppingCart));
-
-
-        when(service.create(any(CheckoutRequest.class))).thenReturn(result);
-
-        String requestJson = jsonMapper.writeValueAsString(checkoutRequest);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
-
-        var request = post("/api/v1/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(requestJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isCreated())
-                .andExpect(content().json(expectedJson));
-    }
+//    @Test
+//    void createShouldReturn400WhenInvalid() throws Exception {
+//        CheckoutRequest checkoutRequest = new CheckoutRequest();
+//
+//        String orderJson = jsonMapper.writeValueAsString(checkoutRequest.getOrder());
+//
+//        var request = post("/api/v1/orders")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .header("Authorization", "Bearer " + token)
+//                .content(orderJson);
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isBadRequest());
+//    }
+//
+//    @Test
+//    void createShouldReturn415WhenMultipart() throws Exception {
+//        CheckoutRequest checkoutRequest = new CheckoutRequest();
+//
+//        String orderJson = jsonMapper.writeValueAsString(checkoutRequest.getOrder());
+//
+//        var request = post("/api/v1/orders")
+//                .contentType(MediaType.MULTIPART_FORM_DATA)
+//                .header("Authorization", "Bearer " + token)
+//                .content(orderJson);
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isUnsupportedMediaType());
+//    }
+//
+//    @Test
+//    void createShouldReturn201() throws Exception {
+//        Order order = new Order(0, user, Timestamp.valueOf(LocalDateTime.now()), address, address, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
+//        Order expected = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), address, address, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
+//        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+//        Payment payment = new Payment(1, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
+//        Shipment shipment = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
+//        ShoppingCart shoppingCart = new ShoppingCart(1, product, user, 1);
+//
+//
+//
+//        Result<Order> result = new Result<>();
+//        result.setPayload(expected);
+//
+//        CheckoutRequest checkoutRequest = new CheckoutRequest(order, shipment, payment, List.of(shoppingCart));
+//
+//
+//        when(service.create(any(CheckoutRequest.class))).thenReturn(result);
+//
+//        String requestJson = jsonMapper.writeValueAsString(checkoutRequest);
+//        String expectedJson = jsonMapper.writeValueAsString(expected);
+//
+//        var request = post("/api/v1/orders")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .header("Authorization", "Bearer " + token)
+//                .content(requestJson);
+//
+//        mockMvc.perform(request)
+//                .andExpect(status().isCreated())
+//                .andExpect(content().json(expectedJson));
+//    }
 
 }

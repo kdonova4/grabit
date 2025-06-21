@@ -2,8 +2,11 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.PaymentRepository;
+import com.kdonova4.grabit.domain.mapper.PaymentMapper;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Payment;
+import com.kdonova4.grabit.model.PaymentCreateDTO;
+import com.kdonova4.grabit.model.PaymentResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,8 +46,13 @@ public class PaymentService {
         return repository.findById(id);
     }
 
-    public Result<Payment> create(Payment payment) {
-        Result<Payment> result = validate(payment);
+    public Result<PaymentResponseDTO> create(PaymentCreateDTO paymentCreateDTO) {
+
+        Order order = orderRepository.findById(paymentCreateDTO.getOrderId()).orElse(null);
+
+        Payment payment = PaymentMapper.toPayment(paymentCreateDTO, order);
+
+        Result<PaymentResponseDTO> result = validate(payment);
 
         if(!result.isSuccess())
             return result;
@@ -55,12 +63,12 @@ public class PaymentService {
         }
 
         payment = repository.save(payment);
-        result.setPayload(payment);
+        result.setPayload(PaymentMapper.toResponse(payment));
         return result;
     }
 
-    private Result<Payment> validate(Payment payment) {
-        Result<Payment> result = new Result<>();
+    private Result<PaymentResponseDTO> validate(Payment payment) {
+        Result<PaymentResponseDTO> result = new Result<>();
 
         if(payment == null) {
             result.addMessages("PAYMENT CANNOT BE NULL", ResultType.INVALID);

@@ -1,6 +1,7 @@
 package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.*;
+import com.kdonova4.grabit.domain.mapper.ReviewMapper;
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
@@ -57,8 +58,15 @@ public class ReviewService {
         return repository.findById(id);
     }
 
-    public Result<Review> create(Review review) {
-        Result<Review> result = validate(review);
+    public Result<ReviewResponseDTO> create(ReviewCreateDTO reviewCreateDTO) {
+
+        AppUser postedBy = appUserRepository.findById(reviewCreateDTO.getPosterId()).orElse(null);
+        AppUser seller = appUserRepository.findById(reviewCreateDTO.getSellerId()).orElse(null);
+        Product product = productRepository.findById(reviewCreateDTO.getProductId()).orElse(null);
+
+        Review review = ReviewMapper.toReview(reviewCreateDTO, postedBy, seller, product);
+
+        Result<ReviewResponseDTO> result = validate(review);
 
         if(!result.isSuccess())
             return result;
@@ -69,12 +77,17 @@ public class ReviewService {
         }
 
         review = repository.save(review);
-        result.setPayload(review);
+        result.setPayload(ReviewMapper.toResponseDTO(review));
         return result;
     }
 
-    public Result<Review> update(Review review) {
-        Result<Review> result = validate(review);
+    public Result<ReviewResponseDTO> update(ReviewUpdateDTO reviewUpdateDTO) {
+
+        Review oldReview = repository.findById(reviewUpdateDTO.getReviewId()).orElse(null);
+
+        Review review = ReviewMapper.toReview(reviewUpdateDTO, oldReview);
+
+        Result<ReviewResponseDTO> result = validate(review);
 
         if(!result.isSuccess()) {
             return result;
@@ -85,8 +98,8 @@ public class ReviewService {
             return result;
         }
 
-        Optional<Review> oldReview = repository.findById(review.getReviewId());
-        if(oldReview.isPresent()) {
+        Optional<Review> optReview = repository.findById(review.getReviewId());
+        if(optReview.isPresent()) {
             repository.save(review);
             return result;
         } else {
@@ -104,8 +117,8 @@ public class ReviewService {
         }
     }
 
-    private Result<Review> validate(Review review) {
-        Result<Review> result = new Result<>();
+    private Result<ReviewResponseDTO> validate(Review review) {
+        Result<ReviewResponseDTO> result = new Result<>();
 
         if(review == null) {
             result.addMessages("REVIEW CANNOT BE NULL", ResultType.INVALID);
@@ -151,10 +164,6 @@ public class ReviewService {
             result.addMessages("REVIEW TEXT IS REQUIRED", ResultType.INVALID);
         } else if(review.getReviewText().length() > 500) {
             result.addMessages("REVIEW TEXT LENGTH MUST BE LESS THAN 500 CHARACTERS", ResultType.INVALID);
-        }
-
-        if(review.getCreatedAt() == null || review.getCreatedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("CREATED AT MUST NOT BE NULL OR IN THE FUTURE", ResultType.INVALID);
         }
 
         // Only one review is allowed per product bought from a seller AND Review is only allowed once shipment of order is delivered

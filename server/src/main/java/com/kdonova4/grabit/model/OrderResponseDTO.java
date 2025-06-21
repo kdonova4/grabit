@@ -20,5 +20,5 @@ public class OrderResponseDTO {
     private int billingAddressId;
     private BigDecimal totalAmount;
     private OrderStatus status;
-    private List<OrderProductDTO> orderProducts;
+    private List<OrderProductResponseDTO> orderProducts;
 }
