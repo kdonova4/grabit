@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -23,6 +25,7 @@ public class Bid {
     @Column(name = "bid_amount", nullable = false)
     private BigDecimal bidAmount;
 
+    @Generated(event = EventType.INSERT)
     @Column(name="placed_at", nullable = false, updatable = false, insertable = false)
     private Timestamp placedAt;
 

@@ -3,6 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.AddressService;
 import com.kdonova4.grabit.domain.OrderService;
 import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.mapper.OrderMapper;
+import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
 import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,21 +40,21 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "Find All Orders")
-    public ResponseEntity<List<Order>> findAll() {
+    public ResponseEntity<List<OrderResponseDTO>> findAll() {
         List<Order> orders = service.findAll();
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Orders By User")
-    public ResponseEntity<List<Order>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<OrderResponseDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isPresent()) {
             List<Order> orders = service.findByUser(appUser.get());
 
-            return ResponseEntity.ok(orders);
+            return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
         }
 
         return ResponseEntity.notFound().build();
@@ -60,7 +62,7 @@ public class OrderController {
 
     @GetMapping("/shipping-address/{addressId}")
     @Operation(summary = "Finds Order By Shipping Address")
-    public ResponseEntity<List<Order>> findByShippingAddress(@PathVariable int addressId) {
+    public ResponseEntity<List<OrderResponseDTO>> findByShippingAddress(@PathVariable int addressId) {
         Optional<Address> address = addressService.findById(addressId);
 
         if(address.isEmpty()) {
@@ -69,12 +71,12 @@ public class OrderController {
 
         List<Order> orders = service.findByShippingAddress(address.get());
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("/billing-address/{addressId}")
     @Operation(summary = "Finds Order By Billing Address")
-    public ResponseEntity<List<Order>> findByBillingAddress(@PathVariable int addressId) {
+    public ResponseEntity<List<OrderResponseDTO>> findByBillingAddress(@PathVariable int addressId) {
         Optional<Address> address = addressService.findById(addressId);
 
         if(address.isEmpty()) {
@@ -83,58 +85,58 @@ public class OrderController {
 
         List<Order> orders = service.findByBillingAddress(address.get());
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("/order-after/{expireTimestamp}")
     @Operation(summary = "Finds Orders After Timestamp")
-    public ResponseEntity<List<Order>> findByOrderedAtAfter(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
+    public ResponseEntity<List<OrderResponseDTO>> findByOrderedAtAfter(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
 
         Timestamp timestamp = Timestamp.valueOf(time);
 
         List<Order> orders = service.findByOrderedAtAfter(timestamp);
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("/order-between/{start}/{end}")
     @Operation(summary = "Finds Orders After Timestamp")
-    public ResponseEntity<List<Order>> findByOrderedAtBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+    public ResponseEntity<List<OrderResponseDTO>> findByOrderedAtBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
 
         Timestamp timestampStart = Timestamp.valueOf(start);
         Timestamp timestampEnd = Timestamp.valueOf(end);
 
         List<Order> orders = service.findByOrderedAtBetween(timestampStart, timestampEnd);
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("amount/greater-than/{amount}")
     @Operation(summary = "Finds Orders That Are Greater Than Amount")
-    public ResponseEntity<List<Order>> findByTotalAmountGreaterThan(@PathVariable BigDecimal amount) {
+    public ResponseEntity<List<OrderResponseDTO>> findByTotalAmountGreaterThan(@PathVariable BigDecimal amount) {
         List<Order> orders = service.findByTotalAmountGreaterThan(amount);
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("amount/less-than/{amount}")
     @Operation(summary = "Finds Orders That Are Less Than Amount")
-    public ResponseEntity<List<Order>> findByTotalAmountLessThan(@PathVariable BigDecimal amount) {
+    public ResponseEntity<List<OrderResponseDTO>> findByTotalAmountLessThan(@PathVariable BigDecimal amount) {
         List<Order> orders = service.findByTotalAmountLessThan(amount);
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
     @GetMapping("/{orderId}")
     @Operation(summary = "Finds An Order By ID")
-    public ResponseEntity<Order> findById(@PathVariable int orderId) {
+    public ResponseEntity<OrderResponseDTO> findById(@PathVariable int orderId) {
         Optional<Order> order = service.findById(orderId);
 
         if(order.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(order.get());
+        return ResponseEntity.ok(OrderMapper.toResponse(order.get()));
     }
 
 //    @PostMapping

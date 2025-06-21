@@ -2,7 +2,6 @@ package com.kdonova4.grabit.domain.mapper;
 
 import com.kdonova4.grabit.model.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class OrderMapper {
@@ -17,7 +16,10 @@ public class OrderMapper {
         return order;
     }
 
-    public static OrderResponseDTO toResponse(Order order, List<OrderProductDTO> orderProductDTOs) {
+    public static OrderResponseDTO toResponse(Order order) {
+        List<OrderProductResponseDTO> orderProductDTOs = OrderProductMapper.toDTO(order.getOrderProducts());
+
+
         return new OrderResponseDTO(
                 order.getOrderId(),
                 order.getUser().getAppUserId(),

@@ -3,10 +3,10 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.OrderProductRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.OrderMapper;
+import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.OrderProduct;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -41,8 +41,14 @@ public class OrderProductService {
         return repository.findById(id);
     }
 
-    public Result<OrderProduct> create(OrderProduct orderProduct) {
-        Result<OrderProduct> result = validate(orderProduct);
+    public Result<OrderProductResponseDTO> create(OrderProductCreateDTO orderProductCreateDTO) {
+
+        Product product = productRepository.findById(orderProductCreateDTO.getProductId()).orElse(null);
+        Order order = orderRepository.findById(orderProductCreateDTO.getOrderId()).orElse(null);
+
+        OrderProduct orderProduct = OrderProductMapper.toOrderProduct(orderProductCreateDTO, order, product);
+
+        Result<OrderProductResponseDTO> result = validate(orderProduct);
 
         if(!result.isSuccess())
             return result;
@@ -53,12 +59,12 @@ public class OrderProductService {
         }
 
         orderProduct = repository.save(orderProduct);
-        result.setPayload(orderProduct);
+        result.setPayload(OrderProductMapper.toDTO(orderProduct));
         return result;
     }
 
-    private Result<OrderProduct> validate(OrderProduct orderProduct) {
-        Result<OrderProduct> result = new Result<>();
+    private Result<OrderProductResponseDTO> validate(OrderProduct orderProduct) {
+        Result<OrderProductResponseDTO> result = new Result<>();
 
         if(orderProduct == null) {
             result.addMessages("ORDER PRODUCT CANNOT BE NULL", ResultType.INVALID);

@@ -3,6 +3,7 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.BidService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.mapper.BidMapper;
 import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000"})
@@ -46,7 +46,7 @@ public class BidController {
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Bid By User")
-    public ResponseEntity<List<Bid>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<BidResponseDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isEmpty()) {
@@ -55,12 +55,12 @@ public class BidController {
 
         List<Bid> bids = service.findByUser(appUser.get());
 
-        return ResponseEntity.ok(bids);
+        return ResponseEntity.ok(bids.stream().map(BidMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds Bid By Product")
-    public ResponseEntity<List<Bid>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<BidResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isEmpty()) {
@@ -69,42 +69,46 @@ public class BidController {
 
         List<Bid> bids = service.findByProduct(product.get());
 
-        return ResponseEntity.ok(bids);
+        return ResponseEntity.ok(bids.stream().map(BidMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/{bidId}")
     @Operation(summary = "Finds A Bid By ID")
-    public ResponseEntity<Bid> findById(@PathVariable int bidId) {
+    public ResponseEntity<BidResponseDTO> findById(@PathVariable int bidId) {
         Optional<Bid> bid = service.findById(bidId);
 
         if(bid.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(bid.get());
+        return ResponseEntity.ok(BidMapper.toResponseDTO(bid.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A Bid")
-    public ResponseEntity<Object> create(@RequestBody Bid bid) {
-        Result<Bid> result = service.create(bid);
+    public ResponseEntity<Object> create(@RequestBody BidCreateDTO bid) {
+        Result<BidResponseDTO> result = service.create(bid);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
         }
 
-        List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(bid.getProduct());
+        Bid actual = BidMapper.toBid(bid, productService.findById(bid.getProductId()).get(), appUserService.findUserById(bid.getUserId()).get());
 
-        List<BidMessage> bidMessages = updatedBids.stream()
-                        .map(b -> new BidMessage(
-                                b.getUser().getAppUserId(),
+        List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(actual.getProduct());
+
+        List<BidResponseDTO> bidMessages = updatedBids.stream()
+                        .map(b -> new BidResponseDTO(
+                                b.getBidId(),
+                                b.getBidAmount(),
+                                b.getPlacedAt(),
                                 b.getProduct().getProductId(),
-                                b.getBidAmount()
+                                b.getUser().getAppUserId()
                         ))
                                 .toList();
 
 
-        messagingTemplate.convertAndSend("/topic/bids/" + bid.getProduct().getProductId(), bidMessages);
+        messagingTemplate.convertAndSend("/topic/bids/" + actual.getProduct().getProductId(), bidMessages);
         System.out.println("SENT MESSAGE WEBSOCKET");
 
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
@@ -119,11 +123,13 @@ public class BidController {
         if(service.deleteById(bidId) && bid.isPresent()) {
             List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(bid.get().getProduct());
 
-            List<BidMessage> bidMessages = updatedBids.stream()
-                    .map(b -> new BidMessage(
-                            b.getUser().getAppUserId(),
+            List<BidResponseDTO> bidMessages = updatedBids.stream()
+                    .map(b -> new BidResponseDTO(
+                            b.getBidId(),
+                            b.getBidAmount(),
+                            b.getPlacedAt(),
                             b.getProduct().getProductId(),
-                            b.getBidAmount()
+                            b.getUser().getAppUserId()
                     ))
                     .toList();
 

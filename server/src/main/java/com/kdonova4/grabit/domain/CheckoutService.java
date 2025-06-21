@@ -6,7 +6,6 @@ import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -78,8 +77,9 @@ public class CheckoutService {
         List<OrderProduct> finalOrderProducts = finalizeOrderProducts(orderProducts, completeOrder);
         completeOrder.setOrderProducts(finalOrderProducts);
 
-        for(OrderProduct op : finalOrderProducts) {
-            Result<OrderProduct> orderProductResult = orderProductService.create(op);
+        List<OrderProductCreateDTO> orderProductCreateDTOS = OrderProductMapper.toCreateDTO(finalOrderProducts);
+        for(OrderProductCreateDTO op : orderProductCreateDTOS) {
+            Result<OrderProductResponseDTO> orderProductResult = orderProductService.create(op);
             if(!orderProductResult.isSuccess()) {
                 throw new CheckoutException("Failed to create OrderProduct(s): " + String.join(", ", orderProductResult.getMessages()));
             }
@@ -108,12 +108,11 @@ public class CheckoutService {
         // generate timestamp
         // call paymentService create method
 
-        Payment payment = new Payment();
-        payment.setPaymentId(0);
-        payment.setAmountPaid(completeOrder.getTotalAmount());
-        payment.setOrder(completeOrder);
+        PaymentCreateDTO payment = new PaymentCreateDTO();
+        payment.setPaidAmount(completeOrder.getTotalAmount());
+        payment.setOrderId(completeOrder.getOrderId());
 
-        Result<Payment> paymentResult = paymentService.create(payment);
+        Result<PaymentResponseDTO> paymentResult = paymentService.create(payment);
 
         if(!paymentResult.isSuccess()) {
             throw new CheckoutException("Failed to create Payment: " + String.join(", ", paymentResult.getMessages()));
@@ -149,16 +148,16 @@ public class CheckoutService {
         eventPublisher.publishEvent(new ShipmentPlacedEvent(shipment.getShipmentId()));
 
 
-        return createCheckoutResponse(completeOrder, shipmentResult.getPayload(), paymentResult.getPayload());
+        return createCheckoutResponse(completeOrder, shipmentResult.getPayload(), PaymentMapper.toPayment(paymentResult.getPayload(), completeOrder));
     }
 
     private CheckoutResponseDTO createCheckoutResponse(Order order, Shipment shipment, Payment payment) {
         Order actualOrder = orderService.findById(order.getOrderId()).orElseThrow(() -> new EntityNotFoundException("Order " + order.getOrderId() + " Not Found"));
         Shipment actualShipment = shipmentService.findById(shipment.getShipmentId()).orElseThrow(() -> new EntityNotFoundException("Shipment " + order.getOrderId() + " Not Found"));
         Payment actualPayment = paymentService.findById(payment.getPaymentId()).orElseThrow(() -> new EntityNotFoundException("Payment " + order.getOrderId() + " Not Found"));
-        List<OrderProductDTO> orderProducts = OrderProductMapper.toDTO(actualOrder.getOrderProducts());
+        List<OrderProductResponseDTO> orderProducts = OrderProductMapper.toDTO(actualOrder.getOrderProducts());
 
-        OrderResponseDTO orderResponseDTO = OrderMapper.toResponse(actualOrder, orderProducts);
+        OrderResponseDTO orderResponseDTO = OrderMapper.toResponse(actualOrder);
         ShipmentResponseDTO shipmentResponseDTO = ShipmentMapper.toResponse(actualShipment);
         PaymentResponseDTO paymentResponseDTO = PaymentMapper.toResponse(actualPayment);
 

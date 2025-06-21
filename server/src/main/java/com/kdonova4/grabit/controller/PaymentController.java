@@ -3,9 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.OrderService;
 import com.kdonova4.grabit.domain.PaymentService;
 import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Payment;
-import com.kdonova4.grabit.model.ShoppingCart;
+import com.kdonova4.grabit.domain.mapper.PaymentMapper;
+import com.kdonova4.grabit.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,15 +33,15 @@ public class PaymentController {
 
     @GetMapping
     @Operation(summary = "Finds All Payments")
-    public ResponseEntity<List<Payment>> findAll() {
+    public ResponseEntity<List<PaymentResponseDTO>> findAll() {
         List<Payment> payments = service.findAll();
 
-        return ResponseEntity.ok(payments);
+        return ResponseEntity.ok(payments.stream().map(PaymentMapper::toResponse).toList());
     }
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Finds A Payment By An Order")
-    public ResponseEntity<Payment> findByOrder(@PathVariable int orderId) {
+    public ResponseEntity<PaymentResponseDTO> findByOrder(@PathVariable int orderId) {
         Optional<Order> order = orderService.findById(orderId);
 
         if(order.isEmpty()) {
@@ -55,41 +54,41 @@ public class PaymentController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(payment.get());
+        return ResponseEntity.ok(PaymentMapper.toResponse(payment.get()));
     }
 
     @GetMapping("amount/greater-than/{amount}")
     @Operation(summary = "Finds Payments That Are Greater Than Amount")
-    public ResponseEntity<List<Payment>> findByAmountPaidGreaterThan(@PathVariable BigDecimal amount) {
+    public ResponseEntity<List<PaymentResponseDTO>> findByAmountPaidGreaterThan(@PathVariable BigDecimal amount) {
         List<Payment> payments = service.findByAmountPaidGreaterThan(amount);
 
-        return ResponseEntity.ok(payments);
+        return ResponseEntity.ok(payments.stream().map(PaymentMapper::toResponse).toList());
     }
 
     @GetMapping("amount/less-than/{amount}")
     @Operation(summary = "Finds Payments That Are Less Than Amount")
-    public ResponseEntity<List<Payment>> findByAmountPaidLessThan(@PathVariable BigDecimal amount) {
+    public ResponseEntity<List<PaymentResponseDTO>> findByAmountPaidLessThan(@PathVariable BigDecimal amount) {
         List<Payment> payments = service.findByAmountPaidLessThan(amount);
 
-        return ResponseEntity.ok(payments);
+        return ResponseEntity.ok(payments.stream().map(PaymentMapper::toResponse).toList());
     }
 
     @GetMapping("/{paymentId}")
     @Operation(summary = "Finds A Payment By ID")
-    public ResponseEntity<Payment> findById(@PathVariable int paymentId) {
+    public ResponseEntity<PaymentResponseDTO> findById(@PathVariable int paymentId) {
         Optional<Payment> payment = service.findById(paymentId);
 
         if(payment.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(payment.get());
+        return ResponseEntity.ok(PaymentMapper.toResponse(payment.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A Payment")
-    public ResponseEntity<Object> create(@RequestBody Payment payment) {
-        Result<Payment> result = service.create(payment);
+    public ResponseEntity<Object> create(@RequestBody PaymentCreateDTO paymentCreateDTO) {
+        Result<PaymentResponseDTO> result = service.create(paymentCreateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

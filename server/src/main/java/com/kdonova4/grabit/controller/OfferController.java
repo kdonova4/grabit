@@ -3,10 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.OfferService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.Offer;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.domain.mapper.OfferMapper;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,15 +37,15 @@ public class OfferController {
 
     @GetMapping
     @Operation(summary = "Finds All Offers")
-    public ResponseEntity<List<Offer>> findAll() {
+    public ResponseEntity<List<OfferResponseDTO>> findAll() {
         List<Offer> offers = service.findAll();
 
-        return ResponseEntity.ok(offers);
+        return ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Offer By User")
-    public ResponseEntity<List<Offer>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<OfferResponseDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isEmpty()) {
@@ -56,12 +54,12 @@ public class OfferController {
 
         List<Offer> offers = service.findByUser(appUser.get());
 
-        return ResponseEntity.ok(offers);
+        return ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds Offer By Product")
-    public ResponseEntity<List<Offer>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<OfferResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isEmpty()) {
@@ -70,12 +68,12 @@ public class OfferController {
 
         List<Offer> offers = service.findByProduct(product.get());
 
-        return ResponseEntity.ok(offers);
+        return ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}/product/{productId}")
     @Operation(summary = "Finds Offer by User and Product")
-    public ResponseEntity<Offer> findByUserAndProduct(@PathVariable int userId, @PathVariable int productId) {
+    public ResponseEntity<OfferResponseDTO> findByUserAndProduct(@PathVariable int userId, @PathVariable int productId) {
         Optional<AppUser> user = appUserService.findUserById(userId);
         Optional<Product> product = productService.findById(productId);
 
@@ -89,12 +87,12 @@ public class OfferController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(offer.get());
+        return ResponseEntity.ok(OfferMapper.toResponseDTO(offer.get()));
     }
 
     @GetMapping("/product/{productId}/expire-after/{expireDateTime}")
     @Operation(summary = "Finds Offers by Product and Expire DateTime")
-    public ResponseEntity<List<Offer>> findByProductAndExpireDateAfter(
+    public ResponseEntity<List<OfferResponseDTO>> findByProductAndExpireDateAfter(
             @PathVariable int productId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expireDateTime) {
         Optional<Product> product = productService.findById(productId);
@@ -106,26 +104,26 @@ public class OfferController {
         List<Offer> offers = service.findByProductAndExpireDateAfter(product.get(), expireDateTime);
 
         return offers != null && !offers.isEmpty()
-                ? ResponseEntity.ok(offers)
+                ? ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList())
                 : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{offerId}")
     @Operation(summary = "Finds A Offer By ID")
-    public ResponseEntity<Offer> findById(@PathVariable int offerId) {
+    public ResponseEntity<OfferResponseDTO> findById(@PathVariable int offerId) {
         Optional<Offer> offer = service.findById(offerId);
 
         if(offer.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(offer.get());
+        return ResponseEntity.ok(OfferMapper.toResponseDTO(offer.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A Offer")
-    public ResponseEntity<Object> create(@RequestBody Offer offer) {
-        Result<Offer> result = service.create(offer);
+    public ResponseEntity<Object> create(@RequestBody OfferCreateDTO offer) {
+        Result<OfferResponseDTO> result = service.create(offer);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

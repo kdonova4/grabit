@@ -4,6 +4,8 @@ import com.kdonova4.grabit.domain.OrderProductService;
 import com.kdonova4.grabit.domain.OrderService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.mapper.OrderMapper;
+import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
 import com.kdonova4.grabit.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,7 +36,7 @@ public class OrderProductController {
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Finds OrderProducts By Order")
-    public ResponseEntity<List<OrderProduct>> findByOrder(@PathVariable int orderId) {
+    public ResponseEntity<List<OrderProductResponseDTO>> findByOrder(@PathVariable int orderId) {
         Optional<Order> order = orderService.findById(orderId);
 
         if(order.isEmpty()) {
@@ -43,39 +45,39 @@ public class OrderProductController {
 
         List<OrderProduct> orderProducts = service.findByOrder(order.get());
 
-        return ResponseEntity.ok(orderProducts);
+        return ResponseEntity.ok(OrderProductMapper.toDTO(orderProducts));
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds OrderProducts By Product")
-    public ResponseEntity<List<OrderProduct>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<OrderProductResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        List<OrderProduct> productCategories = service.findByProduct(product.get());
+        List<OrderProduct> orderProducts = service.findByProduct(product.get());
 
-        return ResponseEntity.ok(productCategories);
+        return ResponseEntity.ok(OrderProductMapper.toDTO(orderProducts));
     }
 
     @GetMapping("/{orderProductId}")
     @Operation(summary = "Finds An OrderProduct By ID")
-    public ResponseEntity<OrderProduct> findById(@PathVariable int orderProductId) {
+    public ResponseEntity<OrderProductResponseDTO> findById(@PathVariable int orderProductId) {
         Optional<OrderProduct> orderProduct = service.findById(orderProductId);
 
         if(orderProduct.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(orderProduct.get());
+        return ResponseEntity.ok(OrderProductMapper.toDTO(orderProduct.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A OrderProduct")
-    public ResponseEntity<Object> create(@RequestBody OrderProduct orderProduct) {
-        Result<OrderProduct> result = service.create(orderProduct);
+    public ResponseEntity<Object> create(@RequestBody OrderProductCreateDTO orderProduct) {
+        Result<OrderProductResponseDTO> result = service.create(orderProduct);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

@@ -4,6 +4,7 @@ import com.kdonova4.grabit.domain.CategoryService;
 import com.kdonova4.grabit.domain.ProductCategoryService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.mapper.ProductCategoryMapper;
 import com.kdonova4.grabit.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,15 +35,15 @@ public class ProductCategoryController {
 
     @GetMapping
     @Operation(summary = "Finds All Product Categories")
-    public ResponseEntity<List<ProductCategory>> findAll() {
+    public ResponseEntity<List<ProductCategoryResponseDTO>> findAll() {
         List<ProductCategory> productCategories = service.findAll();
 
-        return ResponseEntity.ok(productCategories);
+        return ResponseEntity.ok(productCategories.stream().map(ProductCategoryMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/category/{categoryId}")
     @Operation(summary = "Finds ProductCategories By Category")
-    public ResponseEntity<List<ProductCategory>> findByCategory(@PathVariable int categoryId) {
+    public ResponseEntity<List<ProductCategoryResponseDTO>> findByCategory(@PathVariable int categoryId) {
         Optional<Category> category = categoryService.findById(categoryId);
 
         if(category.isEmpty()) {
@@ -51,12 +52,12 @@ public class ProductCategoryController {
 
         List<ProductCategory> productCategories = service.findByCategory(category.get());
 
-        return ResponseEntity.ok(productCategories);
+        return ResponseEntity.ok(productCategories.stream().map(ProductCategoryMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
     @Operation(summary = "Finds ProductCategories By Product")
-    public ResponseEntity<List<ProductCategory>> findByProduct(@PathVariable int productId) {
+    public ResponseEntity<List<ProductCategoryResponseDTO>> findByProduct(@PathVariable int productId) {
         Optional<Product> product = productService.findById(productId);
 
         if(product.isEmpty()) {
@@ -65,12 +66,12 @@ public class ProductCategoryController {
 
         List<ProductCategory> productCategories = service.findByProduct(product.get());
 
-        return ResponseEntity.ok(productCategories);
+        return ResponseEntity.ok(productCategories.stream().map(ProductCategoryMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/category/{categoryId}/product/{productId}")
     @Operation(summary = "Finds ProductCategories by Category and Product")
-    public ResponseEntity<ProductCategory> findByCategoryAndProduct(@PathVariable int categoryId, @PathVariable int productId) {
+    public ResponseEntity<ProductCategoryResponseDTO> findByCategoryAndProduct(@PathVariable int categoryId, @PathVariable int productId) {
         Optional<Category> category = categoryService.findById(categoryId);
         Optional<Product> product = productService.findById(productId);
 
@@ -84,25 +85,25 @@ public class ProductCategoryController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(productCategory.get());
+        return ResponseEntity.ok(ProductCategoryMapper.toResponseDTO(productCategory.get()));
     }
 
     @GetMapping("/{productCategoryId}")
     @Operation(summary = "Finds A ProductCategoryId By ID")
-    public ResponseEntity<ProductCategory> findById(@PathVariable int productCategoryId) {
+    public ResponseEntity<ProductCategoryResponseDTO> findById(@PathVariable int productCategoryId) {
         Optional<ProductCategory> productCategory = service.findById(productCategoryId);
 
         if(productCategory.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(productCategory.get());
+        return ResponseEntity.ok(ProductCategoryMapper.toResponseDTO(productCategory.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A ProductCategory")
-    public ResponseEntity<Object> create(@RequestBody ProductCategory bid) {
-        Result<ProductCategory> result = service.create(bid);
+    public ResponseEntity<Object> create(@RequestBody ProductCategoryCreateDTO productCategoryCreateDTO) {
+        Result<ProductCategoryResponseDTO> result = service.create(productCategoryCreateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

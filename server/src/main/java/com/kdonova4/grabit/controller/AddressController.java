@@ -2,8 +2,8 @@ package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.AddressService;
 import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.model.Address;
-import com.kdonova4.grabit.model.AppUser;
+import com.kdonova4.grabit.domain.mapper.AddressMapper;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,21 +32,23 @@ public class AddressController {
 
     @GetMapping()
     @Operation(summary = "Finds All Addresses")
-    public ResponseEntity<List<Address>> findAll() {
+    public ResponseEntity<List<AddressResponseDTO>> findAll() {
         List<Address> addresses = service.findAll();
-
-        return ResponseEntity.ok(addresses);
+        List<AddressResponseDTO> addressResponseDTOS = addresses.stream().map(AddressMapper::toResponseDTO).toList();
+        return ResponseEntity.ok(addressResponseDTOS);
     }
 
     @GetMapping("/user/{appUserId}")
     @Operation(summary = "Finds The Address Associated With A User")
-    public ResponseEntity<List<Address>> findByUser(@PathVariable int appUserId) {
+    public ResponseEntity<List<AddressResponseDTO>> findByUser(@PathVariable int appUserId) {
         Optional<AppUser> appUser = appUserService.findUserById(appUserId);
 
         if(appUser.isPresent()) {
             List<Address> addresses = service.findByUser(appUser.get());
 
-            return ResponseEntity.ok(addresses);
+            List<AddressResponseDTO> addressResponseDTOS = addresses.stream().map(AddressMapper::toResponseDTO).toList();
+
+            return ResponseEntity.ok(addressResponseDTOS);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -54,20 +56,20 @@ public class AddressController {
 
     @GetMapping("/{addressId}")
     @Operation(summary = "Find An Address By Its ID")
-    public ResponseEntity<Address> findById(@PathVariable int addressId) {
+    public ResponseEntity<AddressResponseDTO> findById(@PathVariable int addressId) {
         Optional<Address> address = service.findById(addressId);
 
         if(address.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(address.get());
+        return ResponseEntity.ok(AddressMapper.toResponseDTO(address.get()));
     }
 
     @PostMapping
     @Operation(summary = "Add An Address")
-    public ResponseEntity<Object> create(@RequestBody Address address) {
-        Result<Address> result = service.create(address);
+    public ResponseEntity<Object> create(@RequestBody AddressCreateDTO address) {
+        Result<AddressResponseDTO> result = service.create(address);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
@@ -78,12 +80,12 @@ public class AddressController {
 
     @PutMapping("/{addressId}")
     @Operation(summary = "Updates An Address")
-    public ResponseEntity<Object> update(@PathVariable int addressId, @RequestBody Address address) {
+    public ResponseEntity<Object> update(@PathVariable int addressId, @RequestBody AddressUpdateDTO address) {
         if(addressId != address.getAddressId()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        Result<Address> result = service.update(address);
+        Result<AddressResponseDTO> result = service.update(address);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

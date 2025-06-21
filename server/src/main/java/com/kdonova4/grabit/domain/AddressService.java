@@ -2,8 +2,8 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.model.Address;
-import com.kdonova4.grabit.model.AppUser;
+import com.kdonova4.grabit.domain.mapper.AddressMapper;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,26 +31,37 @@ public class AddressService {
         return repository.findById(id);
     }
 
-    public Result<Address> create(Address address) {
-        Result<Address> result = validate(address);
+    public Result<AddressResponseDTO> create(AddressCreateDTO address) {
+
+        AppUser user = appUserRepository.findById(address.getUserId()).orElse(null);
+        Address actualAddress = AddressMapper.toAddress(address, user);
+
+
+        Result<AddressResponseDTO> result = validate(actualAddress);
 
         if(!result.isSuccess()) {
             return result;
         }
 
-        if(address.getAddressId() != 0) {
+        if(actualAddress.getAddressId() != 0) {
             result.addMessages("AddressId CANNOT BE SET for 'add' operation", ResultType.INVALID);
             return result;
         }
 
-        address = repository.save(address);
-        result.setPayload(address);
+        actualAddress = repository.save(actualAddress);
+        result.setPayload(AddressMapper.toResponseDTO(actualAddress));
         return result;
     }
 
 
-    public Result<Address> update(Address address) {
-        Result<Address> result = validate(address);
+    public Result<AddressResponseDTO> update(AddressUpdateDTO address) {
+
+        AppUser user = appUserRepository.findById(address.getAddressId()).orElse(null);
+
+
+        Address actualAddress = AddressMapper.toAddress(address, user);
+
+        Result<AddressResponseDTO> result = validate(actualAddress);
 
         if(!result.isSuccess()) {
             return result;
@@ -63,7 +74,7 @@ public class AddressService {
 
         Optional<Address> oldAddress = repository.findById(address.getAddressId());
         if(oldAddress.isPresent()) {
-            repository.save(address);
+            repository.save(actualAddress);
             return result;
         } else {
             result.addMessages("ADDRESS " + address.getAddressId() + " NOT FOUND", ResultType.NOT_FOUND);
@@ -71,8 +82,8 @@ public class AddressService {
         }
     }
 
-    private Result<Address> validate(Address address) {
-        Result<Address> result = new Result<>();
+    private Result<AddressResponseDTO> validate(Address address) {
+        Result<AddressResponseDTO> result = new Result<>();
 
         if(address == null) {
             result.addMessages("ADDRESS CANNOT BE NULL", ResultType.INVALID);
