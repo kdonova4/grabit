@@ -3,12 +3,11 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 
@@ -52,8 +51,13 @@ public class ProductService {
         return repository.findById(id);
     }
 
-    public Result<Product> create(Product product) {
-        Result<Product> result = validate(product);
+    public Result<Object> create(ProductCreateDTO productCreateDTO) {
+
+        AppUser user = appUserRepository.findById(productCreateDTO.getUserId()).orElse(null);
+
+        Product product = ProductMapper.toProduct(productCreateDTO, user);
+
+        Result<Object> result = validate(product);
 
         if(!result.isSuccess())
             return result;
@@ -64,12 +68,21 @@ public class ProductService {
         }
 
         product = repository.save(product);
-        result.setPayload(product);
+
+        result.setPayload(product.getSaleType() == SaleType.AUCTION
+                ? ProductMapper.toAuctionResponse(product)
+                : ProductMapper.toBuyNowResponse(product));
+
         return result;
     }
 
-    public Result<Product> update(Product product) {
-        Result<Product> result = validate(product);
+    public Result<Object> update(ProductUpdateDTO productUpdateDTO) {
+
+        Product oldProduct = repository.findById(productUpdateDTO.getProductId()).orElse(null);
+
+        Product product = ProductMapper.toProduct(productUpdateDTO, oldProduct);
+
+        Result<Object> result = validate(product);
 
         if(!result.isSuccess())
             return result;
@@ -79,8 +92,8 @@ public class ProductService {
             return result;
         }
 
-        Optional<Product> oldProduct = repository.findById(product.getProductId());
-        if(oldProduct.isPresent()) {
+        Optional<Product> optProduct = repository.findById(product.getProductId());
+        if(optProduct.isPresent()) {
             repository.save(product);
         } else {
             result.addMessages("Product " + product.getProductId() + " Not Found", ResultType.INVALID);
@@ -101,8 +114,8 @@ public class ProductService {
 
 
 
-    private Result<Product> validate(Product product) {
-        Result<Product> result = new Result<>();
+    private Result<Object> validate(Product product) {
+        Result<Object> result = new Result<>();
 
         if(product == null) {
             result.addMessages("PRODUCT CANNOT BE NULL", ResultType.INVALID);

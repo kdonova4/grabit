@@ -30,25 +30,25 @@ public class BidWebSocketController {
         this.appUserService = appUserService;
     }
 
-    @MessageMapping("/bids/place")
-    public void handleBid(BidCreateDTO bidMessage) {
-        System.out.println("Received bid message: " + bidMessage);
-        Optional<AppUser> appUser = appUserService.findUserById(bidMessage.getUserId());
-        Optional<Product> product = productService.findById(bidMessage.getProductId());
-
-        if(appUser.isEmpty() || product.isEmpty()) {
-            System.out.println("USER OR PRODUCT NOT FOUND");
-            return;
-        }
-
-        Bid bid = new Bid(0, bidMessage.getBidAmount(), Timestamp.valueOf(LocalDateTime.now()), product.get(), appUser.get());
-
-        Result<Bid> result = service.create(bid);
-
-        if(result.isSuccess()) {
-            messagingTemplate.convertAndSend("topic/bids/" + bid.getProduct().getProductId(), result.getPayload());
-        } else {
-            System.out.println("RESULT FAILURE");
-        }
-    }
+//    @MessageMapping("/bids/place")
+//    public void handleBid(BidCreateDTO bidMessage) {
+//        System.out.println("Received bid message: " + bidMessage);
+//        Optional<AppUser> appUser = appUserService.findUserById(bidMessage.getUserId());
+//        Optional<Product> product = productService.findById(bidMessage.getProductId());
+//
+//        if(appUser.isEmpty() || product.isEmpty()) {
+//            System.out.println("USER OR PRODUCT NOT FOUND");
+//            return;
+//        }
+//
+//        Bid bid = new Bid(0, bidMessage.getBidAmount(), Timestamp.valueOf(LocalDateTime.now()), product.get(), appUser.get());
+//
+//        Result<Bid> result = service.create(bid);
+//
+//        if(result.isSuccess()) {
+//            messagingTemplate.convertAndSend("topic/bids/" + bid.getProduct().getProductId(), result.getPayload());
+//        } else {
+//            System.out.println("RESULT FAILURE");
+//        }
+//    }
 }

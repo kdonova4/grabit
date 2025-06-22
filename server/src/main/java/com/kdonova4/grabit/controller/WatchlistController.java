@@ -3,10 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.WatchlistService;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
-import com.kdonova4.grabit.model.Watchlist;
+import com.kdonova4.grabit.domain.mapper.WatchlistMapper;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,21 +35,21 @@ public class WatchlistController {
 
     @GetMapping
     @Operation(summary = "Finds All Watchlist Items")
-    public ResponseEntity<List<Watchlist>> findAll() {
+    public ResponseEntity<List<WatchlistDTO>> findAll() {
         List<Watchlist> list = service.findAll();
 
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(list.stream().map(WatchlistMapper::toDTO).toList());
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Watchlist Item By User")
-    public ResponseEntity<List<Watchlist>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<WatchlistDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isPresent()) {
-            List<Watchlist> watchlistList = service.findByUser(appUser.get());
+            List<Watchlist> list = service.findByUser(appUser.get());
 
-            return ResponseEntity.ok(watchlistList);
+            return ResponseEntity.ok(list.stream().map(WatchlistMapper::toDTO).toList());
         }
 
         return ResponseEntity.notFound().build();
@@ -59,7 +57,7 @@ public class WatchlistController {
 
     @GetMapping("/user/{userId}/product/{productId}")
     @Operation(summary = "Finds Watchlist Items By User And Product")
-    public ResponseEntity<Watchlist> findByUserProduct(@PathVariable int userId, @PathVariable int productId) {
+    public ResponseEntity<WatchlistDTO> findByUserProduct(@PathVariable int userId, @PathVariable int productId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
         Optional<Product> product = productService.findById(productId);
 
@@ -73,25 +71,25 @@ public class WatchlistController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(watchlist.get());
+        return ResponseEntity.ok(WatchlistMapper.toDTO(watchlist.get()));
     }
 
     @GetMapping("/{watchId}")
     @Operation(summary = "Finds A Watchlist Item By ID")
-    public ResponseEntity<Watchlist> findById(@PathVariable int watchId) {
+    public ResponseEntity<WatchlistDTO> findById(@PathVariable int watchId) {
         Optional<Watchlist> watchlist = service.findById(watchId);
 
         if(watchlist.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(watchlist.get());
+        return ResponseEntity.ok(WatchlistMapper.toDTO(watchlist.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A Watchlist Item")
-    public ResponseEntity<Object> create(@RequestBody Watchlist watchlist) {
-        Result<Watchlist> result = service.create(watchlist);
+    public ResponseEntity<Object> create(@RequestBody WatchlistDTO watchlistDTO) {
+        Result<WatchlistDTO> result = service.create(watchlistDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

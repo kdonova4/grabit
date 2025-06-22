@@ -3,10 +3,8 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.WatchlistRepository;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
-import com.kdonova4.grabit.model.Watchlist;
+import com.kdonova4.grabit.domain.mapper.WatchlistMapper;
+import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,8 +39,14 @@ public class WatchlistService {
         return repository.findById(id);
     }
 
-    public Result<Watchlist> create(Watchlist watchlist) {
-        Result<Watchlist> result = validate(watchlist);
+    public Result<WatchlistDTO> create(WatchlistDTO watchlistDTO) {
+
+        Product product = productRepository.findById(watchlistDTO.getProductId()).orElse(null);
+        AppUser user = appUserRepository.findById(watchlistDTO.getUserId()).orElse(null);
+
+        Watchlist watchlist = WatchlistMapper.toWatchlist(watchlistDTO, product, user);
+
+        Result<WatchlistDTO> result = validate(watchlist);
 
         if(!result.isSuccess())
             return result;
@@ -53,7 +57,7 @@ public class WatchlistService {
         }
 
         watchlist = repository.save(watchlist);
-        result.setPayload(watchlist);
+        result.setPayload(WatchlistMapper.toDTO(watchlist));
         return result;
     }
 
@@ -66,8 +70,8 @@ public class WatchlistService {
         }
     }
 
-    private Result<Watchlist> validate(Watchlist watchlist) {
-        Result<Watchlist> result = new Result<>();
+    private Result<WatchlistDTO> validate(Watchlist watchlist) {
+        Result<WatchlistDTO> result = new Result<>();
 
         if(watchlist == null) {
             result.addMessages("WATCHLIST CANNOT BE NULL", ResultType.INVALID);

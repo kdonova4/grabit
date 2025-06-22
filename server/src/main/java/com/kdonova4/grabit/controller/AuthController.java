@@ -93,9 +93,22 @@ public class AuthController {
             return new ResponseEntity<>(List.of("The provided username already exists"), HttpStatus.BAD_REQUEST);
         }
 
-        HashMap<String, Integer> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("appUserId", appUser.getAppUserId());
+        map.put("email", appUser.getEmail());
 
         return new ResponseEntity<>(map, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/register/verify")
+    public ResponseEntity<?> verify(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        int code = Integer.parseInt(credentials.get("code"));
+
+        if(service.validateCode(email, code)) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification code");
     }
 }

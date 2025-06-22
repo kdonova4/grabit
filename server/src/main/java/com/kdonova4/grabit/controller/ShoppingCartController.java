@@ -3,10 +3,8 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.ShoppingCartService;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
+import com.kdonova4.grabit.domain.mapper.ShoppingCartMapper;
+import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,21 +35,21 @@ public class ShoppingCartController {
 
     @GetMapping
     @Operation(summary = "Finds All Shopping Carts")
-    public ResponseEntity<List<ShoppingCart>> findAll() {
+    public ResponseEntity<List<ShoppingCartDTO>> findAll() {
         List<ShoppingCart> shoppingCarts = service.findAll();
 
-        return ResponseEntity.ok(shoppingCarts);
+        return ResponseEntity.ok(shoppingCarts.stream().map(ShoppingCartMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Shopping Cart Items By User")
-    public ResponseEntity<List<ShoppingCart>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<ShoppingCartDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isPresent()) {
             List<ShoppingCart> cartList = service.findByUser(appUser.get());
 
-            return ResponseEntity.ok(cartList);
+            return ResponseEntity.ok(cartList.stream().map(ShoppingCartMapper::toResponseDTO).toList());
         }
 
         return ResponseEntity.notFound().build();
@@ -59,7 +57,7 @@ public class ShoppingCartController {
 
     @GetMapping("/user/{userId}/product/{productId}")
     @Operation(summary = "Finds Shopping Cart Items By User And Product")
-    public ResponseEntity<ShoppingCart> findByUserProduct(@PathVariable int userId, @PathVariable int productId) {
+    public ResponseEntity<ShoppingCartDTO> findByUserProduct(@PathVariable int userId, @PathVariable int productId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
         Optional<Product> product = productService.findById(productId);
 
@@ -73,31 +71,47 @@ public class ShoppingCartController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(shoppingCart.get());
+        return ResponseEntity.ok(ShoppingCartMapper.toResponseDTO(shoppingCart.get()));
     }
 
     @GetMapping("/{cartId}")
     @Operation(summary = "Finds A Cart Item By ID")
-    public ResponseEntity<ShoppingCart> findById(@PathVariable int cartId) {
+    public ResponseEntity<ShoppingCartDTO> findById(@PathVariable int cartId) {
         Optional<ShoppingCart> cart = service.findById(cartId);
 
         if(cart.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(cart.get());
+        return ResponseEntity.ok(ShoppingCartMapper.toResponseDTO(cart.get()));
     }
 
     @PostMapping
     @Operation(summary = "Creates A ShoppingCart Item")
-    public ResponseEntity<Object> create(@RequestBody ShoppingCart shoppingCart) {
-        Result<ShoppingCart> result = service.create(shoppingCart);
+    public ResponseEntity<Object> create(@RequestBody ShoppingCartDTO shoppingCartDTO) {
+        Result<ShoppingCartDTO> result = service.create(shoppingCartDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
         }
 
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{cartId}")
+    @Operation(summary = "Updates A Product")
+    public ResponseEntity<Object> update(@PathVariable int cartId, @RequestBody ShoppingCartDTO shoppingCartDTO) {
+        if(cartId != shoppingCartDTO.getShoppingCartId()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+
+        Result<ShoppingCartDTO> result = service.update(shoppingCartDTO);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return new ResponseEntity<>(result.getPayload(), HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{cartId}")
