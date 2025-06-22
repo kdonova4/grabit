@@ -13,4 +13,22 @@ public class ShoppingCartMapper {
                 shoppingCartDTO.getShoppingCartId(),
                 product, user, shoppingCartDTO.getQuantity());
     }
+
+    public static ShoppingCartDTO toResponseDTO(ShoppingCart shoppingCart) {
+        return new ShoppingCartDTO(
+                shoppingCart.getShoppingCartId(),
+                shoppingCart.getProduct().getProductId(),
+                shoppingCart.getUser().getAppUserId(),
+                shoppingCart.getQuantity()
+        );
+    }
+
+    public static ShoppingCart fromDTOUpdate(ShoppingCartDTO cartDTO, ShoppingCart cart) {
+        return new ShoppingCart(
+                cartDTO.getShoppingCartId(),
+                cart.getProduct(),
+                cart.getUser(),
+                cartDTO.getQuantity()
+        );
+    }
 }

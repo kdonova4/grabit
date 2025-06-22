@@ -3,8 +3,11 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.OrderService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.ShipmentService;
+import com.kdonova4.grabit.domain.mapper.ShipmentMapper;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Shipment;
+import com.kdonova4.grabit.model.ShipmentCreateDTO;
+import com.kdonova4.grabit.model.ShipmentResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,15 +35,15 @@ public class ShipmentController {
 
     @GetMapping
     @Operation(summary = "Finds All Shipments")
-    public ResponseEntity<List<Shipment>> findAll() {
+    public ResponseEntity<List<ShipmentResponseDTO>> findAll() {
         List<Shipment> shipments = service.findAll();
 
-        return ResponseEntity.ok(shipments);
+        return ResponseEntity.ok(shipments.stream().map(ShipmentMapper::toResponse).toList());
     }
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Finds A Shipment By An Order")
-    public ResponseEntity<Shipment> findByOrder(@PathVariable int orderId) {
+    public ResponseEntity<ShipmentResponseDTO> findByOrder(@PathVariable int orderId) {
         Optional<Order> order = orderService.findById(orderId);
 
         if(order.isEmpty()) {
@@ -53,43 +56,33 @@ public class ShipmentController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(shipment.get());
+        return ResponseEntity.ok(ShipmentMapper.toResponse(shipment.get()));
     }
 
     @GetMapping("/tracking/{trackingNumber}")
     @Operation(summary = "Finds Shipment By Tracking Number")
-    public ResponseEntity<Shipment> findByTrackingNumber(@PathVariable String trackingNumber) {
+    public ResponseEntity<ShipmentResponseDTO> findByTrackingNumber(@PathVariable String trackingNumber) {
         Optional<Shipment> shipment = service.findByTrackingNumber(trackingNumber);
 
         if(shipment.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(shipment.get());
+        return ResponseEntity.ok(ShipmentMapper.toResponse(shipment.get()));
     }
 
     @GetMapping("/{shipmentId}")
     @Operation(summary = "Finds A Shipment By ID")
-    public ResponseEntity<Shipment> findById(@PathVariable int shipmentId) {
+    public ResponseEntity<ShipmentResponseDTO> findById(@PathVariable int shipmentId) {
         Optional<Shipment> shipment = service.findById(shipmentId);
 
         if(shipment.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(shipment.get());
+        return ResponseEntity.ok(ShipmentMapper.toResponse(shipment.get()));
     }
 
-    @PostMapping
-    @Operation(summary = "Creates A Shipment")
-    public ResponseEntity<Object> create(@RequestBody Shipment shipment) {
-        Result<Shipment> result = service.create(shipment);
 
-        if(!result.isSuccess()) {
-            return ErrorResponse.build(result);
-        }
-
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
-    }
 
 }

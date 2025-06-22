@@ -14,7 +14,7 @@ public class ShipmentResponseDTO {
     private int shipmentId;
     private int orderId;
     private ShipmentStatus shipmentStatus;
-    private String tackingNumber;
+    private String trackingNumber;
     private Timestamp shippedAt;
     private Timestamp deliveredAt;
 }

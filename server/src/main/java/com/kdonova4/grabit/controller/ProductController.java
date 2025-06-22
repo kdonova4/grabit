@@ -3,6 +3,7 @@ package com.kdonova4.grabit.controller;
 import com.kdonova4.grabit.domain.CategoryService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
+import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
@@ -38,15 +39,15 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "Finds All Products")
-    public ResponseEntity<List<Product>> findAll() {
+    public ResponseEntity<List<ProductResponseDTO>> findAll() {
         List<Product> products = service.findAll();
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Finds Products By User")
-    public ResponseEntity<List<Product>> findByUser(@PathVariable int userId) {
+    public ResponseEntity<List<ProductResponseDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
         if(appUser.isEmpty()) {
@@ -55,24 +56,24 @@ public class ProductController {
 
         List<Product> products = service.findByUser(appUser.get());
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/{productId}")
     @Operation(summary = "Finds A Product By ID")
-    public ResponseEntity<Product> findById(@PathVariable int productId) {
+    public ResponseEntity<ProductResponseDTO> findById(@PathVariable int productId) {
         Optional<Product> product = service.findById(productId);
 
         if(product.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(product.get());
+        return ResponseEntity.ok(ProductMapper.toResponseDTO(product.get()));
     }
 
     @GetMapping("/search")
     @Operation(summary = "Finds By Search")
-    public ResponseEntity<List<Product>> search(@RequestParam(required = false) String productName,
+    public ResponseEntity<List<ProductResponseDTO>> search(@RequestParam(required = false) String productName,
                                                 @RequestParam(required = false) BigDecimal minPrice,
                                                 @RequestParam(required = false) BigDecimal maxPrice,
                                                 @RequestParam(required = false) ProductStatus status,
@@ -86,13 +87,13 @@ public class ProductController {
 
         List<Product> products = service.search(productName, minPrice, maxPrice, status, condition, saleType, category);
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
     }
 
     @PostMapping
     @Operation(summary = "Creates A Product")
-    public ResponseEntity<Object> create(@RequestBody Product product) {
-        Result<Product> result = service.create(product);
+    public ResponseEntity<Object> create(@RequestBody ProductCreateDTO productCreateDTO) {
+        Result<Object> result = service.create(productCreateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
@@ -103,12 +104,12 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     @Operation(summary = "Updates A Product")
-    public ResponseEntity<Object> update(@PathVariable int productId, @RequestBody Product product) {
-        if(productId != product.getProductId()) {
+    public ResponseEntity<Object> update(@PathVariable int productId, @RequestBody ProductUpdateDTO productUpdateDTO) {
+        if(productId != productUpdateDTO.getProductId()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        Result<Product> result = service.update(product);
+        Result<Object> result = service.update(productUpdateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

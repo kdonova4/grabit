@@ -17,13 +17,25 @@ public class ShipmentMapper {
                 shipment.getDeliveredAt());
     }
 
-    public static Shipment toShipment(ShipmentCreateDTO shipmentCreateDTO, Order order) {
+    public static Shipment toShipment(ShipmentCreateDTO shipmentCreateDTO, Order order, String trackingNumber) {
         return new Shipment(
                 0,
                 order,
                 null,
+                trackingNumber,
                 null,
+                null
+        );
+    }
 
-        )
+    public static Shipment toShipment(ShipmentResponseDTO shipmentResponseDTO, Order order) {
+        return new Shipment(
+                shipmentResponseDTO.getShipmentId(),
+                order,
+                shipmentResponseDTO.getShipmentStatus(),
+                shipmentResponseDTO.getTrackingNumber(),
+                shipmentResponseDTO.getShippedAt(),
+                shipmentResponseDTO.getDeliveredAt()
+        );
     }
 }

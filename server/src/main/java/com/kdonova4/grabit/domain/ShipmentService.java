@@ -2,15 +2,19 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ShipmentRepository;
+import com.kdonova4.grabit.domain.mapper.ShipmentMapper;
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Shipment;
+import com.kdonova4.grabit.model.ShipmentCreateDTO;
+import com.kdonova4.grabit.model.ShipmentResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ShipmentService {
@@ -46,6 +50,7 @@ public class ShipmentService {
     public Result<Shipment> create(Shipment shipment) {
         Result<Shipment> result = validate(shipment);
 
+
         if(!result.isSuccess())
             return result;
 
@@ -54,13 +59,17 @@ public class ShipmentService {
             return result;
         }
 
+        String trackingNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 18);
+
+        shipment.setTrackingNumber(trackingNumber);
+
         shipment = repository.save(shipment);
         result.setPayload(shipment);
         return result;
     }
 
     public Result<Shipment> update(Shipment shipment) {
-        Result<Shipment> result = validate(shipment);
+        Result<Shipment> result = validateUpdate(shipment);
 
         if(!result.isSuccess()) {
             return result;
@@ -82,6 +91,35 @@ public class ShipmentService {
     }
 
     public Result<Shipment> validate(Shipment shipment) {
+        Result<Shipment> result = new Result<>();
+
+        if(shipment == null) {
+            result.addMessages("SHIPMENT CANNOT BE NULL", ResultType.INVALID);
+            return result;
+        }
+
+        if(shipment.getOrder() == null || shipment.getOrder().getOrderId() <= 0) {
+            result.addMessages("ORDER IS REQUIRED", ResultType.INVALID);
+            return result;
+        }
+
+        Optional<Order> order = orderRepository.findById(shipment.getOrder().getOrderId());
+
+        if(order.isEmpty()) {
+            result.addMessages("ORDER MUST EXIST", ResultType.INVALID);
+            return result;
+        }
+
+        if(shipment.getShipmentId() != 0 && (shipment.getTrackingNumber() == null || shipment.getTrackingNumber().isBlank())) {
+            result.addMessages("TRACKING NUMBER CANNOT BE NULL OR BLANK", ResultType.INVALID);
+        } else if(shipment.getShipmentId() != 0 && shipment.getTrackingNumber().length() != 18) {
+            result.addMessages("TRACKING NUMBER MUST BE 18 CHARACTERS", ResultType.INVALID);
+        }
+
+        return result;
+    }
+
+    public Result<Shipment> validateUpdate(Shipment shipment) {
         Result<Shipment> result = new Result<>();
 
         if(shipment == null) {

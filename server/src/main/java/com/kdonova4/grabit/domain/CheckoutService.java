@@ -94,13 +94,17 @@ public class CheckoutService {
         Shipment shipment = new Shipment();
         shipment.setShipmentId(0);
         shipment.setOrder(completeOrder);
-        shipment.setTrackingNumber(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
+
 
         Result<Shipment> shipmentResult = shipmentService.create(shipment);
+
+
 
         if(!shipmentResult.isSuccess()) {
             throw new CheckoutException("Failed to create Shipment: " + String.join(", ", shipmentResult.getMessages()));
         }
+
+
 
         // create payment
         // assign order
@@ -131,7 +135,9 @@ public class CheckoutService {
             {
                 product.setProductStatus(ProductStatus.SOLD);
             }
-            Result<Product> productResult = productService.update(product);
+
+
+            Result<Object> productResult = productService.update(ProductMapper.toUpdateDTO(product));
             if(!productResult.isSuccess()) {
                 throw new CheckoutException("Failed to update Product: " + String.join(", ", productResult.getMessages()));
             }
@@ -145,7 +151,7 @@ public class CheckoutService {
         // publish the event for shipment
         // publish the event for order
         eventPublisher.publishEvent(new OrderPlacedEvent(completeOrder.getOrderId()));
-        eventPublisher.publishEvent(new ShipmentPlacedEvent(shipment.getShipmentId()));
+        eventPublisher.publishEvent(new ShipmentPlacedEvent(shipmentResult.getPayload().getShipmentId()));
 
 
         return createCheckoutResponse(completeOrder, shipmentResult.getPayload(), PaymentMapper.toPayment(paymentResult.getPayload(), completeOrder));

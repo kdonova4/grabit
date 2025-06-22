@@ -3,6 +3,7 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.ShoppingCartRepository;
+import com.kdonova4.grabit.domain.mapper.ShoppingCartMapper;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
@@ -39,8 +40,14 @@ public class ShoppingCartService {
         return repository.findById(id);
     }
 
-    public Result<ShoppingCart> create(ShoppingCart shoppingCart) {
-        Result<ShoppingCart> result = validate(shoppingCart);
+    public Result<ShoppingCartDTO> create(ShoppingCartDTO shoppingCartDTO) {
+
+        Product product = productRepository.findById(shoppingCartDTO.getProductId()).orElse(null);
+        AppUser user = appUserRepository.findById(shoppingCartDTO.getUserId()).orElse(null);
+
+        ShoppingCart shoppingCart = ShoppingCartMapper.fromDTO(shoppingCartDTO, user, product);
+
+        Result<ShoppingCartDTO> result = validate(shoppingCart);
 
         if(!result.isSuccess())
             return result;
@@ -51,8 +58,33 @@ public class ShoppingCartService {
         }
 
         shoppingCart = repository.save(shoppingCart);
-        result.setPayload(shoppingCart);
+        result.setPayload(ShoppingCartMapper.toResponseDTO(shoppingCart));
         return result;
+    }
+
+    public Result<ShoppingCartDTO> update(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart oldCart = repository.findById(shoppingCartDTO.getShoppingCartId()).orElse(null);
+        ShoppingCart shoppingCart = ShoppingCartMapper.fromDTOUpdate(shoppingCartDTO, oldCart);
+
+        Result<ShoppingCartDTO> result = validate(shoppingCart);
+
+        if(!result.isSuccess()) {
+            return result;
+        }
+
+        if(shoppingCart.getShoppingCartId() <= 0) {
+            result.addMessages("SHOPPING CART ID MUST BE SET", ResultType.INVALID);
+            return result;
+        }
+
+        Optional<ShoppingCart> optShoppingCart = repository.findById(shoppingCart.getShoppingCartId());
+        if(optShoppingCart.isPresent()) {
+            repository.save(shoppingCart);
+            return result;
+        } else {
+            result.addMessages("SHOPPING CART " + shoppingCart.getShoppingCartId() + " NOT FOUND", ResultType.NOT_FOUND);
+            return result;
+        }
     }
 
     public void deleteByUser(AppUser user) {
@@ -68,8 +100,8 @@ public class ShoppingCartService {
         }
     }
 
-    private Result<ShoppingCart> validate(ShoppingCart shoppingCart) {
-        Result<ShoppingCart> result = new Result<>();
+    private Result<ShoppingCartDTO> validate(ShoppingCart shoppingCart) {
+        Result<ShoppingCartDTO> result = new Result<>();
 
         if(shoppingCart == null) {
             result.addMessages("SHOPPING CART CANNOT BE NULL", ResultType.INVALID);

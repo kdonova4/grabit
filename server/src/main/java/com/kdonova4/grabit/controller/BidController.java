@@ -38,10 +38,10 @@ public class BidController {
 
     @GetMapping
     @Operation(summary = "Finds All Bids")
-    public ResponseEntity<List<Bid>> findAll() {
+    public ResponseEntity<List<BidResponseDTO>> findAll() {
         List<Bid> bids = service.findAll();
 
-        return ResponseEntity.ok(bids);
+        return ResponseEntity.ok(bids.stream().map(BidMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/user/{userId}")
@@ -97,7 +97,7 @@ public class BidController {
 
         List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(actual.getProduct());
 
-        List<BidResponseDTO> bidMessages = updatedBids.stream()
+        List<BidResponseDTO> bidResponseDTOS = updatedBids.stream()
                         .map(b -> new BidResponseDTO(
                                 b.getBidId(),
                                 b.getBidAmount(),
@@ -108,7 +108,7 @@ public class BidController {
                                 .toList();
 
 
-        messagingTemplate.convertAndSend("/topic/bids/" + actual.getProduct().getProductId(), bidMessages);
+        messagingTemplate.convertAndSend("/topic/bids/" + actual.getProduct().getProductId(), bidResponseDTOS);
         System.out.println("SENT MESSAGE WEBSOCKET");
 
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
@@ -123,7 +123,7 @@ public class BidController {
         if(service.deleteById(bidId) && bid.isPresent()) {
             List<Bid> updatedBids = service.findByProductOrderByBidAmountDesc(bid.get().getProduct());
 
-            List<BidResponseDTO> bidMessages = updatedBids.stream()
+            List<BidResponseDTO> bidResponseDTOS = updatedBids.stream()
                     .map(b -> new BidResponseDTO(
                             b.getBidId(),
                             b.getBidAmount(),
@@ -134,7 +134,7 @@ public class BidController {
                     .toList();
 
 
-            messagingTemplate.convertAndSend("/topic/bids/" + bid.get().getProduct().getProductId(), bidMessages);
+            messagingTemplate.convertAndSend("/topic/bids/" + bid.get().getProduct().getProductId(), bidResponseDTOS);
             System.out.println("SENT MESSAGE WEBSOCKET");
         }
 
