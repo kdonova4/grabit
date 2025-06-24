@@ -85,17 +85,7 @@ public class PaymentController {
         return ResponseEntity.ok(PaymentMapper.toResponse(payment.get()));
     }
 
-    @PostMapping
-    @Operation(summary = "Creates A Payment")
-    public ResponseEntity<Object> create(@RequestBody PaymentCreateDTO paymentCreateDTO) {
-        Result<PaymentResponseDTO> result = service.create(paymentCreateDTO);
 
-        if(!result.isSuccess()) {
-            return ErrorResponse.build(result);
-        }
-
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
-    }
 
 
 }

@@ -4,6 +4,7 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.BidMapper;
+import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.*;
 import org.springframework.stereotype.Service;
 
@@ -112,10 +113,8 @@ public class BidService {
             return result;
         }
 
-        if(bid.getPlacedAt() == null) {
-            result.addMessages("PLACED AT CANNOT BE NULL", ResultType.INVALID);
-        } else if(bid.getPlacedAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("PLACED AT MUST BE IN THE PAST", ResultType.INVALID);
+        if(product.get().getSaleType() == SaleType.BUY_NOW) {
+            result.addMessages("CANNOT PLACE BID ON BUY NOW PRODUCT", ResultType.INVALID);
         }
 
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
+import com.kdonova4.grabit.domain.mapper.AddressMapper;
 import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.model.*;
 import com.kdonova4.grabit.security.JwtConverter;
@@ -52,12 +53,14 @@ public class AddressControllerTest {
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private AppUser user;
     private AppRole role;
+    private Address address;
 
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
+        address = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -101,7 +104,7 @@ public class AddressControllerTest {
 
         when(repository.findById(1)).thenReturn(Optional.of(address));
 
-        String addressJson = jsonMapper.writeValueAsString(address);
+        String addressJson = jsonMapper.writeValueAsString(AddressMapper.toResponseDTO(address));
 
         var request = get("/api/v1/addresses/1");
 
@@ -162,14 +165,14 @@ public class AddressControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Address address = new Address(0, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
-        Address expected = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
+        AddressCreateDTO addressCreateDTO = new AddressCreateDTO(address.getStreet(), address.getCity(), address.getState(), address.getZipCode(), address.getCountry(), address.getUser().getAppUserId());
+        AddressResponseDTO expected = new AddressResponseDTO(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user.getAppUserId());
 
 
-        when(repository.save(any(Address.class))).thenReturn(expected);
+        when(repository.save(any(Address.class))).thenReturn(address);
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String addressJson = jsonMapper.writeValueAsString(address);
+        String addressJson = jsonMapper.writeValueAsString(addressCreateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/addresses")
@@ -184,15 +187,15 @@ public class AddressControllerTest {
 
     @Test
     void updateShouldReturn204() throws Exception {
-        Address address = new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", user);
-        Address expected = new Address(1, "3504 Rune Rd", "Waxhaw", "NC", "28173", "USA", user);
+        AddressUpdateDTO addressUpdateDTO = new AddressUpdateDTO(1, "345 Apple St TEST", "Waxhaw", "NC", "28173", "USA", user.getAppUserId());
+        AddressResponseDTO expected = new AddressResponseDTO(1, "345 Apple St TEST", "Waxhaw", "NC", "28173", "USA", user.getAppUserId());
 
 
-        when(repository.save(any(Address.class))).thenReturn(expected);
+        when(repository.save(any(Address.class))).thenReturn(address);
         when(repository.findById(1)).thenReturn(Optional.of(address));
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String addressJson = jsonMapper.writeValueAsString(address);
+        String addressJson = jsonMapper.writeValueAsString(addressUpdateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = put("/api/v1/addresses/1")

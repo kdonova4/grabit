@@ -117,124 +117,154 @@ public class ReviewServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Review mockOut = review;
+        ReviewCreateDTO reviewCreateDTO = new ReviewCreateDTO(
+                review.getRating(),
+                review.getReviewText(),
+                review.getPostedBy().getAppUserId(),
+                review.getSeller().getAppUserId(),
+                review.getProduct().getProductId()
+        );
+
+        Review mockOut = new Review(
+                review.getReviewId(),
+                review.getRating(),
+                review.getReviewText(),
+                review.getPostedBy(),
+                review.getSeller(),
+                review.getProduct(),
+                review.getCreatedAt()
+        );
+
         review.setReviewId(0);
 
-        when(reviewRepository.save(review)).thenReturn(mockOut);
-        when(appUserRepository.findById(review.getPostedBy().getAppUserId())).thenReturn(Optional.of(user));
-        when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
-        when(productRepository.findById(review.getProduct().getProductId())).thenReturn(Optional.of(product));
+
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(2)).thenReturn(Optional.of(seller));
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
         when(reviewRepository.findByPostedByAndProduct(user, product)).thenReturn(Optional.empty());
         when(orderRepository.findByUser(user)).thenReturn(List.of(order));
         when(orderProductRepository.findByOrder(order)).thenReturn(List.of(orderProduct));
         when(shipmentRepository.findByOrder(order)).thenReturn(Optional.of(shipment));
 
-        Result<Review> actual = service.create(review);
+        when(reviewRepository.save(any(Review.class))).thenReturn(mockOut);
+
+        Result<ReviewResponseDTO> actual = service.create(reviewCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldUpdateValid() {
-        review.setReviewText("Nevermind this guy STINKS!!!!");
+
+        ReviewUpdateDTO reviewUpdateDTO = new ReviewUpdateDTO(
+                review.getReviewId(),
+                1,
+                "new review"
+        );
+
+        Review oldReview = new Review(
+                review.getReviewId(),
+                review.getRating(),
+                review.getReviewText(),
+                review.getPostedBy(),
+                review.getSeller(),
+                review.getProduct(),
+                review.getCreatedAt()
+        );
+
         review.setRating(1);
+        review.setReviewText("new review");
 
 
-        when(reviewRepository.save(review)).thenReturn(review);
-        when(reviewRepository.findById(review.getReviewId())).thenReturn(Optional.of(review));
-        when(appUserRepository.findById(review.getPostedBy().getAppUserId())).thenReturn(Optional.of(user));
-        when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
-        when(productRepository.findById(review.getProduct().getProductId())).thenReturn(Optional.of(product));
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(2)).thenReturn(Optional.of(seller));
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
         when(reviewRepository.findByPostedByAndProduct(user, product)).thenReturn(Optional.empty());
         when(orderRepository.findByUser(user)).thenReturn(List.of(order));
         when(orderProductRepository.findByOrder(order)).thenReturn(List.of(orderProduct));
         when(shipmentRepository.findByOrder(order)).thenReturn(Optional.of(shipment));
+        when(reviewRepository.findById(1)).thenReturn(Optional.of(oldReview));
+        when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
-        Result<Review> actual = service.update(review);
+        Result<ReviewResponseDTO> actual = service.update(reviewUpdateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-
     }
 
     @Test
     void shouldNotUpdateMissing() {
-        review.setReviewText("Nevermind this guy STINKS!!!!");
+        ReviewUpdateDTO reviewUpdateDTO = new ReviewUpdateDTO(
+                review.getReviewId(),
+                1,
+                "new review"
+        );
+
+        Review oldReview = new Review(
+                review.getReviewId(),
+                review.getRating(),
+                review.getReviewText(),
+                review.getPostedBy(),
+                review.getSeller(),
+                review.getProduct(),
+                review.getCreatedAt()
+        );
+
         review.setRating(1);
+        review.setReviewText("new review");
 
 
 
-        when(reviewRepository.findById(review.getReviewId())).thenReturn(Optional.empty());
-        when(appUserRepository.findById(review.getPostedBy().getAppUserId())).thenReturn(Optional.of(user));
-        when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
-        when(productRepository.findById(review.getProduct().getProductId())).thenReturn(Optional.of(product));
-        when(reviewRepository.findByPostedByAndProduct(user, product)).thenReturn(Optional.empty());
-        when(orderRepository.findByUser(user)).thenReturn(List.of(order));
-        when(orderProductRepository.findByOrder(order)).thenReturn(List.of(orderProduct));
-        when(shipmentRepository.findByOrder(order)).thenReturn(Optional.of(shipment));
+        when(reviewRepository.findById(1)).thenReturn(Optional.empty());
 
-        Result<Review> actual = service.update(review);
+        Result<ReviewResponseDTO> actual = service.update(reviewUpdateDTO);
 
         assertEquals(ResultType.NOT_FOUND, actual.getType());
     }
 
     @Test
     void shouldNotCreateInvalid() {
-
-        when(appUserRepository.findById(review.getPostedBy().getAppUserId())).thenReturn(Optional.of(user));
-        when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
-        when(productRepository.findById(review.getProduct().getProductId())).thenReturn(Optional.of(product));
-
-        Result<Review> actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setReviewId(0);
-        review.setProduct(null);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setProduct(product);
-        review.setPostedBy(null);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setPostedBy(user);
-        review.setSeller(null);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setSeller(seller);
-        review.setRating(10);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setRating(4);
-        review.setReviewText(null);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setReviewText("Test");
-        review.setCreatedAt(null);
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        review.setCreatedAt(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        when(reviewRepository.findByPostedByAndProduct(user, product)).thenReturn(Optional.of(review));
-        actual = service.create(review);
-        assertEquals(ResultType.INVALID, actual.getType());
-
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(2)).thenReturn(Optional.of(seller));
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
         when(reviewRepository.findByPostedByAndProduct(user, product)).thenReturn(Optional.empty());
         when(orderRepository.findByUser(user)).thenReturn(List.of(order));
         when(orderProductRepository.findByOrder(order)).thenReturn(List.of(orderProduct));
         when(shipmentRepository.findByOrder(order)).thenReturn(Optional.of(shipment));
-        shipment.setShipmentStatus(ShipmentStatus.PENDING);
-        actual = service.create(review);
+
+
+        ReviewCreateDTO reviewCreateDTO = new ReviewCreateDTO(
+                review.getRating(),
+                review.getReviewText(),
+                review.getPostedBy().getAppUserId(),
+                review.getSeller().getAppUserId(),
+                review.getProduct().getProductId()
+        );
+
+        reviewCreateDTO.setRating(-2);
+        Result<ReviewResponseDTO> actual = service.create(reviewCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        shipment.setShipmentStatus(ShipmentStatus.DELIVERED);
-        review = null;
-        actual = service.create(review);
+        reviewCreateDTO.setRating(1);
+        reviewCreateDTO.setReviewText(null);
+        actual = service.create(reviewCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
+
+        reviewCreateDTO.setReviewText("Test");
+        when(appUserRepository.findById(1)).thenReturn(Optional.empty());
+        actual = service.create(reviewCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(2)).thenReturn(Optional.empty());
+        actual = service.create(reviewCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
+
+        when(appUserRepository.findById(2)).thenReturn(Optional.of(seller));
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+        actual = service.create(reviewCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
     }
 
     @Test

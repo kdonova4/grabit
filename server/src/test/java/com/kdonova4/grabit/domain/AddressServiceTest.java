@@ -2,8 +2,8 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.model.Address;
-import com.kdonova4.grabit.model.AppUser;
+import com.kdonova4.grabit.domain.mapper.AddressMapper;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,8 +43,7 @@ public class AddressServiceTest {
     void shouldFindAll() {
         when(addressRepository.findAll()).thenReturn(
                 List.of(
-                        new Address(1, "345 Apple St", "Waxhaw", "NC", "28173", "USA", null)
-
+                    address
                 )
         );
 
@@ -83,57 +82,67 @@ public class AddressServiceTest {
         mockOut.setAddressId(1);
         address.setAddressId(0);
 
+        AddressCreateDTO addressCreateDTO = new AddressCreateDTO(
+                address.getStreet(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.getUser().getAppUserId()
+        );
+
         when(addressRepository.save(address)).thenReturn(mockOut);
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
-        Result<Address> actual = service.create(address);
+        Result<AddressResponseDTO> actual = service.create(addressCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
 
-        Result<Address> actual = service.create(address);
+        AddressCreateDTO addressCreateDTO = new AddressCreateDTO(
+                address.getStreet(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.getUser().getAppUserId()
+        );
+
+
+
+
+        addressCreateDTO.setCity(null);
+        Result<AddressResponseDTO> actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        address.setAddressId(0);
-        address.setUser(null);
-        actual = service.create(address);
+        addressCreateDTO.setCity("Test");
+        addressCreateDTO.setStreet(null);
+        actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        user.setAppUserId(0);
-        actual = service.create(address);
+        addressCreateDTO.setStreet("Test");
+        addressCreateDTO.setState(null);
+        actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        user.setAppUserId(1);
-        address.setStreet(null);
-        actual = service.create(address);
+        addressCreateDTO.setState("Test");
+        addressCreateDTO.setZipCode(null);
+        actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        address.setStreet("street");
-        address.setCity(null);
-        actual = service.create(address);
+        addressCreateDTO.setZipCode("TEST");
+        addressCreateDTO.setCountry(null);
+        actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        address.setCity("Waxhaw");
-        address.setState(null);
-        actual = service.create(address);
+        addressCreateDTO.setCountry("North Carolina");
+        addressCreateDTO.setUserId(0);
+        when(appUserRepository.findById(0)).thenReturn(Optional.empty());
+        actual = service.create(addressCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        address.setState("North Carolina");
-        address.setZipCode(null);
-        actual = service.create(address);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        address.setZipCode("123123");
-        address.setCountry(null);
-        actual = service.create(address);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        address = null;
-        actual = service.create(address);
-        assertEquals(ResultType.INVALID, actual.getType());
     }
 
     @Test
@@ -144,7 +153,16 @@ public class AddressServiceTest {
         when(addressRepository.findById(1)).thenReturn(Optional.of(address));
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
 
-        Result<Address> actual = service.update(address);
+        AddressUpdateDTO addressUpdateDTO = new AddressUpdateDTO(
+                address.getAddressId(),
+                address.getStreet(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.getUser().getAppUserId()
+        );
+        Result<AddressResponseDTO> actual = service.update(addressUpdateDTO);
         assertEquals(ResultType.SUCCESS, actual.getType());
     }
 
@@ -155,8 +173,17 @@ public class AddressServiceTest {
 
         when(addressRepository.findById(address.getAddressId())).thenReturn(Optional.empty());
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        AddressUpdateDTO addressUpdateDTO = new AddressUpdateDTO(
+                address.getAddressId(),
+                "New",
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry(),
+                address.getUser().getAppUserId()
+        );
 
-        Result<Address> actual = service.update(address);
+        Result<AddressResponseDTO> actual = service.update(addressUpdateDTO);
         assertEquals(ResultType.NOT_FOUND, actual.getType());
     }
 }

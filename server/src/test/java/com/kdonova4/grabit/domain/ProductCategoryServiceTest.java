@@ -6,10 +6,7 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ProductCategory;
-import com.kdonova4.grabit.model.Watchlist;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,48 +111,26 @@ public class ProductCategoryServiceTest {
 
     @Test
     void shouldCreateValid() {
-        ProductCategory mockOut = productCategory;
-        mockOut.setProductCategoryId(1);
-        productCategory.setProductCategoryId(0);
+        ProductCategoryCreateDTO productCategoryCreateDTO = new ProductCategoryCreateDTO(product.getProductId(), category.getCategoryId());
+        ProductCategory mockOut = new ProductCategory(1, product, category);
 
-        when(productCategoryRepository.save(productCategory)).thenReturn(mockOut);
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(categoryRepository.findById(category.getCategoryId())).thenReturn(Optional.of(category));
+        when(productCategoryRepository.save(any(ProductCategory.class))).thenReturn(mockOut);
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
 
-        Result<ProductCategory> actual = service.create(productCategory);
+        Result<ProductCategoryResponseDTO> actual = service.create(productCategoryCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+        when(categoryRepository.findById(1)).thenReturn(Optional.empty());
 
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(categoryRepository.findById(category.getCategoryId())).thenReturn(Optional.of(category));
-        when(productCategoryRepository.findByCategoryAndProduct(category, product)).thenReturn(Optional.of(productCategory));
+        ProductCategoryCreateDTO productCategoryCreateDTO = new ProductCategoryCreateDTO(product.getProductId(), category.getCategoryId());
 
-        Result<ProductCategory> actual = service.create(productCategory);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        productCategory.setProductCategoryId(0);
-        productCategory.setProduct(null);
-        actual = service.create(productCategory);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        productCategory.setProduct(product);
-        productCategory.setCategory(null);
-        actual = service.create(productCategory);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        productCategory.setCategory(category);
-        ProductCategory temp = productCategory;
-        productCategory = null;
-        actual = service.create(productCategory);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        productCategory = temp;
-        actual = service.create(productCategory);
+        Result<ProductCategoryResponseDTO> actual = service.create(productCategoryCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

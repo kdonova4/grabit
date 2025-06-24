@@ -93,8 +93,7 @@ public class ProductMapper {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getProductStatus(),
-                product.getWinningBid(),
-                product.getUser().getAppUserId()
-        );
+                product.getWinningBid()
+                );
     }
 }

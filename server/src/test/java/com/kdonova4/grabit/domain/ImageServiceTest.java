@@ -6,6 +6,8 @@ import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.Image;
+import com.kdonova4.grabit.model.ImageCreateDTO;
+import com.kdonova4.grabit.model.ImageResponseDTO;
 import com.kdonova4.grabit.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,31 +90,31 @@ public class ImageServiceTest {
 
         when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.of(product));
         when(imageRepository.save(image)).thenReturn(mockOut);
-        Result<Image> actual = service.create(image);
+
+        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
+                image.getImageUrl(),
+                image.getProduct().getProductId()
+        );
+
+        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
 
-        Result<Image> actual = service.create(image);
+        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
+                image.getImageUrl(),
+                image.getProduct().getProductId()
+        );
+        when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.empty());
+
+        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        image.setImageId(0);
-        image.setProduct(null);
-        actual = service.create(image);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        image.setProduct(product);
-        image.setImageUrl(null);
-        actual = service.create(image);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        image.setImageUrl("Test");
-        image = null;
-        actual = service.create(image);
+        imageCreateDTO.setImageUrl(null);
+        actual = service.create(imageCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

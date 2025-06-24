@@ -62,6 +62,7 @@ public class ShoppingCartControllerTest {
     private AppUser user;
     private AppRole role;
     private Product product;
+    private ShoppingCart shoppingCart;
 
     @BeforeEach
     void setup() {
@@ -70,6 +71,7 @@ public class ShoppingCartControllerTest {
         user.setRoles(Set.of(role));
 
         product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        shoppingCart = new ShoppingCart(1, product, user, 1);
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -133,11 +135,16 @@ public class ShoppingCartControllerTest {
 
     @Test
     void findByIdShouldReturn200WhenIdFound() throws Exception {
-        ShoppingCart shoppingCart = new ShoppingCart(1, product, user, 1);
+        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO(
+                1,
+                product.getProductId(),
+                user.getAppUserId(),
+                1
+        );
 
         when(repository.findById(1)).thenReturn(Optional.of(shoppingCart));
 
-        String shoppingJson = jsonMapper.writeValueAsString(shoppingCart);
+        String shoppingJson = jsonMapper.writeValueAsString(shoppingCartDTO);
 
         var request = get("/api/v1/carts/1");
 
@@ -188,14 +195,24 @@ public class ShoppingCartControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        ShoppingCart shoppingCart = new ShoppingCart(0, product, user, 1);
-        ShoppingCart expected = new ShoppingCart(1, product, user, 1);
+        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO(
+                0,
+                product.getProductId(),
+                user.getAppUserId(),
+                1
+        );
+        ShoppingCartDTO expected = new ShoppingCartDTO(
+                1,
+                product.getProductId(),
+                user.getAppUserId(),
+                1
+        );
 
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(ShoppingCart.class))).thenReturn(expected);
+        when(repository.save(any(ShoppingCart.class))).thenReturn(shoppingCart);
 
-        String shoppingJson = jsonMapper.writeValueAsString(shoppingCart);
+        String shoppingJson = jsonMapper.writeValueAsString(shoppingCartDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/carts")

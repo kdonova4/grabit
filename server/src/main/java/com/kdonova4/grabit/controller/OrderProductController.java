@@ -74,17 +74,7 @@ public class OrderProductController {
         return ResponseEntity.ok(OrderProductMapper.toDTO(orderProduct.get()));
     }
 
-    @PostMapping
-    @Operation(summary = "Creates A OrderProduct")
-    public ResponseEntity<Object> create(@RequestBody OrderProductCreateDTO orderProduct) {
-        Result<OrderProductResponseDTO> result = service.create(orderProduct);
 
-        if(!result.isSuccess()) {
-            return ErrorResponse.build(result);
-        }
-
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
-    }
 
 
 }

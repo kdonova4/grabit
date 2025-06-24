@@ -7,6 +7,7 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OrderProductRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ProductStatus;
@@ -134,7 +135,7 @@ public class OrderProductControllerTest {
 
         when(repository.findById(1)).thenReturn(Optional.of(orderProduct));
 
-        String orderJson = jsonMapper.writeValueAsString(orderProduct);
+        String orderJson = jsonMapper.writeValueAsString(OrderProductMapper.toDTO(orderProduct));
 
         var request = get("/api/v1/order-products/1");
 
@@ -151,57 +152,5 @@ public class OrderProductControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void createShouldReturn400WhenInvalid() throws Exception {
-        OrderProduct orderProduct = new OrderProduct();
-
-        String orderJson = jsonMapper.writeValueAsString(orderProduct);
-
-        var request = post("/api/v1/order-products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(orderJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createShouldReturn415WhenMultipart() throws Exception {
-        OrderProduct orderProduct = new OrderProduct();
-
-        String orderJson = jsonMapper.writeValueAsString(orderProduct);
-
-        var request = post("/api/v1/product-categories")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", "Bearer " + token)
-                .content(orderJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnsupportedMediaType());
-    }
-
-    @Test
-    void createShouldReturn201() throws Exception {
-        OrderProduct orderProduct = new OrderProduct(0, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
-        OrderProduct expected = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
-
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(OrderProduct.class))).thenReturn(expected);
-
-        String orderJson = jsonMapper.writeValueAsString(orderProduct);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
-
-        var request = post("/api/v1/order-products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(orderJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isCreated())
-                .andExpect(content().json(expectedJson));
     }
 }

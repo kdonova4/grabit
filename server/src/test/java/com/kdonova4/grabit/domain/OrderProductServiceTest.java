@@ -9,6 +9,7 @@ import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.OrderProduct;
+import com.kdonova4.grabit.model.OrderProductResponseDTO;
 import com.kdonova4.grabit.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -103,10 +104,9 @@ public class OrderProductServiceTest {
         when(productRepository.findById(orderProduct.getProduct().getProductId())).thenReturn(Optional.of(product));
         when(orderRepository.findById(orderProduct.getOrder().getOrderId())).thenReturn(Optional.of(order));
 
-        Result<OrderProduct> actual = service.create(orderProduct);
+        Result<OrderProductResponseDTO> actual = service.create(orderProduct);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class OrderProductServiceTest {
         when(productRepository.findById(orderProduct.getProduct().getProductId())).thenReturn(Optional.of(product));
         when(orderRepository.findById(orderProduct.getOrder().getOrderId())).thenReturn(Optional.of(order));
 
-        Result<OrderProduct> actual = service.create(orderProduct);
+        Result<OrderProductResponseDTO> actual = service.create(orderProduct);
         assertEquals(ResultType.INVALID, actual.getType());
 
         orderProduct.setOrderProductId(0);

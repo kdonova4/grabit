@@ -59,6 +59,7 @@ public class ShipmentControllerTest {
     private AppUser user;
     private AppRole role;
     private Order order;
+    private Shipment shipment;
 
     @BeforeEach
     void setup() {
@@ -67,6 +68,7 @@ public class ShipmentControllerTest {
         user.setRoles(Set.of(role));
 
         order = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
+        shipment = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
 
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
@@ -132,11 +134,13 @@ public class ShipmentControllerTest {
 
     @Test
     void findByIdShouldReturn200WhenIdFound() throws Exception {
-        Shipment shipment = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
-
+        Timestamp time = Timestamp.valueOf(LocalDateTime.now());
+        ShipmentResponseDTO shipmentResponseDTO = new ShipmentResponseDTO(1, order.getOrderId(), ShipmentStatus.PENDING, "TRACKTRACKTRACK123", time, null);
+        shipment.setShippedAt(time);
+        when(orderRepository.findById(order.getOrderId())).thenReturn(Optional.of(order));
         when(repository.findById(1)).thenReturn(Optional.of(shipment));
 
-        String shipJson = jsonMapper.writeValueAsString(shipment);
+        String shipJson = jsonMapper.writeValueAsString(shipmentResponseDTO);
 
         var request = get("/api/v1/shipments/1");
 
@@ -154,56 +158,5 @@ public class ShipmentControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void createShouldReturn400WhenInvalid() throws Exception {
-        Shipment shipment = new Shipment();
-
-        String shipJson = jsonMapper.writeValueAsString(shipment);
-
-        var request = post("/api/v1/shipments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(shipJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createShouldReturn415WhenMultipart() throws Exception {
-        Shipment shipment = new Shipment();
-
-        String shipJson = jsonMapper.writeValueAsString(shipment);
-
-        var request = post("/api/v1/shipments")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", "Bearer " + token)
-                .content(shipJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnsupportedMediaType());
-    }
-
-    @Test
-    void createShouldReturn201() throws Exception {
-        Shipment shipment = new Shipment(0, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
-        Shipment expected = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
-
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(repository.save(any(Shipment.class))).thenReturn(expected);
-
-        String shipJson = jsonMapper.writeValueAsString(shipment);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
-
-        var request = post("/api/v1/shipments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(shipJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isCreated())
-                .andExpect(content().json(expectedJson));
     }
 }

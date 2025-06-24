@@ -85,6 +85,13 @@ public class ReviewService {
 
         Review oldReview = repository.findById(reviewUpdateDTO.getReviewId()).orElse(null);
 
+
+        if(oldReview == null) {
+            Result<ReviewResponseDTO> result = new Result<>();
+            result.addMessages("Old Review Not Found", ResultType.NOT_FOUND);
+            return result;
+        }
+
         Review review = ReviewMapper.toReview(reviewUpdateDTO, oldReview);
 
         Result<ReviewResponseDTO> result = validate(review);

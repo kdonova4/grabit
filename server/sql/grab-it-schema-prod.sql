@@ -254,3 +254,5 @@ select * from shipment;
 select * from order_product;
 
 select * from payment;
+
+select * from app_user;

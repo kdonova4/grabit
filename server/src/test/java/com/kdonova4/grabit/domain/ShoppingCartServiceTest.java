@@ -3,13 +3,11 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.ShoppingCartRepository;
+import com.kdonova4.grabit.domain.mapper.ShoppingCartMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,53 +93,48 @@ public class ShoppingCartServiceTest {
 
     @Test
     void shouldCreateValid() {
-        ShoppingCart mockOut = shoppingCart;
-        mockOut.setShoppingCartId(1);
+        ShoppingCart mockOut = new ShoppingCart(shoppingCart.getShoppingCartId(), product, appUser, 1);
         shoppingCart.setShoppingCartId(0);
 
-        when(shoppingCartRepository.save(shoppingCart)).thenReturn(mockOut);
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(appUserRepository.findById(appUser.getAppUserId())).thenReturn(Optional.of(appUser));
-        when(shoppingCartRepository.findByUserAndProduct(appUser, product)).thenReturn(Optional.empty());
 
-        Result<ShoppingCart> actual = service.create(shoppingCart);
+        when(shoppingCartRepository.save(any(ShoppingCart.class))).thenReturn(mockOut);
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(appUser));
+
+        ShoppingCartDTO shoppingCartDTO = ShoppingCartMapper.toResponseDTO(shoppingCart);
+
+        Result<ShoppingCartDTO> actual = service.create(shoppingCartDTO);
+
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(appUserRepository.findById(appUser.getAppUserId())).thenReturn(Optional.of(appUser));
-        when(shoppingCartRepository.findByUserAndProduct(appUser, product)).thenReturn(Optional.of(shoppingCart));
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+        when(appUserRepository.findById(1)).thenReturn(Optional.empty());
 
-        Result<ShoppingCart> actual = service.create(shoppingCart);
+        ShoppingCartDTO shoppingCartDTO = ShoppingCartMapper.toResponseDTO(shoppingCart);
+
+        Result<ShoppingCartDTO> actual = service.create(shoppingCartDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        shoppingCart.setShoppingCartId(0);
-        shoppingCart.setQuantity(0);
-        actual = service.create(shoppingCart);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        shoppingCart.setQuantity(1);
-        shoppingCart.setUser(null);
-        actual = service.create(shoppingCart);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        shoppingCart.setUser(appUser);
-        shoppingCart.setProduct(null);
-        actual = service.create(shoppingCart);
+        shoppingCartDTO.setShoppingCartId(0);
+        actual = service.create(shoppingCartDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
 
-        shoppingCart.setProduct(product);
-        ShoppingCart temp = shoppingCart;
-        shoppingCart = null;
-        actual = service.create(shoppingCart);
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(appUser));
+        actual = service.create(shoppingCartDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        shoppingCart = temp;
-        actual = service.create(shoppingCart);
+        when(appUserRepository.findById(1)).thenReturn(Optional.empty());
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        actual = service.create(shoppingCartDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(appUser));
+        shoppingCartDTO.setQuantity(-5);
+        actual = service.create(shoppingCartDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

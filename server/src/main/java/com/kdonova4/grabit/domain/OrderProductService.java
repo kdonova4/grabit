@@ -41,13 +41,7 @@ public class OrderProductService {
         return repository.findById(id);
     }
 
-    public Result<OrderProductResponseDTO> create(OrderProductCreateDTO orderProductCreateDTO) {
-
-        Product product = productRepository.findById(orderProductCreateDTO.getProductId()).orElse(null);
-        Order order = orderRepository.findById(orderProductCreateDTO.getOrderId()).orElse(null);
-
-        OrderProduct orderProduct = OrderProductMapper.toOrderProduct(orderProductCreateDTO, order, product);
-
+    public Result<OrderProductResponseDTO> create(OrderProduct orderProduct) {
         Result<OrderProductResponseDTO> result = validate(orderProduct);
 
         if(!result.isSuccess())

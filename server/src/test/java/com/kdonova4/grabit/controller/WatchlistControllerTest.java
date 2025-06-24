@@ -60,6 +60,7 @@ public class WatchlistControllerTest {
     private AppUser user;
     private AppRole role;
     private Product product;
+    private Watchlist watchlist;
 
     @BeforeEach
     void setup() {
@@ -68,6 +69,8 @@ public class WatchlistControllerTest {
         user.setRoles(Set.of(role));
 
         product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        watchlist = new Watchlist(1 , product, user);
+
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -131,11 +134,11 @@ public class WatchlistControllerTest {
 
     @Test
     void findByIdShouldReturn200WhenIdFound() throws Exception {
-        Watchlist item = new Watchlist(1 , product, user);
+        WatchlistDTO watchlistDTO = new WatchlistDTO(1 , product.getProductId(), user.getAppUserId());
 
-        when(repository.findById(1)).thenReturn(Optional.of(item));
+        when(repository.findById(1)).thenReturn(Optional.of(watchlist));
 
-        String watchJson = jsonMapper.writeValueAsString(item);
+        String watchJson = jsonMapper.writeValueAsString(watchlistDTO);
 
         var request = get("/api/v1/watchlists/1");
 
@@ -186,14 +189,14 @@ public class WatchlistControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Watchlist item = new Watchlist(0 , product, user);
-        Watchlist expected = new Watchlist(1 , product, user);
+        WatchlistDTO watchlistDTO = new WatchlistDTO(0 , product.getProductId(), user.getAppUserId());
+        WatchlistDTO expected = new WatchlistDTO(1 , product.getProductId(), user.getAppUserId());
 
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(Watchlist.class))).thenReturn(expected);
+        when(repository.save(any(Watchlist.class))).thenReturn(watchlist);
 
-        String shoppingJson = jsonMapper.writeValueAsString(item);
+        String shoppingJson = jsonMapper.writeValueAsString(watchlistDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/watchlists")

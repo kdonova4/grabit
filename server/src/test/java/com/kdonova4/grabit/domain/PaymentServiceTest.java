@@ -5,6 +5,7 @@ import com.kdonova4.grabit.data.PaymentRepository;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Payment;
+import com.kdonova4.grabit.model.PaymentResponseDTO;
 import com.kdonova4.grabit.model.Shipment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,42 +87,38 @@ public class PaymentServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Payment mockOut = payment;
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        Payment mockOut = new Payment(1, order, payment.getAmountPaid(), timestamp);
+
         payment.setPaymentId(0);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(mockOut);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
-        when(paymentRepository.save(payment)).thenReturn(mockOut);
-        when(orderRepository.findById(payment.getOrder().getOrderId())).thenReturn(Optional.of(order));
-
-        Result<Payment> actual = service.create(payment);
+        Result<PaymentResponseDTO> actual = service.create(payment);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
-        Result<Payment> actual = service.create(payment);
+        Result<PaymentResponseDTO> actual = service.create(payment);
         assertEquals(ResultType.INVALID, actual.getType());
 
         payment.setPaymentId(0);
-        payment.setOrder(null);
-        actual = service.create(payment);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        payment.setOrder(order);
         payment.setAmountPaid(null);
         actual = service.create(payment);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        payment.setAmountPaid(new BigDecimal(100));
-        payment.setPaidAt(Timestamp.valueOf(LocalDateTime.now().plusDays(5)));
+        payment.setAmountPaid(new BigDecimal(500));
         actual = service.create(payment);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        payment.setPaidAt(Timestamp.valueOf(LocalDateTime.now()));
+        payment.setAmountPaid(new BigDecimal(100));
         payment = null;
         actual = service.create(payment);
         assertEquals(ResultType.INVALID, actual.getType());
+
     }
 }

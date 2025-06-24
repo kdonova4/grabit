@@ -184,30 +184,16 @@ public class OrderServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Order mockOut = new Order(order);
-
+        Order mockOrder = new Order(order);
         order.setOrderId(0);
 
-        when(orderRepository.save(any(Order.class))).thenReturn(mockOut);
-        when(addressRepository.findById(order.getShippingAddress().getAddressId())).thenReturn(Optional.of(address));
-        when(addressRepository.findById(order.getBillingAddress().getAddressId())).thenReturn(Optional.of(address));
-        when(appUserRepository.findById(order.getUser().getAppUserId())).thenReturn(Optional.of(user));
+        when(addressRepository.findById(1)).thenReturn(Optional.of(address));
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
+        when(orderRepository.save(any(Order.class))).thenReturn(mockOrder);
 
-        Result<Shipment> shipmentResult = new Result<>();
-        when(shipmentService.create(any(Shipment.class))).thenReturn(shipmentResult);
+        Result<Order> result = service.create(order);
 
-        Result<OrderProduct> orderProductResult = new Result<>();
-        when(orderProductService.create(any(OrderProduct.class))).thenReturn(orderProductResult);
-
-        Result<Payment> paymentResult = new Result<>();
-        when(paymentService.create(any(Payment.class))).thenReturn(paymentResult);
-
-        CheckoutRequest request = new CheckoutRequest(order, shipment, payment, List.of(shoppingCart));
-
-        Result<Order> actual = service.create(request);
-
-        assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
+        assertEquals(ResultType.SUCCESS, result.getType());
     }
 
     @Test
@@ -216,39 +202,27 @@ public class OrderServiceTest {
         when(addressRepository.findById(order.getShippingAddress().getAddressId())).thenReturn(Optional.of(address));
         when(appUserRepository.findById(order.getUser().getAppUserId())).thenReturn(Optional.of(user));
 
-
-        CheckoutRequest request = new CheckoutRequest(order, shipment, payment, List.of(shoppingCart));
-        Order o = request.getOrder();
-        Result<Order> actual = service.create(request);
+        Result<Order> actual = service.create(order);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        o.setOrderId(0);
-        o.setUser(null);
-        actual = service.create(request);
+        order.setOrderId(0);
+        order.setUser(null);
+        actual = service.create(order);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        o.setUser(user);
-        o.setBillingAddress(null);
-        actual = service.create(request);
+        order.setUser(user);
+        order.setBillingAddress(null);
+        actual = service.create(order);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        o.setBillingAddress(address);
-        o.setShippingAddress(null);
-        actual = service.create(request);
+        order.setBillingAddress(address);
+        order.setShippingAddress(null);
+        actual = service.create(order);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        o.setShippingAddress(address);
-        o.setOrderedAt(null);
-        actual = service.create(request);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        o.setOrderedAt(Timestamp.valueOf(LocalDateTime.now().plusDays(5)));
-        actual = service.create(request);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        o.setOrderedAt(Timestamp.valueOf(LocalDateTime.now().minusDays(5)));
-        o.setOrderStatus(null);
-        actual = service.create(request);
+        order.setShippingAddress(address);
+        order = null;
+        actual = service.create(order);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

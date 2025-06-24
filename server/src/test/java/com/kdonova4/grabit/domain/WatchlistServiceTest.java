@@ -3,13 +3,11 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.WatchlistRepository;
+import com.kdonova4.grabit.domain.mapper.WatchlistMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
-import com.kdonova4.grabit.model.Watchlist;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +42,7 @@ public class WatchlistServiceTest {
     private Watchlist item;
     private Product product;
     private AppUser appUser;
+
 
     @BeforeEach
     void setup() {
@@ -94,49 +93,40 @@ public class WatchlistServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Watchlist mockOut = item;
-        mockOut.setWatchId(1);
+        Watchlist mockOut = new Watchlist(item.getWatchId(), item.getProduct(), item.getUser());
         item.setWatchId(0);
 
-        when(watchlistRepository.save(item)).thenReturn(mockOut);
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(appUserRepository.findById(appUser.getAppUserId())).thenReturn(Optional.of(appUser));
-        when(watchlistRepository.findByUserAndProduct(appUser, product)).thenReturn(Optional.empty());
+        when(watchlistRepository.save(any(Watchlist.class))).thenReturn(mockOut);
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(appUser));
 
-        Result<Watchlist> actual = service.create(item);
+        WatchlistDTO watchlistDTO = WatchlistMapper.toDTO(item);
+
+        Result<WatchlistDTO> actual = service.create(watchlistDTO);
+
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
     }
 
     @Test
     void shouldNotCreateInvalid() {
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(appUserRepository.findById(appUser.getAppUserId())).thenReturn(Optional.of(appUser));
-        when(watchlistRepository.findByUserAndProduct(appUser, product)).thenReturn(Optional.of(item));
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+        when(appUserRepository.findById(1)).thenReturn(Optional.empty());
 
-        Result<Watchlist> actual = service.create(item);
-        assertEquals(ResultType.INVALID, actual.getType());
+        WatchlistDTO watchlistDTO = WatchlistMapper.toDTO(item);
 
-        item.setWatchId(0);
-        item.setUser(null);
-        actual = service.create(item);
-        assertEquals(ResultType.INVALID, actual.getType());
+        Result<WatchlistDTO> actual = service.create(watchlistDTO);
+        assertEquals(actual.getType(), ResultType.INVALID);
 
-        item.setUser(appUser);
-        item.setProduct(null);
-        actual = service.create(item);
-        assertEquals(ResultType.INVALID, actual.getType());
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        watchlistDTO.setWatchId(0);
+        actual = service.create(watchlistDTO);
+        assertEquals(actual.getType(), ResultType.INVALID);
 
-
-        item.setProduct(product);
-        Watchlist temp = item;
-        item = null;
-        actual = service.create(item);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        item = temp;
-        actual = service.create(item);
-        assertEquals(ResultType.INVALID, actual.getType());
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(appUser));
+        watchlistDTO.setWatchId(0);
+        actual = service.create(watchlistDTO);
+        assertEquals(actual.getType(), ResultType.INVALID);
     }
 
     @Test

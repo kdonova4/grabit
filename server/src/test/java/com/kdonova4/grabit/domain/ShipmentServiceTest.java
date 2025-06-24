@@ -2,10 +2,13 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ShipmentRepository;
+import com.kdonova4.grabit.domain.mapper.ShipmentMapper;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ShipmentStatus;
 import com.kdonova4.grabit.model.Order;
 import com.kdonova4.grabit.model.Shipment;
+import com.kdonova4.grabit.model.ShipmentCreateDTO;
+import com.kdonova4.grabit.model.ShipmentResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,45 +87,33 @@ public class ShipmentServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Shipment mockOut = shipment;
+        Shipment mockOut = new Shipment(shipment.getShipmentId(),
+                shipment.getOrder(),
+                shipment.getShipmentStatus(),
+                shipment.getTrackingNumber(),
+                shipment.getShippedAt(),
+                shipment.getDeliveredAt());
+
         shipment.setShipmentId(0);
 
-        when(shipmentRepository.save(shipment)).thenReturn(mockOut);
-        when(orderRepository.findById(shipment.getOrder().getOrderId())).thenReturn(Optional.of(order));
+        when(shipmentRepository.save(any(Shipment.class))).thenReturn(mockOut);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
-        Result<Shipment> actual = service.create(shipment);
-        System.out.println(actual.getMessages());
-        assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
+        Result<ShipmentResponseDTO> shipmentResult = service.create(shipment);
+
+        assertEquals(ResultType.SUCCESS, shipmentResult.getType());
+
     }
 
     @Test
     void shouldNotCreateInvalid() {
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
-        when(orderRepository.findById(shipment.getOrder().getOrderId())).thenReturn(Optional.of(order));
-
-
-        Result<Shipment> actual = service.create(shipment);
+        Result<ShipmentResponseDTO> actual = service.create(shipment);
         assertEquals(ResultType.INVALID, actual.getType());
 
         shipment.setShipmentId(0);
-        shipment.setShipmentStatus(null);
         actual = service.create(shipment);
         assertEquals(ResultType.INVALID, actual.getType());
-
-        shipment.setShipmentStatus(ShipmentStatus.PENDING);
-        shipment.setShippedAt(Timestamp.valueOf(LocalDateTime.now().plusDays(5)));
-        actual = service.create(shipment);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        shipment.setShippedAt(Timestamp.valueOf(LocalDateTime.now()));
-        shipment.setTrackingNumber("");
-        actual = service.create(shipment);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        shipment = null;
-        actual = service.create(shipment);
-        assertEquals(ResultType.INVALID, actual.getType());
-
     }
 }

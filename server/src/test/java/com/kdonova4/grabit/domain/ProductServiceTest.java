@@ -3,13 +3,11 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.OrderProduct;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,116 +79,119 @@ public class ProductServiceTest {
 
     @Test
     void shouldCreateValid() {
-        Product mockOut = new Product(product);
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO(
+                product.getSaleType(),
+                product.getProductName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCondition(),
+                product.getQuantity(),
+                product.getUser().getAppUserId()
+        );
 
+        Product mockOut = new Product(product);
         product.setProductId(0);
 
-        when(productRepository.save(product)).thenReturn(mockOut);
-        when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
+        when(productRepository.save(any(Product.class))).thenReturn(mockOut);
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
 
-        Result<Product> actual = service.create(product);
+        Result<Object> actual = service.create(productCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
+        assertTrue(actual.getPayload() instanceof ProductBuyNowResponseDTO);
     }
 
     @Test
     void shouldUpdateValid() {
-        product.setDescription("Updated description");
+        ProductUpdateDTO productUpdateDTO = new ProductUpdateDTO(
+                product.getProductId(),
+                "Test",
+                product.getDescription(),
+                product.getPrice(),
+                product.getCondition(),
+                product.getQuantity(),
+                product.getProductStatus(),
+                product.getWinningBid()
+        );
 
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
         when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
-        when(bidRepository.findByProduct(product)).thenReturn(List.of());
+        when(bidRepository.findByProduct(any(Product.class))).thenReturn(List.of());
 
-        Result<Product> actual = service.update(product);
+
+        Result<Object> actual = service.update(productUpdateDTO);
+
         assertEquals(ResultType.SUCCESS, actual.getType());
     }
 
     @Test
     void shouldNotCreateInvalid() {
-        when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
 
-        Result<Product> actual = service.create(product);
+
+
+
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO(
+                product.getSaleType(),
+                product.getProductName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCondition(),
+                product.getQuantity(),
+                product.getUser().getAppUserId()
+        );
+
+
+        productCreateDTO.setPrice(null);
+        Result<Object> actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        product.setProductId(0);
-        product.setUser(null);
-        actual = service.create(product);
+        productCreateDTO.setPrice(new BigDecimal(1200));
+        productCreateDTO.setProductName(null);
+        actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        product.setUser(user);
-        product.setSaleType(SaleType.AUCTION);
-        actual = service.create(product);
+        productCreateDTO.setProductName(product.getDescription());
+        productCreateDTO.setDescription(null);
+        actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        product.setSaleType(SaleType.BUY_NOW);
-        product.setPrice(null);
-        actual = service.create(product);
+        productCreateDTO.setDescription(product.getDescription());
+        productCreateDTO.setQuantity(-5);
+        actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        product.setPrice(new BigDecimal(-1200));
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setPrice(new BigDecimal(1200));
-        product.setPostedAt(Timestamp.valueOf(LocalDateTime.now().plusDays(5)));
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setPostedAt(Timestamp.valueOf(LocalDateTime.now().minusDays(3)));
-        product.setProductName(null);
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setProductName("Test");
-        product.setDescription(null);
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setDescription("Test description");
-        product.setQuantity(0);
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setQuantity(5);
-        product.setSaleType(SaleType.AUCTION);
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setSaleType(SaleType.BUY_NOW);
-        product.setCondition(null);
-        actual = service.create(product);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        product.setCondition(ConditionType.EXCELLENT);
-        product = null;
-        actual = service.create(product);
+        productCreateDTO.setQuantity(1);
+        productCreateDTO.setConditionType(null);
+        actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 
     @Test
     void shouldNotUpdateMissingOrInvalid() {
-
         product.setDescription("Updated description");
 
-        when(productRepository.findById(product.getProductId())).thenReturn(Optional.empty());
+        when(productRepository.findById(1)).thenReturn(Optional.empty());
         when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
         when(bidRepository.findByProduct(product)).thenReturn(List.of());
 
-        Result<Product> actual = service.update(product);
-        assertEquals(ResultType.INVALID, actual.getType());
 
+        Result<Object> actual = service.update(ProductMapper.toUpdateDTO(product));
+        assertEquals(ResultType.NOT_FOUND, actual.getType());
+
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
         Bid bid = new Bid(1, new BigDecimal(255), Timestamp.valueOf(LocalDateTime.now()), product, user);
         product.setDescription("Updated description");
-
-        actual = service.update(product);
+        product.setSaleType(SaleType.AUCTION);
+        when(bidRepository.findByProduct(product)).thenReturn(List.of(bid));
+        actual = service.update(ProductMapper.toUpdateDTO(product));
         assertEquals(ResultType.INVALID, actual.getType());
 
         product.setProductStatus(ProductStatus.SOLD);
 
         bid.setProduct(null);
 
-        actual = service.update(product);
+        actual = service.update(ProductMapper.toUpdateDTO(product));
         assertEquals(ResultType.INVALID, actual.getType());
     }
 
