@@ -47,8 +47,8 @@ public class ShipmentService {
         return repository.findById(id);
     }
 
-    public Result<Shipment> create(Shipment shipment) {
-        Result<Shipment> result = validate(shipment);
+    public Result<ShipmentResponseDTO> create(Shipment shipment) {
+        Result<ShipmentResponseDTO> result = validate(shipment);
 
 
         if(!result.isSuccess())
@@ -64,12 +64,12 @@ public class ShipmentService {
         shipment.setTrackingNumber(trackingNumber);
 
         shipment = repository.save(shipment);
-        result.setPayload(shipment);
+        result.setPayload(ShipmentMapper.toResponse(shipment));
         return result;
     }
 
-    public Result<Shipment> update(Shipment shipment) {
-        Result<Shipment> result = validateUpdate(shipment);
+    public Result<ShipmentResponseDTO> update(Shipment shipment) {
+        Result<ShipmentResponseDTO> result = validateUpdate(shipment);
 
         if(!result.isSuccess()) {
             return result;
@@ -90,8 +90,8 @@ public class ShipmentService {
         }
     }
 
-    public Result<Shipment> validate(Shipment shipment) {
-        Result<Shipment> result = new Result<>();
+    public Result<ShipmentResponseDTO> validate(Shipment shipment) {
+        Result<ShipmentResponseDTO> result = new Result<>();
 
         if(shipment == null) {
             result.addMessages("SHIPMENT CANNOT BE NULL", ResultType.INVALID);
@@ -119,8 +119,8 @@ public class ShipmentService {
         return result;
     }
 
-    public Result<Shipment> validateUpdate(Shipment shipment) {
-        Result<Shipment> result = new Result<>();
+    public Result<ShipmentResponseDTO> validateUpdate(Shipment shipment) {
+        Result<ShipmentResponseDTO> result = new Result<>();
 
         if(shipment == null) {
             result.addMessages("SHIPMENT CANNOT BE NULL", ResultType.INVALID);

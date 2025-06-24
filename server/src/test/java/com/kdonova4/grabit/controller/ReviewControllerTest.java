@@ -68,6 +68,8 @@ public class ReviewControllerTest {
     private Order order;
     private OrderProduct orderProduct;
     private Shipment shipment;
+    private Review review;
+    private Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
 
     @BeforeEach
     void setup() {
@@ -82,6 +84,7 @@ public class ReviewControllerTest {
 
         user.setRoles(Set.of(buyerRole));
         seller.setRoles(Set.of(sellerRole));
+        review = new Review(1, 4, "Great seller, cant wait!", user, seller, product, timestamp);
 
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
@@ -217,11 +220,11 @@ public class ReviewControllerTest {
 
     @Test
     void findByIdShouldReturn200WhenIdFound() throws Exception {
-        Review review = new Review(1, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
 
+        ReviewResponseDTO reviewResponseDTO = new ReviewResponseDTO(1, 4, "Great seller, cant wait!", user.getAppUserId(), seller.getAppUserId(), product.getProductId(), timestamp);
         when(repository.findById(1)).thenReturn(Optional.of(review));
 
-        String reviewJson = jsonMapper.writeValueAsString(review);
+        String reviewJson = jsonMapper.writeValueAsString(reviewResponseDTO);
 
         var request = get("/api/v1/reviews/1");
 
@@ -272,20 +275,20 @@ public class ReviewControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Review review = new Review(0, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
-        Review expected = new Review(1, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
+        ReviewCreateDTO reviewCreateDTO = new ReviewCreateDTO(4, "Great seller, cant wait!", user.getAppUserId(), seller.getAppUserId(), product.getProductId());
+        ReviewResponseDTO reviewResponseDTO = new ReviewResponseDTO(1, 4, "Great seller, cant wait!", user.getAppUserId(), seller.getAppUserId(), product.getProductId(), timestamp);
 
 
         when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(Review.class))).thenReturn(expected);
+        when(repository.save(any(Review.class))).thenReturn(review);
         when(orderRepository.findByUser(any(AppUser.class))).thenReturn(List.of(order));
         when(orderProductRepository.findByOrder(any(Order.class))).thenReturn(List.of(orderProduct));
         when(shipmentRepository.findByOrder(any(Order.class))).thenReturn(Optional.of(shipment));
 
-        String reviewJson = jsonMapper.writeValueAsString(review);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
+        String reviewJson = jsonMapper.writeValueAsString(reviewCreateDTO);
+        String expectedJson = jsonMapper.writeValueAsString(reviewResponseDTO);
 
         var request = post("/api/v1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -299,21 +302,21 @@ public class ReviewControllerTest {
 
     @Test
     void updateShouldReturn204() throws Exception {
-        Review review = new Review(1, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
-        Review expected = new Review(1, 2, "TEST UPDATE", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
+        ReviewUpdateDTO reviewUpdateDTO = new ReviewUpdateDTO(1, 4, "Test Now");
+        ReviewResponseDTO reviewResponseDTO = new ReviewResponseDTO(1, 4, "Test Now", user.getAppUserId(), seller.getAppUserId(), product.getProductId(), timestamp);
 
 
         when(repository.findById(1)).thenReturn(Optional.of(review));
         when(appUserRepository.findById(review.getSeller().getAppUserId())).thenReturn(Optional.of(seller));
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(Review.class))).thenReturn(expected);
+        when(repository.save(any(Review.class))).thenReturn(review);
         when(orderRepository.findByUser(any(AppUser.class))).thenReturn(List.of(order));
         when(orderProductRepository.findByOrder(any(Order.class))).thenReturn(List.of(orderProduct));
         when(shipmentRepository.findByOrder(any(Order.class))).thenReturn(Optional.of(shipment));
 
-        String reviewJson = jsonMapper.writeValueAsString(review);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
+        String reviewJson = jsonMapper.writeValueAsString(reviewUpdateDTO);
+        String expectedJson = jsonMapper.writeValueAsString(reviewResponseDTO);
 
         var request = put("/api/v1/reviews/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -326,8 +329,8 @@ public class ReviewControllerTest {
 
     @Test
     void updateShouldReturn409Conflict() throws Exception {
-        Review review = new Review(1, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
-        Review expected = new Review(1, 2, "TEST UPDATE", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));
+        ReviewUpdateDTO reviewUpdateDTO = new ReviewUpdateDTO(1, 4, "Test Now");
+        ReviewResponseDTO reviewResponseDTO = new ReviewResponseDTO(1, 4, "Test Now", user.getAppUserId(), seller.getAppUserId(), product.getProductId(), timestamp);
 
 
         String reviewJson = jsonMapper.writeValueAsString(review);

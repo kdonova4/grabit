@@ -115,15 +115,6 @@ public class OfferService {
             result.addMessages("SALE TYPE MUST BE BUY NOW FOR OFFER TO BE PLACED", ResultType.INVALID);
         }
 
-        if(offer.getSentAt() == null) {
-            result.addMessages("SENT AT CANNOT BE NULL", ResultType.INVALID);
-            return result;
-        }
-
-        if(offer.getSentAt().after(Timestamp.valueOf(LocalDateTime.now()))) {
-            result.addMessages("SENT AT MUST BE IN THE PAST", ResultType.INVALID);
-        }
-
         if(offer.getMessage().length() > 200) {
             result.addMessages("MESSAGE CANNOT BE LONGER THAN 200 CHARACTERS", ResultType.INVALID);
         }

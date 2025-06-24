@@ -46,12 +46,7 @@ public class PaymentService {
         return repository.findById(id);
     }
 
-    public Result<PaymentResponseDTO> create(PaymentCreateDTO paymentCreateDTO) {
-
-        Order order = orderRepository.findById(paymentCreateDTO.getOrderId()).orElse(null);
-
-        Payment payment = PaymentMapper.toPayment(paymentCreateDTO, order);
-
+    public Result<PaymentResponseDTO> create(Payment payment) {
         Result<PaymentResponseDTO> result = validate(payment);
 
         if(!result.isSuccess())

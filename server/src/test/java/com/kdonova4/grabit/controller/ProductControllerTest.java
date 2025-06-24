@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
@@ -56,13 +57,15 @@ public class ProductControllerTest {
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private AppUser user;
     private AppRole role;
+    private Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+    private Product product;
 
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
-
+        product = new Product(1, timestamp, SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
         jsonMapper.registerModule(new JavaTimeModule());
@@ -101,11 +104,10 @@ public class ProductControllerTest {
 
     @Test
     void findByIdShouldReturn200WhenIdFound() throws Exception {
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
-
+        ProductResponseDTO productResponseDTO = ProductMapper.toResponseDTO(product);
         when(repository.findById(1)).thenReturn(Optional.of(product));
 
-        String productJson = jsonMapper.writeValueAsString(product);
+        String productJson = jsonMapper.writeValueAsString(productResponseDTO);
 
         var request = get("/api/v1/products/1");
 
@@ -181,14 +183,22 @@ public class ProductControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Product product = new Product(0, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
-        Product expected = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO(
+                product.getSaleType(),
+                product.getProductName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCondition(),
+                product.getQuantity(),
+                product.getUser().getAppUserId()
+        );
+        ProductBuyNowResponseDTO expected = ProductMapper.toBuyNowResponse(product);
 
 
-        when(repository.save(any(Product.class))).thenReturn(expected);
+        when(repository.save(any(Product.class))).thenReturn(product);
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String productJson = jsonMapper.writeValueAsString(product);
+        String productJson = jsonMapper.writeValueAsString(productCreateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/products")
@@ -203,15 +213,15 @@ public class ProductControllerTest {
 
     @Test
     void updateShouldReturn204() throws Exception {
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
-        Product expected = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1400), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        ProductUpdateDTO productUpdateDTO = ProductMapper.toUpdateDTO(product);
+        ProductBuyNowResponseDTO expected = ProductMapper.toBuyNowResponse(product);
 
 
-        when(repository.save(any(Product.class))).thenReturn(expected);
+        when(repository.save(any(Product.class))).thenReturn(product);
         when(repository.findById(1)).thenReturn(Optional.of(product));
         when(appUserRepository.findById(user.getAppUserId())).thenReturn(Optional.of(user));
 
-        String productJson = jsonMapper.writeValueAsString(product);
+        String productJson = jsonMapper.writeValueAsString(productUpdateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = put("/api/v1/products/1")

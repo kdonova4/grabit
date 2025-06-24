@@ -80,6 +80,12 @@ public class ProductService {
 
         Product oldProduct = repository.findById(productUpdateDTO.getProductId()).orElse(null);
 
+        if(oldProduct == null) {
+            Result<Object> result = new Result<>();
+            result.addMessages("Old Product Not Found", ResultType.NOT_FOUND);
+            return result;
+        }
+
         Product product = ProductMapper.toProduct(productUpdateDTO, oldProduct);
 
         Result<Object> result = validate(product);
@@ -116,6 +122,8 @@ public class ProductService {
 
     private Result<Object> validate(Product product) {
         Result<Object> result = new Result<>();
+
+
 
         if(product == null) {
             result.addMessages("PRODUCT CANNOT BE NULL", ResultType.INVALID);
@@ -158,7 +166,7 @@ public class ProductService {
             result.addMessages("PRODUCT DESCRIPTION CANNOT BE GREATER THAN 500 CHARACTERS", ResultType.INVALID);
         }
 
-        if(product.getQuantity() <= 0 && product.getProductStatus() == ProductStatus.ACTIVE) {
+        if(product.getQuantity() <= 0 && product.getProductId() == 0) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
         }
 

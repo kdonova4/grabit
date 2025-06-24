@@ -77,8 +77,8 @@ public class CheckoutService {
         List<OrderProduct> finalOrderProducts = finalizeOrderProducts(orderProducts, completeOrder);
         completeOrder.setOrderProducts(finalOrderProducts);
 
-        List<OrderProductCreateDTO> orderProductCreateDTOS = OrderProductMapper.toCreateDTO(finalOrderProducts);
-        for(OrderProductCreateDTO op : orderProductCreateDTOS) {
+
+        for(OrderProduct op : finalOrderProducts) {
             Result<OrderProductResponseDTO> orderProductResult = orderProductService.create(op);
             if(!orderProductResult.isSuccess()) {
                 throw new CheckoutException("Failed to create OrderProduct(s): " + String.join(", ", orderProductResult.getMessages()));
@@ -96,7 +96,7 @@ public class CheckoutService {
         shipment.setOrder(completeOrder);
 
 
-        Result<Shipment> shipmentResult = shipmentService.create(shipment);
+        Result<ShipmentResponseDTO> shipmentResult = shipmentService.create(shipment);
 
 
 
@@ -112,9 +112,9 @@ public class CheckoutService {
         // generate timestamp
         // call paymentService create method
 
-        PaymentCreateDTO payment = new PaymentCreateDTO();
-        payment.setPaidAmount(completeOrder.getTotalAmount());
-        payment.setOrderId(completeOrder.getOrderId());
+        Payment payment = new Payment();
+        payment.setAmountPaid(completeOrder.getTotalAmount());
+        payment.setOrder(completeOrder);
 
         Result<PaymentResponseDTO> paymentResult = paymentService.create(payment);
 
@@ -154,7 +154,7 @@ public class CheckoutService {
         eventPublisher.publishEvent(new ShipmentPlacedEvent(shipmentResult.getPayload().getShipmentId()));
 
 
-        return createCheckoutResponse(completeOrder, shipmentResult.getPayload(), PaymentMapper.toPayment(paymentResult.getPayload(), completeOrder));
+        return createCheckoutResponse(completeOrder, ShipmentMapper.toShipment(shipmentResult.getPayload(), completeOrder), PaymentMapper.toPayment(paymentResult.getPayload(), completeOrder));
     }
 
     private CheckoutResponseDTO createCheckoutResponse(Order order, Shipment shipment, Payment payment) {

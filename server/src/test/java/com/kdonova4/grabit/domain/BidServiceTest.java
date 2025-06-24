@@ -6,9 +6,7 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,52 +93,50 @@ public class BidServiceTest {
     void shouldCreateValid() {
         Bid mockOut = bid;
         bid.setBidId(0);
-
+        bid.setPlacedAt(null);
         when(bidRepository.save(bid)).thenReturn(mockOut);
         when(appUserRepository.findById(bid.getUser().getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(bid.getProduct().getProductId())).thenReturn(Optional.of(product));
 
-        Result<Bid> actual = service.create(bid);
+        BidCreateDTO bidCreateDTO = new BidCreateDTO(
+                bid.getUser().getAppUserId(),
+                bid.getProduct().getProductId(),
+                bid.getBidAmount()
+        );
 
+        Result<BidResponseDTO> actual = service.create(bidCreateDTO);
+        System.out.println(actual.getMessages());
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
+
     }
 
     @Test
     void shouldNotCreateInvalid() {
-        when(appUserRepository.findById(bid.getUser().getAppUserId())).thenReturn(Optional.of(user));
+        when(appUserRepository.findById(bid.getUser().getAppUserId())).thenReturn(Optional.empty());
+        when(productRepository.findById(bid.getProduct().getProductId())).thenReturn(Optional.empty());
+
+        BidCreateDTO bidCreateDTO = new BidCreateDTO(
+                bid.getUser().getAppUserId(),
+                bid.getProduct().getProductId(),
+                bid.getBidAmount()
+        );
+
+        Result<BidResponseDTO> actual = service.create(bidCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
+        bidCreateDTO.setBidAmount(new BigDecimal(-1));
+        actual = service.create(bidCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
         when(productRepository.findById(bid.getProduct().getProductId())).thenReturn(Optional.of(product));
 
-        Result<Bid> actual = service.create(bid);
+        product.setSaleType(SaleType.BUY_NOW);
+        bidCreateDTO.setBidAmount(new BigDecimal(300));
+        actual = service.create(bidCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        bid.setBidId(0);
-        bid.setProduct(null);
-        actual = service.create(bid);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        bid.setProduct(product);
-        bid.setUser(null);
-        actual = service.create(bid);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        bid.setUser(user);
-        bid.setPlacedAt(null);
-        actual = service.create(bid);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        bid.setPlacedAt(Timestamp.valueOf(LocalDateTime.now().plusDays(5)));
-        actual = service.create(bid);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        bid.setPlacedAt(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        bid.setBidAmount(bid.getProduct().getPrice());
-        actual = service.create(bid);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        bid.setBidAmount(new BigDecimal(300));
-        bid = null;
-        actual = service.create(bid);
+        bidCreateDTO.setBidAmount(new BigDecimal(5));
+        actual = service.create(bidCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

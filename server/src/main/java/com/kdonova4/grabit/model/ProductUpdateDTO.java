@@ -21,5 +21,4 @@ public class ProductUpdateDTO {
     private int quantity;
     private ProductStatus status;
     private BigDecimal winningBid;
-    private int userId;
 }

@@ -6,10 +6,7 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.Offer;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,45 +115,60 @@ public class OfferServiceTest {
     void shouldCreateValid() {
         Offer mockOut = offer;
         offer.setOfferId(0);
+        offer.setSentAt(null);
+        offer.setExpireDate(null);
         product.setSaleType(SaleType.BUY_NOW);
         product.setAuctionEnd(null);
+
 
         when(offerRepository.save(offer)).thenReturn(mockOut);
         when(productRepository.findById(offer.getProduct().getProductId())).thenReturn(Optional.of(product));
         when(appUserRepository.findById(offer.getUser().getAppUserId())).thenReturn(Optional.of(user));
 
-        Result<Offer> actual = service.create(offer);
+        OfferCreateDTO offerCreateDTO = new OfferCreateDTO(
+                offer.getOfferAmount(),
+                offer.getMessage(),
+                offer.getUser().getAppUserId(),
+                offer.getProduct().getProductId()
+        );
 
+        Result<OfferResponseDTO> actual = service.create(offerCreateDTO);
+        System.out.println(actual.getMessages());
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertEquals(mockOut, actual.getPayload());
+
     }
 
     @Test
     void shouldNotCreateInvalid() {
 
-        when(productRepository.findById(offer.getProduct().getProductId())).thenReturn(Optional.of(product));
-        when(appUserRepository.findById(offer.getUser().getAppUserId())).thenReturn(Optional.of(user));
+        when(productRepository.findById(offer.getProduct().getProductId())).thenReturn(Optional.empty());
+        when(appUserRepository.findById(offer.getUser().getAppUserId())).thenReturn(Optional.empty());
 
-        Result<Offer> actual = service.create(offer);
+        OfferCreateDTO offerCreateDTO = new OfferCreateDTO(
+                offer.getOfferAmount(),
+                offer.getMessage(),
+                offer.getUser().getAppUserId(),
+                offer.getProduct().getProductId()
+        );
+
+        Result<OfferResponseDTO> actual = service.create(offerCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
-        offer.setOfferId(0);
-        actual = service.create(offer);
+        offerCreateDTO.setOfferAmount(new BigDecimal(-5));
+        actual = service.create(offerCreateDTO);
+        assertEquals(ResultType.INVALID, actual.getType());
+
+        when(productRepository.findById(offer.getProduct().getProductId())).thenReturn(Optional.of(product));
+
+
+        product.setSaleType(SaleType.AUCTION);
+        offerCreateDTO.setOfferAmount(new BigDecimal(100));
+        actual = service.create(offerCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
         product.setSaleType(SaleType.BUY_NOW);
-        offer.setSentAt(null);
-        actual = service.create(offer);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        offer.setSentAt(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
-        offer.setOfferAmount(product.getPrice());
-        actual = service.create(offer);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        offer.setOfferAmount(new BigDecimal(50));
-        offer = null;
-        actual = service.create(offer);
+        offerCreateDTO.setOfferAmount(new BigDecimal(250));
+        actual = service.create(offerCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
     }
 

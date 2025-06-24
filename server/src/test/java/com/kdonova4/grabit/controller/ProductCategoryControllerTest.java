@@ -7,6 +7,7 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.CategoryRepository;
 import com.kdonova4.grabit.data.ProductCategoryRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ProductCategoryMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
@@ -66,6 +67,7 @@ public class ProductCategoryControllerTest {
     private AppRole role;
     private Product product;
     private Category category;
+    private ProductCategory productCategory;
 
     @BeforeEach
     void setup() {
@@ -75,6 +77,7 @@ public class ProductCategoryControllerTest {
 
         product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
         category = new Category(1, "Electronics");
+        productCategory = new ProductCategory(1, product, category);
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -93,12 +96,12 @@ public class ProductCategoryControllerTest {
     @Test
     void findByCategoryShouldReturn201() throws Exception {
 
-        ProductCategory productCategory = new ProductCategory(1, product, category);
+        ProductCategoryResponseDTO productCategoryResponseDTO = ProductCategoryMapper.toResponseDTO(productCategory);
 
         when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
         when(repository.findByCategory(any(Category.class))).thenReturn(List.of(productCategory));
 
-        String productCategoriesJson = jsonMapper.writeValueAsString(List.of(productCategory));
+        String productCategoriesJson = jsonMapper.writeValueAsString(List.of(productCategoryResponseDTO));
 
         var request = get("/api/v1/product-categories/category/1");
 
@@ -125,7 +128,7 @@ public class ProductCategoryControllerTest {
         when(productRepository.findById(1)).thenReturn(Optional.of(product));
         when(repository.findByProduct(any(Product.class))).thenReturn(List.of(productCategory));
 
-        String productCategoriesJson = jsonMapper.writeValueAsString(List.of(productCategory));
+        String productCategoriesJson = jsonMapper.writeValueAsString(List.of(ProductCategoryMapper.toResponseDTO(productCategory)));
 
         var request = get("/api/v1/product-categories/product/1");
 
@@ -153,7 +156,7 @@ public class ProductCategoryControllerTest {
         when(productRepository.findById(1)).thenReturn(Optional.of(product));
         when(repository.findByCategoryAndProduct(any(Category.class), any(Product.class))).thenReturn(Optional.of(productCategory));
 
-        String productCategoriesJson = jsonMapper.writeValueAsString(productCategory);
+        String productCategoriesJson = jsonMapper.writeValueAsString(ProductCategoryMapper.toResponseDTO(productCategory));
 
         var request = get("/api/v1/product-categories/category/1/product/1");
 
@@ -179,7 +182,7 @@ public class ProductCategoryControllerTest {
 
         when(repository.findById(1)).thenReturn(Optional.of(productCategory));
 
-        String pcJson = jsonMapper.writeValueAsString(productCategory);
+        String pcJson = jsonMapper.writeValueAsString(ProductCategoryMapper.toResponseDTO(productCategory));
 
         var request = get("/api/v1/product-categories/1");
 
@@ -230,14 +233,14 @@ public class ProductCategoryControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        ProductCategory productCategory = new ProductCategory(0, product, category);
-        ProductCategory expected = new ProductCategory(1, product, category);
+        ProductCategoryCreateDTO productCategoryCreateDTO = new ProductCategoryCreateDTO(product.getProductId(), category.getCategoryId());
+        ProductCategoryResponseDTO expected = ProductCategoryMapper.toResponseDTO(productCategory);
 
         when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(ProductCategory.class))).thenReturn(expected);
+        when(repository.save(any(ProductCategory.class))).thenReturn(productCategory);
 
-        String pcJson = jsonMapper.writeValueAsString(productCategory);
+        String pcJson = jsonMapper.writeValueAsString(productCategoryCreateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/product-categories")

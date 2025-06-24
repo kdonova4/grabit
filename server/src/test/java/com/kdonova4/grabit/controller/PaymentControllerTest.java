@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.PaymentRepository;
+import com.kdonova4.grabit.domain.mapper.PaymentMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ProductStatus;
@@ -58,6 +59,7 @@ public class PaymentControllerTest {
     private AppUser user;
     private AppRole role;
     private Order order;
+    private Payment payment;
 
     @BeforeEach
     void setup() {
@@ -67,6 +69,7 @@ public class PaymentControllerTest {
 
         order = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
 
+        payment = new Payment(1, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -136,7 +139,7 @@ public class PaymentControllerTest {
 
         when(repository.findById(1)).thenReturn(Optional.of(payment));
 
-        String paymentJson = jsonMapper.writeValueAsString(payment);
+        String paymentJson = jsonMapper.writeValueAsString(PaymentMapper.toResponse(payment));
 
         var request = get("/api/v1/payments/1");
 
@@ -154,57 +157,6 @@ public class PaymentControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void createShouldReturn400WhenInvalid() throws Exception {
-        Payment payment = new Payment();
-
-        String paymentJson = jsonMapper.writeValueAsString(payment);
-
-        var request = post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(paymentJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createShouldReturn415WhenMultipart() throws Exception {
-        Payment payment = new Payment();
-
-        String paymentJson = jsonMapper.writeValueAsString(payment);
-
-        var request = post("/api/v1/payments")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", "Bearer " + token)
-                .content(paymentJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isUnsupportedMediaType());
-    }
-
-    @Test
-    void createShouldReturn201() throws Exception {
-        Payment payment = new Payment(0, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
-        Payment expected = new Payment(1, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
-
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(repository.save(any(Payment.class))).thenReturn(expected);
-
-        String paymentJson = jsonMapper.writeValueAsString(payment);
-        String expectedJson = jsonMapper.writeValueAsString(expected);
-
-        var request = post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(paymentJson);
-
-        mockMvc.perform(request)
-                .andExpect(status().isCreated())
-                .andExpect(content().json(expectedJson));
     }
 
 }

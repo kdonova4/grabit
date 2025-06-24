@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ImageRepository;
 import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.domain.mapper.ImageMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.enums.ProductStatus;
@@ -64,6 +65,7 @@ public class ImageControllerTest {
     private AppUser user;
     private AppRole role;
     private Product product;
+    private Image image;
 
     @BeforeEach
     void setup() {
@@ -71,6 +73,7 @@ public class ImageControllerTest {
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
         product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        image = new Image(1, "http://example.com/laptop2.jpg", product);
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
@@ -116,7 +119,7 @@ public class ImageControllerTest {
 
         when(repository.findById(1)).thenReturn(Optional.of(image));
 
-        String imageJson = jsonMapper.writeValueAsString(image);
+        String imageJson = jsonMapper.writeValueAsString(ImageMapper.toResponseDTO(image));
 
         var request = get("/api/v1/images/1");
 
@@ -167,13 +170,13 @@ public class ImageControllerTest {
 
     @Test
     void createShouldReturn201() throws Exception {
-        Image image = new Image(0, "http://example.com/laptop2.jpg", product);
-        Image expected = new Image(1, "http://example.com/laptop2.jpg", product);
+        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(image.getImageUrl(), image.getProduct().getProductId());
+        ImageResponseDTO expected = new ImageResponseDTO(1, "http://example.com/laptop2.jpg", product.getProductId());
 
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-        when(repository.save(any(Image.class))).thenReturn(expected);
+        when(repository.save(any(Image.class))).thenReturn(image);
 
-        String imageJson = jsonMapper.writeValueAsString(image);
+        String imageJson = jsonMapper.writeValueAsString(imageCreateDTO);
         String expectedJson = jsonMapper.writeValueAsString(expected);
 
         var request = post("/api/v1/images")
