@@ -1,8 +1,8 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.ShoppingCart;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,13 +3,15 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.OrderProductRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ProductRepository;
-import com.kdonova4.grabit.domain.mapper.OrderMapper;
 import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
+import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OrderProductResponseDTO;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.OrderProduct;
+import com.kdonova4.grabit.model.entity.Product;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,7 +97,7 @@ public class OrderProductService {
                 result.addMessages("UNIT PRICE IS NOT SET TO WINNING BID", ResultType.INVALID);
             }
         } else {
-            if(orderProduct.getUnitPrice().compareTo(product.get().getPrice()) != 0) {
+            if(orderProduct.getUnitPrice().compareTo(product.get().getPrice()) != 0 && orderProduct.getProduct().getProductStatus() != ProductStatus.HELD) {
                 result.addMessages("UNIT PRICE IS NOT EQUAL TO SALE PRICE", ResultType.INVALID);
             }
         }

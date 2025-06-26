@@ -1,6 +1,11 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.enums.OfferStatus;
+import com.kdonova4.grabit.model.dto.OfferCreateDTO;
+import com.kdonova4.grabit.model.dto.OfferResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Offer;
+import com.kdonova4.grabit.model.entity.Product;
 
 public class OfferMapper {
 
@@ -12,7 +17,8 @@ public class OfferMapper {
                 offerCreateDTO.getMessage(),
                 user,
                 product,
-                null
+                null,
+                OfferStatus.PENDING
         );
     }
 
@@ -24,7 +30,8 @@ public class OfferMapper {
                 offer.getMessage(),
                 offer.getUser().getAppUserId(),
                 offer.getProduct().getProductId(),
-                offer.getExpireDate()
+                offer.getExpireDate(),
+                offer.getOfferStatus()
         );
     }
 }

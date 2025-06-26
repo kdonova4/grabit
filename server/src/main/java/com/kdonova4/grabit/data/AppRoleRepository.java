@@ -1,6 +1,6 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.AppRole;
+import com.kdonova4.grabit.model.entity.AppRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

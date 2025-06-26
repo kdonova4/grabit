@@ -1,9 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.ShoppingCart;
-import com.kdonova4.grabit.model.ShoppingCartDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.ShoppingCart;
+import com.kdonova4.grabit.model.dto.ShoppingCartDTO;
 
 public class ShoppingCartMapper {
 

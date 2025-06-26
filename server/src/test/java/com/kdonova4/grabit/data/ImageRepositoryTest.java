@@ -1,7 +1,7 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

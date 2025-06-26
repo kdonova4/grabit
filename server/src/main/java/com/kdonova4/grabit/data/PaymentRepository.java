@@ -1,7 +1,7 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Payment;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;

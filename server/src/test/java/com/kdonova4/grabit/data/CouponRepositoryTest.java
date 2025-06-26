@@ -1,6 +1,6 @@
 package com.kdonova4.grabit.data;
 import com.kdonova4.grabit.enums.DiscountType;
-import com.kdonova4.grabit.model.Coupon;
+import com.kdonova4.grabit.model.entity.Coupon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

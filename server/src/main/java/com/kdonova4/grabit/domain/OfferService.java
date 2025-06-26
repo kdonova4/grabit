@@ -4,11 +4,18 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OfferRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.OfferMapper;
+import com.kdonova4.grabit.enums.OfferStatus;
+import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OfferCreateDTO;
+import com.kdonova4.grabit.model.dto.OfferResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Offer;
+import com.kdonova4.grabit.model.entity.Product;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +72,7 @@ public class OfferService {
             result.addMessages("OfferId CANNOT BE SET for 'add' operation", ResultType.INVALID);
         }
 
+        offer.setExpireDate(LocalDateTime.now().plusHours(48)); // or whatever your default is
         offer = repository.save(offer);
         result.setPayload(OfferMapper.toResponseDTO(offer));
         return result;
@@ -77,6 +85,68 @@ public class OfferService {
         } else {
             return false;
         }
+    }
+
+
+    @Transactional
+    public Result<Offer> acceptOffer(int offerId) {
+        Optional<Offer> optional = findById(offerId);
+        Result<Offer> result = new Result<>();
+        if (optional.isEmpty()) {
+            result.addMessages("OFFER NOT FOUND", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        result = validateAcceptedOffer(optional.get());
+
+        if(!result.isSuccess()) {
+            return result;
+        }
+
+        Offer offer = optional.get();
+        offer.setExpireDate(offer.getExpireDate().plusHours(8));
+        offer.getProduct().setProductStatus(ProductStatus.HELD);
+        offer.getProduct().setOfferPrice(offer.getOfferAmount());
+        offer.setOfferStatus(OfferStatus.ACCEPTED);
+
+        repository.save(offer);
+        productRepository.save(offer.getProduct());
+
+        return result;
+    }
+
+    private Result<Offer> validateAcceptedOffer(Offer offer) {
+        Result<Offer> result = new Result<>();
+
+        if(offer.getOfferStatus() == OfferStatus.EXPIRED) {
+            result.addMessages("OFFER IS EXPIRED, CANNOT ACCEPT", ResultType.INVALID);
+            return result;
+        }
+
+        if(offer.getProduct().getProductStatus() == ProductStatus.HELD) {
+            result.addMessages("ANOTHER OFFER WAS ALREADY ACCEPTED", ResultType.INVALID);
+        }
+
+        return result;
+
+    }
+
+    @Transactional
+    @Scheduled(fixedRate = 300000)
+    public void expireOffers() {
+        List<Offer> expiredOffers = repository.findByExpireDateBefore(LocalDateTime.now());
+        expiredOffers.forEach(offer -> {
+            if(offer.getOfferStatus() == OfferStatus.ACCEPTED) {
+                offer.setOfferStatus(OfferStatus.EXPIRED);
+                offer.getProduct().setProductStatus(ProductStatus.ACTIVE);
+                repository.save(offer);
+                productRepository.save(offer.getProduct());
+            } else {
+                offer.setOfferStatus(OfferStatus.EXPIRED);
+                repository.save(offer);
+            }
+
+        });
     }
 
     private Result<OfferResponseDTO> validate(Offer offer) {
@@ -124,6 +194,12 @@ public class OfferService {
                 && offer.getOfferAmount() != null
                 && productOpt.get().getPrice().compareTo(offer.getOfferAmount()) == 0) {
             result.addMessages("OFFER AMOUNT CANNOT BE EQUAL TO THE PRICE OF THE PRODUCT", ResultType.INVALID);
+        }
+
+        Optional<Offer> productOffer = repository.findByUserAndProduct(appUser.get(), product.get());
+
+        if(productOffer.isPresent()) {
+            result.addMessages("CANNOT MAKE MORE THAN ONE OFFER AT A TIME ON A PRODUCT", ResultType.INVALID);
         }
 
         return result;

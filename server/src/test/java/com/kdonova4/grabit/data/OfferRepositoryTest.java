@@ -1,8 +1,9 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Offer;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.enums.OfferStatus;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Offer;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class OfferRepositoryTest {
         Optional<AppUser> user = appUserRepository.findById(1);
         Optional<Product> product = productRepository.findById(1);
 
-        Offer offer = new Offer(0, new BigDecimal(1000), Timestamp.valueOf(LocalDateTime.now()), "Can you do 1000?", user.get(), product.get(), LocalDateTime.now().plusDays(1));
+        Offer offer = new Offer(0, new BigDecimal(1000), Timestamp.valueOf(LocalDateTime.now()), "Can you do 1000?", user.get(), product.get(), LocalDateTime.now().plusDays(1), OfferStatus.PENDING);
 
         repository.save(offer);
 

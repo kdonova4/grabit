@@ -4,14 +4,11 @@ import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ShipmentRepository;
 import com.kdonova4.grabit.domain.mapper.ShipmentMapper;
 import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Shipment;
-import com.kdonova4.grabit.model.ShipmentCreateDTO;
-import com.kdonova4.grabit.model.ShipmentResponseDTO;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Shipment;
+import com.kdonova4.grabit.model.dto.ShipmentResponseDTO;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

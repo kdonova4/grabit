@@ -9,8 +9,13 @@ import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ProductBuyNowResponseDTO;
+import com.kdonova4.grabit.model.dto.ProductCreateDTO;
+import com.kdonova4.grabit.model.dto.ProductResponseDTO;
+import com.kdonova4.grabit.model.dto.ProductUpdateDTO;
+import com.kdonova4.grabit.model.entity.AppRole;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
 import com.kdonova4.grabit.security.JwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +70,7 @@ public class ProductControllerTest {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
-        product = new Product(1, timestamp, SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        product = new Product(1, timestamp, SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, user);
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));
         token = jwtConverter.getTokenFromUser(user);
         jsonMapper.registerModule(new JavaTimeModule());
@@ -83,7 +88,7 @@ public class ProductControllerTest {
     @Test
     void findByUserShouldReturn200IfFound() throws Exception {
         var request = get("/api/v1/products/user/1");
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, user);
 
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
         when(repository.findByUser(any(AppUser.class))).thenReturn(List.of(product));
@@ -129,7 +134,7 @@ public class ProductControllerTest {
 
     @Test
     void searchShouldReturn200() throws Exception {
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, user);
 
         String productName = product.getProductName();
 

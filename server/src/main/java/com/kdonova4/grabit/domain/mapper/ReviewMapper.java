@@ -1,6 +1,11 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ReviewCreateDTO;
+import com.kdonova4.grabit.model.dto.ReviewResponseDTO;
+import com.kdonova4.grabit.model.dto.ReviewUpdateDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.Review;
 
 public class ReviewMapper {
 

@@ -1,6 +1,6 @@
 package com.kdonova4.grabit.data;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Payment;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Payment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,11 @@ import com.kdonova4.grabit.domain.OfferService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.mapper.OfferMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OfferCreateDTO;
+import com.kdonova4.grabit.model.dto.OfferResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Offer;
+import com.kdonova4.grabit.model.entity.Product;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -130,6 +134,18 @@ public class OfferController {
         }
 
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/accept/{offerId}")
+    @Operation(summary = "Accepts An Offer By ID")
+    public ResponseEntity<Object> acceptOffer(@PathVariable int offerId) {
+        Result<Offer> result = service.acceptOffer(offerId);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{offerId}")

@@ -1,8 +1,8 @@
 package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.CheckoutService;
-import com.kdonova4.grabit.model.CheckoutRequestDTO;
-import com.kdonova4.grabit.model.CheckoutResponseDTO;
+import com.kdonova4.grabit.model.dto.CheckoutRequestDTO;
+import com.kdonova4.grabit.model.dto.CheckoutResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

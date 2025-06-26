@@ -2,7 +2,10 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.enums.*;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ReviewCreateDTO;
+import com.kdonova4.grabit.model.dto.ReviewResponseDTO;
+import com.kdonova4.grabit.model.dto.ReviewUpdateDTO;
+import com.kdonova4.grabit.model.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +62,7 @@ public class ReviewServiceTest {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
         seller = new AppUser(2, "dono2223", "dono2223@gmail.com", "85c*98Kd", false, new HashSet<>());
         order = new Order(1, null, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, seller);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null,null, null, seller);
         orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
         shipment = new Shipment(1, order, ShipmentStatus.DELIVERED, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
         review = new Review(1, 4, "Great seller, cant wait!", user, seller, product, Timestamp.valueOf(LocalDateTime.now()));

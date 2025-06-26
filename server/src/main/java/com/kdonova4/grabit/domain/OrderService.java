@@ -3,18 +3,15 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.domain.mapper.OrderMapper;
 import com.kdonova4.grabit.enums.OrderStatus;
-import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OrderCreateDTO;
+import com.kdonova4.grabit.model.entity.*;
 import com.kdonova4.grabit.security.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

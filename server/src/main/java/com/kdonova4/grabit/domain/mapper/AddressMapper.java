@@ -1,6 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.AddressCreateDTO;
+import com.kdonova4.grabit.model.dto.AddressResponseDTO;
+import com.kdonova4.grabit.model.dto.AddressUpdateDTO;
+import com.kdonova4.grabit.model.entity.*;
 
 public class AddressMapper {
 

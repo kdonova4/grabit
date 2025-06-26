@@ -2,9 +2,9 @@ package com.kdonova4.grabit.data;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Category;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +126,7 @@ public class ProductRepositoryTest {
         Optional<AppUser> appUser = appUserRepository.findById(2);
         Optional<Category> category = categoryRepository.findById(1);
 
-        Product product = new Product(0, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null,appUser.get());
+        Product product = new Product(0, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, appUser.get());
 
         repository.save(product);
 
@@ -137,7 +137,7 @@ public class ProductRepositoryTest {
     void shouldUpdate() {
         Optional<AppUser> appUser = appUserRepository.findById(2);
 
-        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, appUser.get());
+        Product product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, appUser.get());
         repository.save(product);
         assertEquals("Electric Guitar", repository.findById(1).get().getProductName());
     }

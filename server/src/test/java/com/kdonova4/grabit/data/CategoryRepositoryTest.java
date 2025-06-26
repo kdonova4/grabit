@@ -1,6 +1,6 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.Category;
+import com.kdonova4.grabit.model.entity.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

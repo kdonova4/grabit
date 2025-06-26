@@ -1,9 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Product;
-import com.kdonova4.grabit.model.Watchlist;
-import com.kdonova4.grabit.model.WatchlistDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.Watchlist;
+import com.kdonova4.grabit.model.dto.WatchlistDTO;
 
 public class WatchlistMapper {
 

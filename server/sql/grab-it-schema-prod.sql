@@ -52,8 +52,10 @@ create table product (
 	auction_end date,
 	app_user_id int not null,
 	winning_bid numeric(10, 2),
+	offer_price numeric(10, 2),
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade
 );
+
 
 create table product_category (
 	product_category_id serial primary key,
@@ -81,6 +83,7 @@ create table offer (
 	expire_date timestamp default (current_date + interval '2 days'),
 	app_user_id int not null,
 	product_id int not null,
+	offer_status varchar(50) not null DEFAULT 'PENDING' check (offer_status in ('PENDING', 'REJECTED', 'ACCEPTED', 'EXPIRED')),
 	foreign key (app_user_id) references app_user(app_user_id) on delete cascade,
 	foreign key (product_id) references product(product_id) on delete cascade
 );
@@ -203,18 +206,19 @@ INSERT INTO category (category_name) VALUES
 	('123 Main St', 'Springfield', 'IL', '62704', 'USA', 1),
 	('456 Elm St', 'Greenville', 'TX', '75401', 'USA', 2);
 
-	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, app_user_id) VALUES
-	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, 2),
-	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, 2),
-	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, 2);
+
+	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, offer_price, app_user_id) VALUES
+	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, NULL, 2),
+	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, NULL, 2),
+	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, NULL, 2);
 
 	INSERT INTO product_category (product_id, category_id) VALUES
 	(1, 1),
 	(2, 1),
 	(3, 2);
 
-	INSERT INTO offer (offer_amount, offer_message, expire_date, app_user_id, product_id) VALUES
-	(900.00, 'Would you take less please im poor?', current_timestamp + interval '2 day', 4, 1);
+	INSERT INTO offer (offer_amount, offer_message, expire_date, app_user_id, product_id, offer_status) VALUES
+	(900.00, 'Would you take less please im poor?', current_timestamp + interval '2 day', 4, 1, 'PENDING');
 
 	INSERT INTO purchase_order (app_user_id, shipping_address_id, billing_address_id, total_amount, order_status) VALUES
 	(1, 1, 1, 1500.00, 'PENDING');
@@ -241,7 +245,7 @@ INSERT INTO category (category_name) VALUES
 	('SAVE10', 10, 'PERCENTAGE', current_timestamp + interval '7 day', true);
 
 	INSERT INTO image (image_url, product_id) VALUES
-	('http://example.com/laptop.jpg', 1),
+	('http://example.com/laptop.jpg', 2),
 	('http://example.com/pc.jpg', 2),
 	('http://example.com/books.jpg', 3);
 
@@ -256,3 +260,11 @@ select * from order_product;
 select * from payment;
 
 select * from app_user;
+
+select * from product;
+
+select * from offer;
+
+select * from review;
+
+select * from image;

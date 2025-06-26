@@ -6,7 +6,11 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.BidCreateDTO;
+import com.kdonova4.grabit.model.dto.BidResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Bid;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +49,7 @@ public class BidServiceTest {
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, user);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, user);
         bid = new Bid(1, new BigDecimal(255), Timestamp.valueOf(LocalDateTime.now()), product, user);
     }
 

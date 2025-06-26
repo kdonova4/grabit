@@ -1,7 +1,7 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

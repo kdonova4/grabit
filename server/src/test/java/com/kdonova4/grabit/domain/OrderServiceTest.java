@@ -5,7 +5,7 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OrderProductRepository;
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.enums.*;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +72,7 @@ public class OrderServiceTest {
         order = new Order(1, user, Timestamp.valueOf(LocalDateTime.now()), address, address, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
         payment = new Payment(1, order, new BigDecimal(1200), Timestamp.valueOf(LocalDateTime.now()));
         shipment = new Shipment(1, order, ShipmentStatus.PENDING, "TRACKTRACKTRACK123", Timestamp.valueOf(LocalDateTime.now()), null);
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, user);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, user);
         orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
         shoppingCart = new ShoppingCart(1, product, user, 1);
     }

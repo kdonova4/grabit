@@ -1,6 +1,10 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.BidCreateDTO;
+import com.kdonova4.grabit.model.dto.BidResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Bid;
+import com.kdonova4.grabit.model.entity.Product;
 
 public class BidMapper {
 

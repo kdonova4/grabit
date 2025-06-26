@@ -4,7 +4,11 @@ import com.kdonova4.grabit.data.CategoryRepository;
 import com.kdonova4.grabit.data.ProductCategoryRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.ProductCategoryMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ProductCategoryCreateDTO;
+import com.kdonova4.grabit.model.dto.ProductCategoryResponseDTO;
+import com.kdonova4.grabit.model.entity.Category;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.ProductCategory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

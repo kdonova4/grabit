@@ -1,8 +1,7 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.Category;
+import com.kdonova4.grabit.model.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

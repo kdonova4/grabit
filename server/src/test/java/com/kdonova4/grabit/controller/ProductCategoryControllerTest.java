@@ -11,11 +11,12 @@ import com.kdonova4.grabit.domain.mapper.ProductCategoryMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ProductCategoryCreateDTO;
+import com.kdonova4.grabit.model.dto.ProductCategoryResponseDTO;
+import com.kdonova4.grabit.model.entity.*;
 import com.kdonova4.grabit.security.JwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,7 +76,7 @@ public class ProductCategoryControllerTest {
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
 
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, null);
         category = new Category(1, "Electronics");
         productCategory = new ProductCategory(1, product, category);
 

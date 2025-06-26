@@ -2,13 +2,11 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.OrderRepository;
 import com.kdonova4.grabit.data.ShipmentRepository;
-import com.kdonova4.grabit.domain.mapper.ShipmentMapper;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Shipment;
-import com.kdonova4.grabit.model.ShipmentCreateDTO;
-import com.kdonova4.grabit.model.ShipmentResponseDTO;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Shipment;
+import com.kdonova4.grabit.model.dto.ShipmentResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
