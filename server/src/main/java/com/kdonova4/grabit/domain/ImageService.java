@@ -1,15 +1,22 @@
 package com.kdonova4.grabit.domain;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.kdonova4.grabit.data.ImageRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.ImageMapper;
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.ImageCreateDTO;
-import com.kdonova4.grabit.model.ImageResponseDTO;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.dto.ImageCreateDTO;
+import com.kdonova4.grabit.model.dto.ImageResponseDTO;
+import com.kdonova4.grabit.model.entity.Product;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -17,10 +24,27 @@ public class ImageService {
 
     private final ImageRepository repository;
     private final ProductRepository productRepository;
+    private final Cloudinary cloudinary;
 
-    public ImageService(ImageRepository repository, ProductRepository productRepository) {
+    public ImageService(ImageRepository repository, ProductRepository productRepository, Cloudinary cloudinary) {
         this.repository = repository;
         this.productRepository = productRepository;
+        this.cloudinary = cloudinary;
+    }
+
+    public Map uploadFile(MultipartFile file) throws IOException {
+        File uploadedFile = convertToFile(file); // Convert to java.io.File
+        Map uploadResult = cloudinary.uploader().upload(uploadedFile, ObjectUtils.emptyMap());
+        uploadedFile.delete(); // Clean up temp file
+        return uploadResult;
+    }
+
+    private File convertToFile(MultipartFile multipartFile) throws IOException {
+        File file = File.createTempFile("upload-", multipartFile.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(multipartFile.getBytes());
+        }
+        return file;
     }
 
     public List<Image> findAll() {
@@ -35,23 +59,35 @@ public class ImageService {
         return repository.findById(id);
     }
 
-    public Result<ImageResponseDTO> create(ImageCreateDTO imageCreateDTO) {
+    public Result<ImageResponseDTO> create(MultipartFile file, int productId) {
 
-        Product product = productRepository.findById(imageCreateDTO.getProductId()).orElse(null);
-        Image image = ImageMapper.toImage(imageCreateDTO, product);
+        Result<ImageResponseDTO> result = new Result<>();
 
-        Result<ImageResponseDTO> result = validate(image);
-
-        if(!result.isSuccess())
-            return result;
-
-        if(image.getImageId() != 0) {
-            result.addMessages("ImageId CANNOT BE SET for 'add' operation", ResultType.INVALID);
+        Optional<Product> product = productRepository.findById(productId);
+        if(product.isEmpty()) {
+            result.addMessages("PRODUCT MUST EXIST", ResultType.NOT_FOUND);
             return result;
         }
 
-        image = repository.save(image);
-        result.setPayload(ImageMapper.toResponseDTO(image));
+        try {
+            Map uploadResult = uploadFile(file);
+            String imageUrl = (String) uploadResult.get("secure_url");
+
+            Image image = new Image();
+            image.setImageUrl(imageUrl);
+            image.setProduct(product.get());
+
+            Result<ImageResponseDTO> validate = validate(image);
+            if(!validate.isSuccess()) {
+                return validate;
+            }
+
+            image = repository.save(image);
+            result.setPayload(ImageMapper.toResponseDTO(image));
+        } catch (IOException e) {
+            result.addMessages("UPLOAD FAILED: " + e.getMessage(), ResultType.INVALID);
+        }
+
         return result;
     }
 

@@ -1,6 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ProductCategoryResponseDTO;
+import com.kdonova4.grabit.model.entity.Category;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.ProductCategory;
 
 public class ProductCategoryMapper {
 

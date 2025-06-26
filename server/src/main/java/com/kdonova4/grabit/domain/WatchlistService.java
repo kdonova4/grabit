@@ -4,7 +4,10 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.data.WatchlistRepository;
 import com.kdonova4.grabit.domain.mapper.WatchlistMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.WatchlistDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
+import com.kdonova4.grabit.model.entity.Watchlist;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

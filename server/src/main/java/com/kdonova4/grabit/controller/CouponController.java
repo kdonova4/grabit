@@ -2,9 +2,7 @@ package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.CouponService;
 import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.enums.DiscountType;
-import com.kdonova4.grabit.model.Category;
-import com.kdonova4.grabit.model.Coupon;
+import com.kdonova4.grabit.model.entity.Coupon;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

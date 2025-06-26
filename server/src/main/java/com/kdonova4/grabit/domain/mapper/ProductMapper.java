@@ -1,6 +1,8 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.*;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Product;
 
 public class ProductMapper {
 
@@ -9,6 +11,7 @@ public class ProductMapper {
                 product.getProductId(),
                 product.getPostedAt(),
                 product.getSaleType(),
+                product.getProductStatus(),
                 product.getProductName(),
                 product.getDescription(),
                 product.getPrice(),
@@ -25,11 +28,13 @@ public class ProductMapper {
                 product.getProductId(),
                 product.getPostedAt(),
                 product.getSaleType(),
+                product.getProductStatus(),
                 product.getProductName(),
                 product.getDescription(),
                 product.getPrice(),
                 product.getCondition(),
                 product.getQuantity(),
+                product.getOfferPrice(),
                 product.getUser().getAppUserId()
         );
     }
@@ -39,6 +44,7 @@ public class ProductMapper {
                 product.getProductId(),
                 product.getPostedAt(),
                 product.getSaleType(),
+                product.getProductStatus(),
                 product.getProductName(),
                 product.getDescription(),
                 product.getPrice(),
@@ -63,6 +69,7 @@ public class ProductMapper {
                 null,
                 null,
                 null,
+                null,
                 user
         );
     }
@@ -80,6 +87,7 @@ public class ProductMapper {
                 product.getProductStatus(),
                 product.getAuctionEnd(),
                 product.getWinningBid(),
+                product.getOfferPrice(),
                 product.getUser()
         );
     }
@@ -94,6 +102,6 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getProductStatus(),
                 product.getWinningBid()
-                );
+        );
     }
 }

@@ -1,9 +1,8 @@
 package com.kdonova4.grabit.data;
 import com.kdonova4.grabit.enums.OrderStatus;
-import com.kdonova4.grabit.model.Address;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Order;
-import org.aspectj.weaver.ast.Or;
+import com.kdonova4.grabit.model.entity.Address;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Order;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

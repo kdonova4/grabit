@@ -4,9 +4,14 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.OfferRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
+import com.kdonova4.grabit.enums.OfferStatus;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OfferCreateDTO;
+import com.kdonova4.grabit.model.dto.OfferResponseDTO;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Offer;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,8 +51,8 @@ public class OfferServiceTest {
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, user);
-        offer = new Offer(1, new BigDecimal(1000), Timestamp.valueOf(LocalDateTime.now()), "Can you do 1000?", user, product, LocalDateTime.now().plusDays(1));
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, user);
+        offer = new Offer(1, new BigDecimal(1000), Timestamp.valueOf(LocalDateTime.now()), "Can you do 1000?", user, product, LocalDateTime.now().plusDays(1), OfferStatus.PENDING);
     }
 
     @Test

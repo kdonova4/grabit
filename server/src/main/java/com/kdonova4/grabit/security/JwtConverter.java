@@ -1,7 +1,7 @@
 package com.kdonova4.grabit.security;
 
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.AppUserDetails;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.AppUserDetails;
 import io.jsonwebtoken.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

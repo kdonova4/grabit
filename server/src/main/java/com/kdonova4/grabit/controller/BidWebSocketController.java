@@ -2,19 +2,9 @@ package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.BidService;
 import com.kdonova4.grabit.domain.ProductService;
-import com.kdonova4.grabit.domain.Result;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Bid;
-import com.kdonova4.grabit.model.BidCreateDTO;
-import com.kdonova4.grabit.model.Product;
 import com.kdonova4.grabit.security.AppUserService;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Controller
 public class BidWebSocketController {

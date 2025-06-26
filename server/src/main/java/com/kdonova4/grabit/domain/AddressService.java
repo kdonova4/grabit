@@ -3,7 +3,10 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.AddressRepository;
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.domain.mapper.AddressMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.AddressCreateDTO;
+import com.kdonova4.grabit.model.dto.AddressResponseDTO;
+import com.kdonova4.grabit.model.dto.AddressUpdateDTO;
+import com.kdonova4.grabit.model.entity.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

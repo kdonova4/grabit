@@ -5,10 +5,10 @@ import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.ImageCreateDTO;
-import com.kdonova4.grabit.model.ImageResponseDTO;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.dto.ImageCreateDTO;
+import com.kdonova4.grabit.model.dto.ImageResponseDTO;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ public class ImageServiceTest {
 
     @BeforeEach
     void setup() {
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, null);
         image = new Image(1, "http://example.com/laptop2.jpg", product);
     }
 

@@ -1,17 +1,13 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.AppRole;
-import com.kdonova4.grabit.model.AppUser;
+import com.kdonova4.grabit.model.entity.AppUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest

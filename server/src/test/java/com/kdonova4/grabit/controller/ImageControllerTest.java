@@ -8,10 +8,11 @@ import com.kdonova4.grabit.data.ImageRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.ImageMapper;
 import com.kdonova4.grabit.enums.ConditionType;
-import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ImageCreateDTO;
+import com.kdonova4.grabit.model.dto.ImageResponseDTO;
+import com.kdonova4.grabit.model.entity.*;
 import com.kdonova4.grabit.security.JwtConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ public class ImageControllerTest {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
         role = new AppRole(1, "SELLER", Set.of(user));
         user.setRoles(Set.of(role));
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, null);
         image = new Image(1, "http://example.com/laptop2.jpg", product);
 
         when(appUserRepository.findByUsername("kdonova4")).thenReturn(Optional.of(user));

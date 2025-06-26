@@ -4,13 +4,18 @@ import com.kdonova4.grabit.domain.ImageService;
 import com.kdonova4.grabit.domain.ProductService;
 import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.mapper.ImageMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ImageCreateDTO;
+import com.kdonova4.grabit.model.dto.ImageResponseDTO;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.entity.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,10 +69,10 @@ public class ImageController {
         return ResponseEntity.ok(ImageMapper.toResponseDTO(image.get()));
     }
 
-    @PostMapping
+    @PostMapping(path = "/{productId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Creates An Image")
-    public ResponseEntity<Object> create(@RequestBody ImageCreateDTO image) {
-        Result<ImageResponseDTO> result = service.create(image);
+    public ResponseEntity<Object> create(@PathVariable int productId, @RequestParam("file")MultipartFile file) {
+        Result<ImageResponseDTO> result = service.create(file, productId);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

@@ -2,16 +2,16 @@ package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.domain.AddressService;
 import com.kdonova4.grabit.domain.OrderService;
-import com.kdonova4.grabit.domain.Result;
 import com.kdonova4.grabit.domain.mapper.OrderMapper;
-import com.kdonova4.grabit.domain.mapper.OrderProductMapper;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.OrderResponseDTO;
+import com.kdonova4.grabit.model.entity.Address;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Order;
 import com.kdonova4.grabit.security.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

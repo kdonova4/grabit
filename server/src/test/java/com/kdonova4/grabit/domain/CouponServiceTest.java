@@ -2,8 +2,7 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.CouponRepository;
 import com.kdonova4.grabit.enums.DiscountType;
-import com.kdonova4.grabit.model.Coupon;
-import com.kdonova4.grabit.model.Image;
+import com.kdonova4.grabit.model.entity.Coupon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

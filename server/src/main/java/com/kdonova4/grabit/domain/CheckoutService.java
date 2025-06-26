@@ -3,7 +3,10 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.domain.mapper.*;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.*;
+import com.kdonova4.grabit.model.entity.*;
+import com.kdonova4.grabit.model.event.OrderPlacedEvent;
+import com.kdonova4.grabit.model.event.ShipmentPlacedEvent;
 import com.kdonova4.grabit.security.AppUserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class CheckoutService {
@@ -212,10 +214,16 @@ public class CheckoutService {
                 orderProducts.add(new OrderProduct(0, null, item.getProduct(), item.getQuantity(), item.getProduct().getWinningBid(), item.getProduct().getWinningBid()));
                 total = total.add(item.getProduct().getWinningBid());
             } else {
-                BigDecimal unitPrice = item.getProduct().getPrice();
+                BigDecimal unitPrice = BigDecimal.ZERO;
+                if(item.getProduct().getProductStatus() == ProductStatus.HELD) {
+                    unitPrice = item.getProduct().getOfferPrice();
+                } else {
+                    unitPrice = item.getProduct().getPrice();
+                }
+
                 BigDecimal subTotal = new BigDecimal(item.getQuantity()).multiply(unitPrice);
 
-                orderProducts.add(new OrderProduct(0, null, item.getProduct(), item.getQuantity(), item.getProduct().getPrice(), subTotal));
+                orderProducts.add(new OrderProduct(0, null, item.getProduct(), item.getQuantity(), unitPrice, subTotal));
                 total = total.add(subTotal);
             }
         }

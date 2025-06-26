@@ -1,9 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Payment;
-import com.kdonova4.grabit.model.PaymentCreateDTO;
-import com.kdonova4.grabit.model.PaymentResponseDTO;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Payment;
+import com.kdonova4.grabit.model.dto.PaymentCreateDTO;
+import com.kdonova4.grabit.model.dto.PaymentResponseDTO;
 
 public class PaymentMapper {
 

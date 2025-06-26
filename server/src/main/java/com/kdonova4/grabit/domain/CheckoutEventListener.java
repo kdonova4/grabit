@@ -2,12 +2,11 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.OrderPlacedEvent;
-import com.kdonova4.grabit.model.Shipment;
-import com.kdonova4.grabit.model.ShipmentPlacedEvent;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.event.OrderPlacedEvent;
+import com.kdonova4.grabit.model.entity.Shipment;
+import com.kdonova4.grabit.model.event.ShipmentPlacedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;

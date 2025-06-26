@@ -1,6 +1,6 @@
 package com.kdonova4.grabit.data;
 
-import com.kdonova4.grabit.model.AppRole;
+import com.kdonova4.grabit.model.entity.AppRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Shipment;
-import com.kdonova4.grabit.model.ShipmentCreateDTO;
-import com.kdonova4.grabit.model.ShipmentResponseDTO;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Shipment;
+import com.kdonova4.grabit.model.dto.ShipmentCreateDTO;
+import com.kdonova4.grabit.model.dto.ShipmentResponseDTO;
 
 public class ShipmentMapper {
 

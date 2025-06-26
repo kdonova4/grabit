@@ -7,10 +7,10 @@ import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.OrderProduct;
-import com.kdonova4.grabit.model.OrderProductResponseDTO;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.OrderProduct;
+import com.kdonova4.grabit.model.dto.OrderProductResponseDTO;
+import com.kdonova4.grabit.model.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +51,7 @@ public class OrderProductServiceTest {
     @BeforeEach
     void setup() {
         order = new Order(1, null, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null);
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, null);
         orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
     }
 

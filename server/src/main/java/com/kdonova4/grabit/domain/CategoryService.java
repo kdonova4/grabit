@@ -1,7 +1,7 @@
 package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.CategoryRepository;
-import com.kdonova4.grabit.model.Category;
+import com.kdonova4.grabit.model.entity.Category;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

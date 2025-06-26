@@ -3,11 +3,12 @@ package com.kdonova4.grabit.domain;
 import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.domain.mapper.ReviewMapper;
 import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.*;
+import com.kdonova4.grabit.model.dto.ReviewCreateDTO;
+import com.kdonova4.grabit.model.dto.ReviewResponseDTO;
+import com.kdonova4.grabit.model.dto.ReviewUpdateDTO;
+import com.kdonova4.grabit.model.entity.*;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

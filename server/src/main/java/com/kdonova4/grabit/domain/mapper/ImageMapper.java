@@ -1,9 +1,9 @@
 package com.kdonova4.grabit.domain.mapper;
 
-import com.kdonova4.grabit.model.Image;
-import com.kdonova4.grabit.model.ImageCreateDTO;
-import com.kdonova4.grabit.model.ImageResponseDTO;
-import com.kdonova4.grabit.model.Product;
+import com.kdonova4.grabit.model.entity.Image;
+import com.kdonova4.grabit.model.dto.ImageCreateDTO;
+import com.kdonova4.grabit.model.dto.ImageResponseDTO;
+import com.kdonova4.grabit.model.entity.Product;
 
 public class ImageMapper {
 

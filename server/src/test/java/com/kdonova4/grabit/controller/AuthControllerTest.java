@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.model.AppRole;
-import com.kdonova4.grabit.model.AppUser;
-import com.kdonova4.grabit.model.Payment;
-import com.kdonova4.grabit.model.RegisterRequest;
+import com.kdonova4.grabit.model.entity.AppRole;
+import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.dto.RegisterRequest;
 import com.kdonova4.grabit.security.AppUserService;
 import com.kdonova4.grabit.security.JwtConverter;
 import jakarta.validation.ValidationException;
@@ -26,9 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;

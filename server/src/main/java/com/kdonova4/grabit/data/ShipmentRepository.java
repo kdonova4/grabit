@@ -1,8 +1,8 @@
 package com.kdonova4.grabit.data;
 
 import com.kdonova4.grabit.enums.ShipmentStatus;
-import com.kdonova4.grabit.model.Order;
-import com.kdonova4.grabit.model.Shipment;
+import com.kdonova4.grabit.model.entity.Order;
+import com.kdonova4.grabit.model.entity.Shipment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
