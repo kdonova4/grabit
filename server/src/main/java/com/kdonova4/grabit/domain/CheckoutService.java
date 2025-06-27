@@ -1,6 +1,7 @@
 package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.domain.mapper.*;
+import com.kdonova4.grabit.enums.DiscountType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.dto.*;
@@ -11,12 +12,16 @@ import com.kdonova4.grabit.security.AppUserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CheckoutService {
@@ -29,11 +34,13 @@ public class CheckoutService {
     private final OrderProductService orderProductService;
     private final ShoppingCartService shoppingCartService;
     private final ProductService productService;
+    private final CouponService couponService;
+    private final BidService bidService;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    public CheckoutService(OrderService orderService, AppUserService appUserService, PaymentService paymentService, ShipmentService shipmentService, AddressService addressService, OrderProductService orderProductService, ShoppingCartService shoppingCartService, ProductService productService) {
+    public CheckoutService(OrderService orderService, AppUserService appUserService, PaymentService paymentService, ShipmentService shipmentService, AddressService addressService, OrderProductService orderProductService, ShoppingCartService shoppingCartService, ProductService productService, CouponService couponService, BidService bidService) {
         this.orderService = orderService;
         this.appUserService = appUserService;
         this.paymentService = paymentService;
@@ -42,6 +49,8 @@ public class CheckoutService {
         this.orderProductService = orderProductService;
         this.shoppingCartService = shoppingCartService;
         this.productService = productService;
+        this.couponService = couponService;
+        this.bidService = bidService;
     }
 
     @Transactional
@@ -66,6 +75,19 @@ public class CheckoutService {
         boolean stockResult = validateStock(shoppingCarts);
         if(!stockResult) {
             throw new CheckoutException("Failed to Checkout: Insufficient Stock");
+        }
+
+        if(checkoutRequestDTO.getCouponDTO() != null) {
+            BigDecimal oldTotal = order.getTotalAmount();
+            Optional<Coupon> coupon = couponService.findByCouponCode(checkoutRequestDTO.getCouponDTO().getCouponCode());
+            if(coupon.isEmpty())
+                throw new CheckoutException("Failed to Checkout: Coupon Not Found");
+
+            BigDecimal discountPercent = BigDecimal.valueOf(coupon.get().getDiscount())
+                    .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+            BigDecimal amountSaved = oldTotal.multiply(discountPercent);
+            BigDecimal newTotal = oldTotal.subtract(amountSaved);
+            order.setTotalAmount(newTotal);
         }
 
         Result<Order> orderResult = orderService.create(order);
@@ -228,6 +250,7 @@ public class CheckoutService {
             }
         }
 
+
         order.setTotalAmount(total);
         return orderProducts;
     }
@@ -238,5 +261,48 @@ public class CheckoutService {
         }
 
         return orderProducts;
+    }
+
+
+    @Transactional
+    @Scheduled(fixedRate = 60000)
+    public void expireAuctionProduct() {
+        System.out.println("RUNNING EXPIRE");
+        List<Product> expiredAuctions = productService.findBySaleTypeAndProductStatusAndAuctionEndBefore(SaleType.AUCTION, ProductStatus.ACTIVE, LocalDateTime.now());
+        expiredAuctions.forEach(auction -> {
+            List<Bid> bids = bidService.findByProductOrderByBidAmountDesc(auction);
+            if(bids.isEmpty()) {
+                auction.setProductStatus(ProductStatus.EXPIRED);
+                productService.update(ProductMapper.toUpdateDTO(auction));
+            } else {
+                completeAuction(bids);
+                System.out.println("COMPLETING AUCTION ORDER");
+            }
+
+        });
+    }
+
+
+    private void completeAuction(List<Bid> bids) {
+        bids.get(0).getProduct().setWinningBid(bids.get(0).getBidAmount());
+        productService.update(ProductMapper.toUpdateDTO(bids.get(0).getProduct()));
+        Result<ShoppingCartDTO> shoppingCartDTO = shoppingCartService.create(
+                new ShoppingCartDTO(0, bids.get(0).getProduct().getProductId(), bids.get(0).getUser().getAppUserId(), 1)
+        );
+
+        List<Address> addresses = addressService.findByUser(bids.get(0).getUser());
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO(
+                bids.get(0).getUser().getAppUserId(),
+                addressService.findByUser(bids.get(0).getUser()).get(0).getAddressId(),
+                addressService.findByUser(bids.get(0).getUser()).get(0).getAddressId()
+        );
+
+        CheckoutRequestDTO checkoutRequestDTO = new CheckoutRequestDTO(
+                orderCreateDTO,
+                List.of(shoppingCartDTO.getPayload()),
+                null
+        );
+
+        checkout(checkoutRequestDTO);
     }
 }

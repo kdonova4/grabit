@@ -13,4 +13,5 @@ public class CheckoutRequestDTO {
 
     private OrderCreateDTO orderDTO;
     private List<ShoppingCartDTO> cartList;
+    private CouponDTO couponDTO;
 }

@@ -52,7 +52,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "product_status", nullable = false)
-    private ProductStatus productStatus;
+    private ProductStatus productStatus = ProductStatus.ACTIVE;
 
     @Column(name = "auction_end")
     private LocalDateTime auctionEnd;

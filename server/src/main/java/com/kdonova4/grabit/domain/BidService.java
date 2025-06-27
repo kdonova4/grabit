@@ -4,6 +4,7 @@ import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.BidMapper;
+import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.dto.BidCreateDTO;
 import com.kdonova4.grabit.model.dto.BidResponseDTO;
@@ -125,12 +126,16 @@ public class BidService {
 
         Optional<Bid> highestUserBid = findFirstByUserAndProductOrderByBidAmountDesc(appUser.get(), product.get());
 
-        if(highestUserBid.isPresent()) {
-            if(bid.getBidAmount().compareTo(highestUserBid.get().getBidAmount()) <= 0) {
+        List<Bid> bids = findByProductOrderByBidAmountDesc(product.get());
+        if(!bids.isEmpty()) {
+            if(bids.get(0).getBidAmount().compareTo(bid.getBidAmount()) >= 0) {
                 result.addMessages("BID AMOUNT CANNOT BE LESS THAN OR EQUAL TO PREVIOUS BIDS", ResultType.INVALID);
             }
         }
 
+        if(bid.getProduct().getProductStatus() != ProductStatus.ACTIVE) {
+            result.addMessages("PRODUCT STATUS MUST BE ACTIVE", ResultType.INVALID);
+        }
 
 
         return result;

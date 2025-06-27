@@ -7,15 +7,18 @@ import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
-import com.kdonova4.grabit.model.dto.ProductCreateDTO;
-import com.kdonova4.grabit.model.dto.ProductUpdateDTO;
+import com.kdonova4.grabit.model.dto.*;
 import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Bid;
 import com.kdonova4.grabit.model.entity.Category;
 import com.kdonova4.grabit.model.entity.Product;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,10 +28,15 @@ public class ProductService {
     private final AppUserRepository appUserRepository;
     private final BidRepository bidRepository;
 
-    public ProductService(ProductRepository repository, AppUserRepository appUserRepository, BidRepository bidRepository) {
+    private final ShoppingCartService shoppingCartService;
+    private final AddressService addressService;
+
+    public ProductService(ProductRepository repository, AppUserRepository appUserRepository, BidRepository bidRepository, ShoppingCartService shoppingCartService, AddressService addressService) {
         this.repository = repository;
         this.appUserRepository = appUserRepository;
         this.bidRepository = bidRepository;
+        this.shoppingCartService = shoppingCartService;
+        this.addressService = addressService;
     }
 
     public List<Product> findAll() {
@@ -53,6 +61,10 @@ public class ProductService {
         return repository.findById(id);
     }
 
+    public List<Product> findBySaleTypeAndProductStatusAndAuctionEndBefore(SaleType saleType, ProductStatus status, LocalDateTime now) {
+        return repository.findBySaleTypeAndProductStatusAndAuctionEndBefore(saleType, status, now);
+    }
+
     public Result<Object> create(ProductCreateDTO productCreateDTO) {
 
         AppUser user = appUserRepository.findById(productCreateDTO.getUserId()).orElse(null);
@@ -68,6 +80,9 @@ public class ProductService {
             result.addMessages("ProductId CANNOT BE SET for 'add' operation", ResultType.INVALID);
             return result;
         }
+
+        if(product.getSaleType() == SaleType.AUCTION)
+            product.setAuctionEnd(LocalDateTime.now().plusSeconds(45));
 
         product = repository.save(product);
 
@@ -145,10 +160,6 @@ public class ProductService {
             return result;
         }
 
-        if(product.getSaleType() == SaleType.AUCTION && product.getAuctionEnd() == null) {
-            result.addMessages("AUCTION END IS REQUIRED IF SALE TYPE IS AUCTION", ResultType.INVALID);
-        }
-
         if(product.getPrice() == null) {
             result.addMessages("PRODUCT PRICE IS REQUIRED", ResultType.INVALID);
         } else if (product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
@@ -172,7 +183,7 @@ public class ProductService {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
         }
 
-        if(product.getSaleType() == SaleType.AUCTION && product.getQuantity() != 1) {
+        if(product.getSaleType() == SaleType.AUCTION && product.getQuantity() != 1 && product.getProductId() == 0) {
             result.addMessages("PRODUCTS THAT ARE AUCTIONS MUST HAVE A QUANTITY OF ONE", ResultType.INVALID);
         }
 
@@ -181,7 +192,7 @@ public class ProductService {
         }
 
         if(product.getProductId() != 0) {
-            if(!bidRepository.findByProduct(product).isEmpty()) {
+            if(!bidRepository.findByProduct(product).isEmpty() && product.getWinningBid() == null) {
                 result.addMessages("CANNOT UPDATE PRODUCT THAT HAS ACTIVE BIDS", ResultType.INVALID);
             }
         }

@@ -1,5 +1,6 @@
 package com.kdonova4.grabit.domain.mapper;
 
+import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.model.dto.*;
 import com.kdonova4.grabit.model.entity.AppUser;
 import com.kdonova4.grabit.model.entity.Product;
@@ -66,7 +67,7 @@ public class ProductMapper {
                 productCreateDTO.getPrice(),
                 productCreateDTO.getConditionType(),
                 productCreateDTO.getQuantity(),
-                null,
+                ProductStatus.ACTIVE,
                 null,
                 null,
                 null,

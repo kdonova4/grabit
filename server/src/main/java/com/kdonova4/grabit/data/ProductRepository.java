@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -35,4 +36,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("saleType") SaleType saleType,
             @Param("category") Category category
     );
+
+    List<Product> findBySaleTypeAndProductStatusAndAuctionEndBefore(SaleType saleType, ProductStatus status, LocalDateTime now);
 }
