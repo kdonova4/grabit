@@ -48,7 +48,7 @@ public class CategoryControllerTest {
     AppUserRepository appUserRepository;
 
     @MockBean
-    JwtConverter jwtConverter;  // <-- mock JwtConverter to avoid context issues
+    JwtConverter jwtConverter;
 
     @Autowired
     MockMvc mockMvc;

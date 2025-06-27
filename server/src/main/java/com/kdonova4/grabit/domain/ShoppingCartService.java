@@ -146,9 +146,6 @@ public class ShoppingCartService {
             result.addMessages("QUANTITY CANNOT BE HIGHER THAN PRODUCT AVAILABLE", ResultType.INVALID);
         }
 
-        if(product.get().getSaleType() == SaleType.AUCTION) {
-            result.addMessages("CANNOT ADD AUCTION ITEMS TO CART", ResultType.INVALID);
-        }
 
         return result;
     }
