@@ -8,9 +8,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,20 +25,34 @@ public class SecurityConfig {
 
     private final JwtConverter converter;
 
+
     public SecurityConfig(JwtConverter converter) {
         this.converter = converter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/api/v1/users/**").permitAll()
+                        .requestMatchers("/api/v1/products/{productId}").permitAll()
+                        .requestMatchers("/api/v1/products/search").permitAll()
+                        .requestMatchers("/api/v1/product-categories/category/{categoryId}").permitAll()
+                        .requestMatchers("/api/v1/product-categories/product/{productId}").permitAll()
+                        .requestMatchers("/api/v1/product-categories/category/{categoryId}/product/{productId}").permitAll()
+                        .requestMatchers("/api/v1/product-categories/{productCategoryId}").permitAll()
+                        .requestMatchers("/api/v1/reviews/product/{productId}").permitAll()
+                        .requestMatchers("/api/v1/reviews/seller/{sellerId}").permitAll()
+                        .requestMatchers("/api/v1/bids/product/{productId}").permitAll()
+                        .requestMatchers("/ws/**", "/topic/**").permitAll()
                         .anyRequest().authenticated()
+
                 )
-                .httpBasic(withDefaults()); // or .formLogin(withDefaults())
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
 
         return http.build();
     }
@@ -44,6 +60,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder getEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtRequestFilter jwtRequestFilter( AuthenticationManager authenticationManager) {
+        return new JwtRequestFilter(authenticationManager, converter);
     }
 
     @Bean

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -124,6 +125,7 @@ public class OfferController {
         return ResponseEntity.ok(OfferMapper.toResponseDTO(offer.get()));
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
     @Operation(summary = "Creates A Offer")
     public ResponseEntity<Object> create(@RequestBody OfferCreateDTO offer) {
@@ -136,6 +138,7 @@ public class OfferController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('SELLER')")
     @PostMapping("/accept/{offerId}")
     @Operation(summary = "Accepts An Offer By ID")
     public ResponseEntity<Object> acceptOffer(@PathVariable int offerId) {
@@ -148,6 +151,7 @@ public class OfferController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @DeleteMapping("/{offerId}")
     @Operation(summary = "Deletes An Offer")
     public ResponseEntity<Object> deleteById(@PathVariable int offerId) {

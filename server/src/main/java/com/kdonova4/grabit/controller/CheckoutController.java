@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,7 @@ public class CheckoutController {
         this.checkoutService = checkoutService;
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
     @Operation(summary = "Checkout and Create Order, Shipment, and Payment")
     public ResponseEntity<CheckoutResponseDTO> checkout(@RequestBody CheckoutRequestDTO checkoutRequestDTO) {

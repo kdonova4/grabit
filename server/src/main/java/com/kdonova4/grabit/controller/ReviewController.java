@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("/user/{postedBy}")
     @Operation(summary = "Finds Reviews Posted By User")
     public ResponseEntity<List<ReviewResponseDTO>> findByPostedBy(@PathVariable int postedBy) {
@@ -134,6 +136,7 @@ public class ReviewController {
         return ResponseEntity.ok(ReviewMapper.toResponseDTO(review.get()));
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
     @Operation(summary = "Creates A Review")
     public ResponseEntity<Object> create(@RequestBody ReviewCreateDTO reviewCreateDTO) {
@@ -146,6 +149,7 @@ public class ReviewController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PutMapping("/{reviewId}")
     @Operation(summary = "Updates A Review")
     public ResponseEntity<Object> update(@PathVariable int reviewId, @RequestBody ReviewUpdateDTO reviewUpdateDTO) {
@@ -162,6 +166,7 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{reviewId}")
     @Operation(summary = "Deletes A Review")
     public ResponseEntity<Object> deleteById(@PathVariable int reviewId) {

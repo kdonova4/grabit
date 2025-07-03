@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,6 +89,7 @@ public class BidController {
         return ResponseEntity.ok(BidMapper.toResponseDTO(bid.get()));
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
     @Operation(summary = "Creates A Bid")
     public ResponseEntity<Object> create(@RequestBody BidCreateDTO bid) {
@@ -118,6 +120,7 @@ public class BidController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{bidId}")
     @Operation(summary = "Deletes A Bid")
     public ResponseEntity<Object> deleteById(@PathVariable int bidId) {

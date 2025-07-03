@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ public class PaymentController {
         this.orderService = orderService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Finds All Payments")
     public ResponseEntity<List<PaymentResponseDTO>> findAll() {
@@ -38,6 +40,7 @@ public class PaymentController {
 
         return ResponseEntity.ok(payments.stream().map(PaymentMapper::toResponse).toList());
     }
+
 
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Finds A Payment By An Order")
@@ -57,6 +60,7 @@ public class PaymentController {
         return ResponseEntity.ok(PaymentMapper.toResponse(payment.get()));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("amount/greater-than/{amount}")
     @Operation(summary = "Finds Payments That Are Greater Than Amount")
     public ResponseEntity<List<PaymentResponseDTO>> findByAmountPaidGreaterThan(@PathVariable BigDecimal amount) {
@@ -65,6 +69,7 @@ public class PaymentController {
         return ResponseEntity.ok(payments.stream().map(PaymentMapper::toResponse).toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("amount/less-than/{amount}")
     @Operation(summary = "Finds Payments That Are Less Than Amount")
     public ResponseEntity<List<PaymentResponseDTO>> findByAmountPaidLessThan(@PathVariable BigDecimal amount) {

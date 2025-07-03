@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -38,6 +39,7 @@ public class OrderController {
         this.addressService = addressService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Find All Orders")
     public ResponseEntity<List<OrderResponseDTO>> findAll() {
@@ -88,6 +90,7 @@ public class OrderController {
         return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/order-after/{expireTimestamp}")
     @Operation(summary = "Finds Orders After Timestamp")
     public ResponseEntity<List<OrderResponseDTO>> findByOrderedAtAfter(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
@@ -99,8 +102,9 @@ public class OrderController {
         return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/order-between/{start}/{end}")
-    @Operation(summary = "Finds Orders After Timestamp")
+    @Operation(summary = "Finds Orders Between Timestamps")
     public ResponseEntity<List<OrderResponseDTO>> findByOrderedAtBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
 
         Timestamp timestampStart = Timestamp.valueOf(start);
@@ -111,6 +115,7 @@ public class OrderController {
         return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("amount/greater-than/{amount}")
     @Operation(summary = "Finds Orders That Are Greater Than Amount")
     public ResponseEntity<List<OrderResponseDTO>> findByTotalAmountGreaterThan(@PathVariable BigDecimal amount) {
@@ -119,6 +124,7 @@ public class OrderController {
         return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("amount/less-than/{amount}")
     @Operation(summary = "Finds Orders That Are Less Than Amount")
     public ResponseEntity<List<OrderResponseDTO>> findByTotalAmountLessThan(@PathVariable BigDecimal amount) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class CategoryController {
     public CategoryController(CategoryService service) {
         this.service = service;
     }
+
 
     @GetMapping
     @Operation(summary = "Finds All Categories")
@@ -58,6 +60,7 @@ public class CategoryController {
         return ResponseEntity.ok(category.get());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Creates A Category")
     public ResponseEntity<Object> create(@RequestBody Category category) {
@@ -70,6 +73,7 @@ public class CategoryController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{categoryId}")
     @Operation(summary = "Deletes A Category")
     public ResponseEntity<Object> deleteById(@PathVariable int categoryId) {

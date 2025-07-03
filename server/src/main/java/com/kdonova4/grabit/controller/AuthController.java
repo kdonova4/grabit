@@ -2,6 +2,7 @@ package com.kdonova4.grabit.controller;
 
 import com.kdonova4.grabit.model.entity.AppUser;
 import com.kdonova4.grabit.model.dto.RegisterRequest;
+import com.kdonova4.grabit.model.entity.AppUserDetails;
 import com.kdonova4.grabit.security.AppUserService;
 import com.kdonova4.grabit.security.JwtConverter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +63,8 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(authToken);
 
             if (authentication.isAuthenticated()) {
-                String jwtToken = jwtConverter.getTokenFromUser((AppUser) authentication.getPrincipal());
+                AppUserDetails appUserDetails = (AppUserDetails) authentication.getPrincipal();
+                String jwtToken = jwtConverter.getTokenFromUser(appUserDetails.getAppUser());
 
                 HashMap<String, String> map = new HashMap<>();
                 map.put("jwt_token", jwtToken);

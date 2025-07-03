@@ -9,12 +9,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+
 
 public class JwtRequestFilter extends BasicAuthenticationFilter {
 
     private final JwtConverter converter;
+
 
     public JwtRequestFilter(AuthenticationManager authenticationManager, JwtConverter converter) {
         super(authenticationManager);

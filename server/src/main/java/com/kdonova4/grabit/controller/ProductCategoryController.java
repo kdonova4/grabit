@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -116,6 +117,7 @@ public class ProductCategoryController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     @DeleteMapping("/{productCategoryId}")
     @Operation(summary = "Deletes A ProductCategory")
     public ResponseEntity<Object> deleteById(@PathVariable int productCategoryId) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CouponController {
         this.service = service;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Finds All Coupons")
     public ResponseEntity<List<Coupon>> findAll() {
@@ -47,6 +49,7 @@ public class CouponController {
         return ResponseEntity.ok(coupon.get());
     }
 
+
     @GetMapping("/active/{isActive}")
     @Operation(summary = "Finds Coupons That Are Still Active")
     public ResponseEntity<List<Coupon>> findByIsActive(@PathVariable boolean isActive) {
@@ -54,6 +57,7 @@ public class CouponController {
 
         return ResponseEntity.ok(coupons);
     }
+
 
     @GetMapping("/{couponId}")
     @Operation(summary = "Finds A Coupon By ID")
@@ -67,6 +71,7 @@ public class CouponController {
         return ResponseEntity.ok(coupon.get());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Creates A Coupon")
     public ResponseEntity<Object> create(@RequestBody Coupon coupon) {
@@ -79,6 +84,7 @@ public class CouponController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{couponId}")
     @Operation(summary = "Deletes A Coupon")
     public ResponseEntity<Object> deleteById(@PathVariable int couponId) {
