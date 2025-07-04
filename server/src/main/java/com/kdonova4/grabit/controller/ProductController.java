@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -42,6 +43,7 @@ public class ProductController {
         this.categoryService = categoryService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Finds All Products")
     public ResponseEntity<List<ProductResponseDTO>> findAll() {
@@ -95,6 +97,7 @@ public class ProductController {
         return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
     }
 
+    @PreAuthorize("hasAnyRole('SELLER')")
     @PostMapping
     @Operation(summary = "Creates A Product")
     public ResponseEntity<Object> create(@RequestBody ProductCreateDTO productCreateDTO) {
@@ -107,6 +110,7 @@ public class ProductController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('SELLER')")
     @PutMapping("/{productId}")
     @Operation(summary = "Updates A Product")
     public ResponseEntity<Object> update(@PathVariable int productId, @RequestBody ProductUpdateDTO productUpdateDTO) {
@@ -123,6 +127,7 @@ public class ProductController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     @DeleteMapping("/{productId}")
     @Operation(summary = "Deletes A Product")
     public ResponseEntity<Object> deleteById(@PathVariable int productId) {

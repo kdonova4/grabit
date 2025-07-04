@@ -88,6 +88,10 @@ public class OrderProductService {
             result.addMessages("ORDER MUST EXIST", ResultType.INVALID);
         }
 
+        if(order.get().getUser().getAppUserId() == product.get().getUser().getAppUserId()) {
+            result.addMessages("CANNOT BUY YOUR OWN PRODUCT", ResultType.INVALID);
+        }
+
         if(orderProduct.getQuantity() < 1) {
             result.addMessages("QUANTITY MUST BE 1 OR GREATER", ResultType.INVALID);
         }

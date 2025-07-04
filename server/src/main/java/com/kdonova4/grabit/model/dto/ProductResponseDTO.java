@@ -27,5 +27,4 @@ public class ProductResponseDTO {
     private LocalDateTime auctionEnd;
     private BigDecimal winningBid;
     private int userId;
-
 }

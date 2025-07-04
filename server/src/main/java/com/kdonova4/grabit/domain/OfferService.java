@@ -79,7 +79,7 @@ public class OfferService {
     }
 
     public boolean deleteById(int id) {
-        if(repository.findById(id).isPresent()) {
+        if(repository.findById(id).isPresent() && repository.findById(id).get().getOfferStatus() != OfferStatus.ACCEPTED) {
             repository.deleteById(id);
             return true;
         } else {
@@ -187,6 +187,14 @@ public class OfferService {
 
         if(offer.getMessage().length() > 200) {
             result.addMessages("MESSAGE CANNOT BE LONGER THAN 200 CHARACTERS", ResultType.INVALID);
+        }
+
+        if(appUser.get().getAppUserId() == productOpt.get().getUser().getAppUserId()) {
+            result.addMessages("CANNOT MAKE AN OFFER ON YOUR OWN PRODUCT", ResultType.INVALID);
+        }
+
+        if(offer.getProduct().getProductStatus() != ProductStatus.ACTIVE) {
+            result.addMessages("CANNOT SEND AN OFFER TO AN INACTIVE PRODUCT", ResultType.INVALID);
         }
 
         if(productOpt.isPresent()

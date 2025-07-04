@@ -115,6 +115,10 @@ public class BidService {
             return result;
         }
 
+        if(appUser.get().getAppUserId() == product.get().getUser().getAppUserId()) {
+            result.addMessages("CANNOT MAKE A BID ON YOUR OWN PRODUCT", ResultType.INVALID);
+        }
+
         if(product.get().getSaleType() == SaleType.BUY_NOW) {
             result.addMessages("CANNOT PLACE BID ON BUY NOW PRODUCT", ResultType.INVALID);
         }
