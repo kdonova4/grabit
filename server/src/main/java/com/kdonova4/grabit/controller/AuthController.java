@@ -66,6 +66,8 @@ public class AuthController {
                 AppUserDetails appUserDetails = (AppUserDetails) authentication.getPrincipal();
                 String jwtToken = jwtConverter.getTokenFromUser(appUserDetails.getAppUser());
 
+
+
                 HashMap<String, String> map = new HashMap<>();
                 map.put("jwt_token", jwtToken);
 
