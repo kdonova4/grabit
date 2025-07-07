@@ -269,3 +269,5 @@ select * from offer;
 select * from review;
 
 select * from bid;
+
+select * from app_user;

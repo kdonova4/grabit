@@ -8,6 +8,7 @@ import com.kdonova4.grabit.model.entity.AppRole;
 import com.kdonova4.grabit.model.entity.AppUser;
 import com.kdonova4.grabit.model.entity.AppUserDetails;
 import jakarta.validation.ValidationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,7 +50,7 @@ public class AppUserService implements UserDetailsService {
         Optional<AppUser> appUser = repository.findByUsername(username);
 
         if(appUser.isEmpty() || appUser.get().isDisabled()) {
-            throw new UsernameNotFoundException(username + " NOT FOUND");
+            throw new BadCredentialsException("Credentials Invalid");
         }
 
         return new AppUserDetails(appUser.get());

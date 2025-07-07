@@ -852,3 +852,82 @@ src
 
 
 
+# Frontend Component Plan
+
+## App
+
+### Home
+
+### Register
+
+### Login
+
+### Profile
+
+### Search
+
+### ProductList
+
+### ReviewList
+
+### Filters
+
+### ProductPage
+
+### ShoppingCartList
+
+### ShoppingCartPage
+
+### AddressForm
+
+### AddressViewer
+
+### BidForm
+
+### BidList
+
+### CheckoutForm
+
+### ImageForm
+
+### ImageDisplay
+
+### OfferForm
+
+### OfferList
+
+### OrderList
+
+### OrderViewer
+
+### OrderProductList
+
+### OrderProductViewer
+
+### PaymentList
+
+### ProductForm
+
+### ReviewForm
+
+### ShipmentList
+
+### ShipmentViewer
+
+### WatchlistPage
+
+### WatchlistList
+
+### AuthContext
+
+### ShoppingCartContext
+
+### WatchlistContext
+
+## API Files
+
+### ProductAPI
+
+### ReviewAPI
+
+### AddressAPI
