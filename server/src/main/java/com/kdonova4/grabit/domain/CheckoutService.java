@@ -161,7 +161,7 @@ public class CheckoutService {
             }
 
 
-            Result<Object> productResult = productService.update(ProductMapper.toUpdateDTO(product));
+            Result<ProductResponseDTO> productResult = productService.update(ProductMapper.toUpdateDTO(product));
             if(!productResult.isSuccess()) {
                 throw new CheckoutException("Failed to update Product: " + String.join(", ", productResult.getMessages()));
             }

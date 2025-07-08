@@ -3,11 +3,21 @@ package com.kdonova4.grabit.domain.mapper;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.model.dto.*;
 import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.Category;
 import com.kdonova4.grabit.model.entity.Product;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductMapper {
 
     public static ProductAuctionResponseDTO toAuctionResponse(Product product) {
+        List<Integer> categoryIds = product.getCategories()
+                .stream()
+                .map(Category::getCategoryId)
+                .collect(Collectors.toList());
+
         return new ProductAuctionResponseDTO(
                 product.getProductId(),
                 product.getPostedAt(),
@@ -20,11 +30,17 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getAuctionEnd(),
                 product.getWinningBid(),
-                product.getUser().getAppUserId()
+                product.getUser().getAppUserId(),
+                categoryIds
         );
     }
 
     public static ProductBuyNowResponseDTO toBuyNowResponse(Product product) {
+        List<Integer> categoryIds = product.getCategories()
+                .stream()
+                .map(Category::getCategoryId)
+                .collect(Collectors.toList());
+
         return new ProductBuyNowResponseDTO(
                 product.getProductId(),
                 product.getPostedAt(),
@@ -36,11 +52,17 @@ public class ProductMapper {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getOfferPrice(),
-                product.getUser().getAppUserId()
+                product.getUser().getAppUserId(),
+                categoryIds
         );
     }
 
     public static ProductResponseDTO toResponseDTO(Product product) {
+        List<Integer> categoryIds = product.getCategories()
+                .stream()
+                .map(Category::getCategoryId)
+                .collect(Collectors.toList());
+
         return new ProductResponseDTO(
                 product.getProductId(),
                 product.getPostedAt(),
@@ -53,7 +75,9 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getAuctionEnd(),
                 product.getWinningBid(),
-                product.getUser().getAppUserId()
+                product.getOfferPrice(),
+                product.getUser().getAppUserId(),
+                categoryIds
         );
     }
 
@@ -94,6 +118,11 @@ public class ProductMapper {
     }
 
     public static ProductUpdateDTO toUpdateDTO(Product product) {
+        List<Integer> categoryIds = product.getCategories()
+                .stream()
+                .map(Category::getCategoryId)
+                .collect(Collectors.toList());
+
         return new ProductUpdateDTO(
                 product.getProductId(),
                 product.getProductName(),
@@ -102,7 +131,8 @@ public class ProductMapper {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getProductStatus(),
-                product.getWinningBid()
+                product.getWinningBid(),
+                categoryIds
         );
     }
 }

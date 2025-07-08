@@ -1,18 +1,26 @@
 // components/ProductViewer.tsx
 import React, { useState } from "react";
-import { fetchProductById } from "./ProductApi";
-import { ProductResponseDTO } from "./ProductResponseDTO";
+import { fetchProductById } from "./api/ProductApi";
+import { ProductResponse } from "./types/ProductResponse";
+import { fetchCategoryById } from "./api/CategoryAPI";
 
 const ProductViewer: React.FC = () => {
   const [productId, setProductId] = useState("");
-  const [product, setProduct] = useState<ProductResponseDTO | null>(null);
+  const [product, setProduct] = useState<ProductResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [categoryNames, setCategoryNames] = useState<string[]>([])
 
   const handleFetch = async () => {
     try {
       const data = await fetchProductById(Number(productId));
       setProduct(data);
       setError(null);
+
+      const categoryPromises = data.categoryIds.map((id) => fetchCategoryById(id));
+      const categoryResponses = await Promise.all(categoryPromises);
+      const names = categoryResponses.map((category) => category.categoryName);
+      setCategoryNames(names);
+      
     } catch (e) {
       setError((e as Error).message);
       setProduct(null);
@@ -37,6 +45,11 @@ const ProductViewer: React.FC = () => {
         <div className="mt-4 p-4 border rounded">
           <h3 className="text-lg font-semibold">{product.productName}</h3>
           <p>{product.description}</p>
+          <p>{product.saleType}</p>
+          <p>{product.productStatus}</p>
+          <p>{product.conditionType}</p>
+          <p>{product.quantity}</p>
+          <p>Category: {categoryNames.join(", ")}</p>
           <p className="text-green-700 font-bold">${product.price}</p>
         </div>
       )}

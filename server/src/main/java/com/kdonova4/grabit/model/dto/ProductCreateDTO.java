@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +20,5 @@ public class ProductCreateDTO {
     private ConditionType conditionType;
     private int quantity;
     private int userId;
+    private List<Integer> categoryIds;
 }

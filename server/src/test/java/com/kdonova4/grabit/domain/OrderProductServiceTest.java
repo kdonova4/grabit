@@ -7,6 +7,7 @@ import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.OrderStatus;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
+import com.kdonova4.grabit.model.entity.AppUser;
 import com.kdonova4.grabit.model.entity.Order;
 import com.kdonova4.grabit.model.entity.OrderProduct;
 import com.kdonova4.grabit.model.dto.OrderProductResponseDTO;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,14 +46,19 @@ public class OrderProductServiceTest {
     @InjectMocks
     OrderProductService service;
 
+    private AppUser user;
+    private AppUser buyer;
     private Order order;
     private Product product;
     private OrderProduct orderProduct;
 
     @BeforeEach
     void setup() {
-        order = new Order(1, null, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, null);
+        user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
+        buyer = new AppUser(2, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
+
+        order = new Order(1, buyer, Timestamp.valueOf(LocalDateTime.now()), null, null, new BigDecimal(1200), OrderStatus.PENDING, new ArrayList<>());
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(1200), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, user);
         orderProduct = new OrderProduct(1, order, product, 1, new BigDecimal(1200), new BigDecimal(1200));
     }
 
@@ -105,7 +112,7 @@ public class OrderProductServiceTest {
         when(orderRepository.findById(orderProduct.getOrder().getOrderId())).thenReturn(Optional.of(order));
 
         Result<OrderProductResponseDTO> actual = service.create(orderProduct);
-
+        System.out.println(actual.getMessages());
         assertEquals(ResultType.SUCCESS, actual.getType());
     }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +22,5 @@ public class ProductUpdateDTO {
     private int quantity;
     private ProductStatus status;
     private BigDecimal winningBid;
+    private List<Integer> categoryIds;
 }
