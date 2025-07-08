@@ -195,7 +195,8 @@ public class ProductControllerTest {
                 product.getPrice(),
                 product.getCondition(),
                 product.getQuantity(),
-                product.getUser().getAppUserId()
+                product.getUser().getAppUserId(),
+                List.of()
         );
         ProductBuyNowResponseDTO expected = ProductMapper.toBuyNowResponse(product);
 

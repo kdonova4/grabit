@@ -4,15 +4,15 @@ import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Generated;
 import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="product")
@@ -63,9 +63,38 @@ public class Product {
     @Column(name = "offer_price")
     private BigDecimal offerPrice;
 
+    @ManyToMany
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JoinTable(
+            name = "product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "app_user_id", nullable = false)
     private AppUser user;
+
+    public Product(int productId, Timestamp postedAt, SaleType saleType, String productName,
+                   String description, BigDecimal price, ConditionType condition, int quantity,
+                   ProductStatus productStatus, LocalDateTime auctionEnd, BigDecimal winningBid,
+                   BigDecimal offerPrice, AppUser user) {
+        this.productId = productId;
+        this.postedAt = postedAt;
+        this.saleType = saleType;
+        this.productName = productName;
+        this.description = description;
+        this.price = price;
+        this.condition = condition;
+        this.quantity = quantity;
+        this.productStatus = productStatus;
+        this.auctionEnd = auctionEnd;
+        this.winningBid = winningBid;
+        this.offerPrice = offerPrice;
+        this.user = user;
+    }
 
     public Product(Product source) {
         this.productId = source.getProductId();

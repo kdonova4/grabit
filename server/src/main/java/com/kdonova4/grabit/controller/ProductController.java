@@ -66,6 +66,15 @@ public class ProductController {
         return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
     }
 
+    @GetMapping("/category/{categoryId}")
+    @Operation(summary = "Finds products by category")
+    public ResponseEntity<List<ProductResponseDTO>> findByCategory(@PathVariable int categoryId) {
+
+        List<Product> products = service.findAllByCategoryId(categoryId);
+
+        return ResponseEntity.ok(products.stream().map(ProductMapper::toResponseDTO).toList());
+    }
+
     @GetMapping("/{productId}")
     @Operation(summary = "Finds A Product By ID")
     public ResponseEntity<ProductResponseDTO> findById(@PathVariable int productId) {
@@ -101,7 +110,7 @@ public class ProductController {
     @PostMapping
     @Operation(summary = "Creates A Product")
     public ResponseEntity<Object> create(@RequestBody ProductCreateDTO productCreateDTO) {
-        Result<Object> result = service.create(productCreateDTO);
+        Result<ProductResponseDTO> result = service.create(productCreateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
@@ -118,7 +127,7 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        Result<Object> result = service.update(productUpdateDTO);
+        Result<ProductResponseDTO> result = service.update(productUpdateDTO);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);

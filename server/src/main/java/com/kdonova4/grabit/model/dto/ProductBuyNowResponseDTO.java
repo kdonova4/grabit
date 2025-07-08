@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +26,5 @@ public class ProductBuyNowResponseDTO {
     private int quantity;
     private BigDecimal offerPrice;
     private int userId;
+    private List<Integer> categoryIds;
 }

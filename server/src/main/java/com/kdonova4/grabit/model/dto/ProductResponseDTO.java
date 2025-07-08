@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -26,5 +27,7 @@ public class ProductResponseDTO {
     private int quantity;
     private LocalDateTime auctionEnd;
     private BigDecimal winningBid;
+    private BigDecimal offerPrice;
     private int userId;
+    private List<Integer> categoryIds;
 }

@@ -45,13 +45,15 @@ public class OfferServiceTest {
     OfferService service;
 
     private AppUser user;
+    private AppUser seller;
     private Product product;
     private Offer offer;
 
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, user);
+        seller = new AppUser(2, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, seller);
         offer = new Offer(1, new BigDecimal(1000), Timestamp.valueOf(LocalDateTime.now()), "Can you do 1000?", user, product, LocalDateTime.now().plusDays(1), OfferStatus.PENDING);
     }
 
@@ -126,7 +128,7 @@ public class OfferServiceTest {
         product.setAuctionEnd(null);
 
 
-        when(offerRepository.save(offer)).thenReturn(mockOut);
+        when(offerRepository.save(any(Offer.class))).thenReturn(mockOut);
         when(productRepository.findById(offer.getProduct().getProductId())).thenReturn(Optional.of(product));
         when(appUserRepository.findById(offer.getUser().getAppUserId())).thenReturn(Optional.of(user));
 
@@ -138,7 +140,7 @@ public class OfferServiceTest {
         );
 
         Result<OfferResponseDTO> actual = service.create(offerCreateDTO);
-        System.out.println(actual.getMessages());
+
         assertEquals(ResultType.SUCCESS, actual.getType());
 
     }

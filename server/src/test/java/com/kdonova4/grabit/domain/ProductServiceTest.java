@@ -2,6 +2,7 @@ package com.kdonova4.grabit.domain;
 
 import com.kdonova4.grabit.data.AppUserRepository;
 import com.kdonova4.grabit.data.BidRepository;
+import com.kdonova4.grabit.data.CategoryRepository;
 import com.kdonova4.grabit.data.ProductRepository;
 import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
@@ -9,6 +10,7 @@ import com.kdonova4.grabit.enums.ProductStatus;
 import com.kdonova4.grabit.enums.SaleType;
 import com.kdonova4.grabit.model.dto.ProductBuyNowResponseDTO;
 import com.kdonova4.grabit.model.dto.ProductCreateDTO;
+import com.kdonova4.grabit.model.dto.ProductResponseDTO;
 import com.kdonova4.grabit.model.dto.ProductUpdateDTO;
 import com.kdonova4.grabit.model.entity.AppUser;
 import com.kdonova4.grabit.model.entity.Bid;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,6 +42,9 @@ public class ProductServiceTest {
 
     @Mock
     BidRepository bidRepository;
+
+    @Mock
+    CategoryRepository categoryRepository;
 
     @InjectMocks
     ProductService service;
@@ -91,19 +97,21 @@ public class ProductServiceTest {
                 product.getPrice(),
                 product.getCondition(),
                 product.getQuantity(),
-                product.getUser().getAppUserId()
+                product.getUser().getAppUserId(),
+                List.of()
         );
 
         Product mockOut = new Product(product);
         product.setProductId(0);
 
+        when(categoryRepository.findAllById(any(List.class))).thenReturn(List.of());
         when(productRepository.save(any(Product.class))).thenReturn(mockOut);
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
 
-        Result<Object> actual = service.create(productCreateDTO);
+        Result<ProductResponseDTO> actual = service.create(productCreateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
-        assertTrue(actual.getPayload() instanceof ProductBuyNowResponseDTO);
+
     }
 
     @Test
@@ -116,15 +124,17 @@ public class ProductServiceTest {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getProductStatus(),
-                product.getWinningBid()
+                product.getWinningBid(),
+                List.of()
         );
 
+        when(categoryRepository.findAllById(any(List.class))).thenReturn(List.of());
         when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
         when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
         when(bidRepository.findByProduct(any(Product.class))).thenReturn(List.of());
 
 
-        Result<Object> actual = service.update(productUpdateDTO);
+        Result<ProductResponseDTO> actual = service.update(productUpdateDTO);
 
         assertEquals(ResultType.SUCCESS, actual.getType());
     }
@@ -132,7 +142,7 @@ public class ProductServiceTest {
     @Test
     void shouldNotCreateInvalid() {
         when(appUserRepository.findById(1)).thenReturn(Optional.of(user));
-
+        when(categoryRepository.findAllById(any(List.class))).thenReturn(List.of());
 
 
 
@@ -143,12 +153,13 @@ public class ProductServiceTest {
                 product.getPrice(),
                 product.getCondition(),
                 product.getQuantity(),
-                product.getUser().getAppUserId()
+                product.getUser().getAppUserId(),
+                List.of()
         );
 
 
         productCreateDTO.setPrice(null);
-        Result<Object> actual = service.create(productCreateDTO);
+        Result<ProductResponseDTO> actual = service.create(productCreateDTO);
         assertEquals(ResultType.INVALID, actual.getType());
 
         productCreateDTO.setPrice(new BigDecimal(1200));
@@ -176,12 +187,13 @@ public class ProductServiceTest {
     void shouldNotUpdateMissingOrInvalid() {
         product.setDescription("Updated description");
 
+        when(categoryRepository.findAllById(any(List.class))).thenReturn(List.of());
         when(productRepository.findById(1)).thenReturn(Optional.empty());
         when(appUserRepository.findById(product.getUser().getAppUserId())).thenReturn(Optional.of(user));
         when(bidRepository.findByProduct(product)).thenReturn(List.of());
 
 
-        Result<Object> actual = service.update(ProductMapper.toUpdateDTO(product));
+        Result<ProductResponseDTO> actual = service.update(ProductMapper.toUpdateDTO(product));
         assertEquals(ResultType.NOT_FOUND, actual.getType());
 
         when(productRepository.findById(1)).thenReturn(Optional.of(product));

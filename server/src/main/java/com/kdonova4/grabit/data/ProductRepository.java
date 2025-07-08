@@ -38,4 +38,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     );
 
     List<Product> findBySaleTypeAndProductStatusAndAuctionEndBefore(SaleType saleType, ProductStatus status, LocalDateTime now);
+
+    @Query("SELECT pc.product FROM ProductCategory pc WHERE pc.category.id = :categoryId")
+    List<Product> findAllByCategoryId(@Param("categoryId") Integer categoryId);
 }

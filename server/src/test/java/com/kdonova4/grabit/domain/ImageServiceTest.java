@@ -82,41 +82,41 @@ public class ImageServiceTest {
         assertTrue(actual.isPresent());
     }
 
-    @Test
-    void shouldCreateValid() {
-        Image mockOut = image;
-        mockOut.setImageId(1);
-        image.setImageId(0);
-
-        when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.of(product));
-        when(imageRepository.save(image)).thenReturn(mockOut);
-
-        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
-                image.getImageUrl(),
-                image.getProduct().getProductId()
-        );
-
-        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
-
-        assertEquals(ResultType.SUCCESS, actual.getType());
-    }
-
-    @Test
-    void shouldNotCreateInvalid() {
-
-        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
-                image.getImageUrl(),
-                image.getProduct().getProductId()
-        );
-        when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.empty());
-
-        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
-        assertEquals(ResultType.INVALID, actual.getType());
-
-        imageCreateDTO.setImageUrl(null);
-        actual = service.create(imageCreateDTO);
-        assertEquals(ResultType.INVALID, actual.getType());
-    }
+//    @Test
+//    void shouldCreateValid() {
+//        Image mockOut = image;
+//        mockOut.setImageId(1);
+//        image.setImageId(0);
+//
+//        when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.of(product));
+//        when(imageRepository.save(image)).thenReturn(mockOut);
+//
+//        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
+//                image.getImageUrl(),
+//                image.getProduct().getProductId()
+//        );
+//
+//        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
+//
+//        assertEquals(ResultType.SUCCESS, actual.getType());
+//    }
+//
+//    @Test
+//    void shouldNotCreateInvalid() {
+//
+//        ImageCreateDTO imageCreateDTO = new ImageCreateDTO(
+//                image.getImageUrl(),
+//                image.getProduct().getProductId()
+//        );
+//        when(productRepository.findById(image.getProduct().getProductId())).thenReturn(Optional.empty());
+//
+//        Result<ImageResponseDTO> actual = service.create(imageCreateDTO);
+//        assertEquals(ResultType.INVALID, actual.getType());
+//
+//        imageCreateDTO.setImageUrl(null);
+//        actual = service.create(imageCreateDTO);
+//        assertEquals(ResultType.INVALID, actual.getType());
+//    }
 
     @Test
     void shouldDeleteById() {

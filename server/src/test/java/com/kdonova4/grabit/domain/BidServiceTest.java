@@ -43,13 +43,15 @@ public class BidServiceTest {
     BidService service;
 
     private AppUser user;
+    private AppUser seller;
     private Product product;
     private Bid bid;
 
     @BeforeEach
     void setup() {
         user = new AppUser(1, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
-        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, user);
+        seller = new AppUser(2, "kdonova4", "kdonova4@gmail.com", "85c*98Kd", false, new HashSet<>());
+        product = new Product(1, Timestamp.valueOf(LocalDateTime.now()), SaleType.AUCTION, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, LocalDateTime.now().plusDays(1), null, null, seller);
         bid = new Bid(1, new BigDecimal(255), Timestamp.valueOf(LocalDateTime.now()), product, user);
     }
 
@@ -98,7 +100,7 @@ public class BidServiceTest {
         Bid mockOut = bid;
         bid.setBidId(0);
         bid.setPlacedAt(null);
-        when(bidRepository.save(bid)).thenReturn(mockOut);
+        when(bidRepository.save(any(Bid.class))).thenReturn(mockOut);
         when(appUserRepository.findById(bid.getUser().getAppUserId())).thenReturn(Optional.of(user));
         when(productRepository.findById(bid.getProduct().getProductId())).thenReturn(Optional.of(product));
 
