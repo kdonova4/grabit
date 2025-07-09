@@ -1,4 +1,4 @@
-import { OrderResponse } from "../types/OrderResponse";
+import { OrderResponse } from "../types/Order/OrderResponse";
 
 export async function fetchOrderByUser(userId: number): Promise<OrderResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/orders/user/${userId}`)

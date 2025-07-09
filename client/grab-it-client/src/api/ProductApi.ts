@@ -1,7 +1,7 @@
-import { ProductCreateRequest } from "../types/ProductCreateRequest";
-import { ProductResponse } from "../types/ProductResponse";
-import { ProductSearchParams } from "../types/ProductSearchParams";
-import { ProductUpdateRequest } from "../types/ProductUpdateRequest";
+import { ProductCreateRequest } from "../types/Product/ProductCreateRequest";
+import { ProductResponse } from "../types/Product/ProductResponse";
+import { ProductSearchParams } from "../types/Product/ProductSearchParams";
+import { ProductUpdateRequest } from "../types/Product/ProductUpdateRequest";
 
 export async function fetchProductsByUser(userId: number): Promise<ProductResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/products/user/${userId}`);

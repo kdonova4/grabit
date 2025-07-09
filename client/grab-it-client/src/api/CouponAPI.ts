@@ -1,4 +1,4 @@
-import { CouponDTO } from "../types/CouponDTO";
+import { CouponDTO } from "../types/Coupon/CouponDTO";
 
 export async function fetchCouponByCode(couponCode: string): Promise<CouponDTO> {
     const response = await fetch(`http://localhost:8080/api/v1/coupons/coupon/${couponCode}`);

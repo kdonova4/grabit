@@ -1,4 +1,4 @@
-import { ImageResponse } from "../types/ImageResponse";
+import { ImageResponse } from "../types/Image/ImageResponse";
 
 export async function fetchImagesByProduct(productId: number): Promise<ImageResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/images/product/${productId}`);
@@ -15,7 +15,7 @@ export async function fetchImageById(imageId: number): Promise<ImageResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/images/${imageId}`);
 
     if(!response.ok) {
-        throw new Error(`Bid ID ${imageId} Not Found`)
+        throw new Error(`Image ID ${imageId} Not Found`)
     }
 
     const data: ImageResponse = await response.json();
@@ -39,7 +39,7 @@ export async function uploadImage(productId: number, file: File): Promise<ImageR
     return data;
 }
 
-export async function deleteBidById(imageId: number): Promise<void> {
+export async function deleteImageById(imageId: number): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/images/${imageId}`, {
         method: "DELETE",
         headers: {

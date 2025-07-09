@@ -1,5 +1,5 @@
-import { BidCreateRequest } from "../types/BidCreateRequest";
-import { BidResponse } from "../types/BidResponse";
+import { BidCreateRequest } from "../types/Bid/BidCreateRequest";
+import { BidResponse } from "../types/Bid/BidResponse";
 
 export async function fetchByUser(userId: number): Promise<BidResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/bids/user/${userId}`)

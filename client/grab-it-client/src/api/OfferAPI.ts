@@ -1,5 +1,5 @@
-import { OfferRequest } from "../types/OfferRequest";
-import { OfferResponse } from "../types/OfferResponse";
+import { OfferRequest } from "../types/Offer/OfferRequest";
+import { OfferResponse } from "../types/Offer/OfferResponse";
 
 export async function fetchOfferByUser(userId: number): Promise<OfferResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/offers/user/${userId}`)

@@ -76,7 +76,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews.stream().map(ReviewMapper::toResponseDTO).toList());
     }
 
-    @GetMapping("seller/{sellerId}")
+    @GetMapping("/seller/{sellerId}")
     @Operation(summary = "Finds Reviews For Seller")
     public ResponseEntity<List<ReviewResponseDTO>> findBySeller(@PathVariable int sellerId) {
         Optional<AppUser> appUser = appUserService.findUserById(sellerId);
