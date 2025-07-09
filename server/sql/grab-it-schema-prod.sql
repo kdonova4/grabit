@@ -271,3 +271,5 @@ select * from review;
 select * from bid;
 
 select * from app_user;
+
+select * from product_category;

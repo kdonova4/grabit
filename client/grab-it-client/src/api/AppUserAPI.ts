@@ -1,8 +1,8 @@
-import { AppUserAuthRequest } from "../types/AppUserAuthRequest";
-import { AppUserAuthResponse } from "../types/AppUserAuthResponse";
-import { AppUserCreateRequest } from "../types/AppUserCreateRequest";
-import { AppUserCreateResponse } from "../types/AppUserCreateResponse";
-import { AppUserVerify } from "../types/AppUserVerify";
+import { AppUserAuthRequest } from "../types/AppUser/AppUserAuthRequest";
+import { AppUserAuthResponse } from "../types/AppUser/AppUserAuthResponse";
+import { AppUserCreateRequest } from "../types/AppUser/AppUserCreateRequest";
+import { AppUserCreateResponse } from "../types/AppUser/AppUserCreateResponse";
+import { AppUserVerify } from "../types/AppUser/AppUserVerify";
 
 export async function register(user: AppUserCreateRequest): Promise<AppUserCreateResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/users/register/user`, {

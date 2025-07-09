@@ -1,4 +1,4 @@
-import { Category } from "../types/Category";
+import { Category } from "../types/Category/Category";
 
 export async function fetchCategoryByName(name: string): Promise<Category> {
     const response = await fetch(`http://localhost:8080/api/v1/categories/category-name/${name}`);

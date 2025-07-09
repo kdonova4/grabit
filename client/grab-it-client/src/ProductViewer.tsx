@@ -1,7 +1,7 @@
 // components/ProductViewer.tsx
 import React, { useState } from "react";
 import { fetchProductById } from "./api/ProductApi";
-import { ProductResponse } from "./types/ProductResponse";
+import { ProductResponse } from "./types/Product/ProductResponse";
 import { fetchCategoryById } from "./api/CategoryAPI";
 
 const ProductViewer: React.FC = () => {
