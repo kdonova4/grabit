@@ -25,6 +25,13 @@ export async function fetchProductById(productId: number): Promise<ProductRespon
     return data;
 }
 
+export async function fetchProductByCategory(categoryId: number): Promise<ProductResponse[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/products/category/${categoryId}`);
+
+    const data: ProductResponse[] = await response.json();
+    return data;
+}
+
 function buildQuery(params: ProductSearchParams): string {
     const query = new URLSearchParams();
 
