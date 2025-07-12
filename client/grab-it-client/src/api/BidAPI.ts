@@ -1,10 +1,25 @@
+import { useAuth } from "../AuthContext";
 import { BidCreateRequest } from "../types/Bid/BidCreateRequest";
 import { BidResponse } from "../types/Bid/BidResponse";
 
-export async function fetchByUser(userId: number): Promise<BidResponse[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/bids/user/${userId}`)
 
-    if(!response.ok) {
+export async function fetchByUser(userId: number, token: string): Promise<BidResponse[]> {
+
+
+    const response = await fetch(`http://localhost:8080/api/v1/bids/user/${userId}`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+
+        }
+    })
+
+    if(response.status === 403) {
+        throw new Error("User Not Authenticated")
+    }
+
+    if (response.status === 404) {
         throw new Error(`User ID ${userId} Not Found`)
     }
 
@@ -15,7 +30,7 @@ export async function fetchByUser(userId: number): Promise<BidResponse[]> {
 export async function fetchByProduct(productId: number): Promise<BidResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/bids/product/${productId}`);
 
-    if(!response.ok) {
+    if (!response.ok) {
         throw new Error(`Product ID ${productId} Not Found`);
     }
 
@@ -26,7 +41,7 @@ export async function fetchByProduct(productId: number): Promise<BidResponse[]> 
 export async function fetchById(bidId: number): Promise<BidResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/bids/${bidId}`);
 
-    if(!response.ok) {
+    if (!response.ok) {
         throw new Error(`Bid ID ${bidId} Not Found`)
     }
 
@@ -43,7 +58,7 @@ export async function createBid(bid: BidCreateRequest): Promise<BidResponse> {
         body: JSON.stringify(bid)
     });
 
-    if(response.status !== 201) {
+    if (response.status !== 201) {
         throw new Error("Error Creating New Bid")
     }
 
@@ -58,7 +73,7 @@ export async function deleteBidById(bidId: number): Promise<void> {
         }
     });
 
-    if(response.status !== 204) {
+    if (response.status !== 204) {
         throw new Error(`Unexpected Status Code ${response.status}`)
     }
 }
