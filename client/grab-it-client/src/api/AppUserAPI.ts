@@ -3,8 +3,9 @@ import { AppUserAuthResponse } from "../types/AppUser/AppUserAuthResponse";
 import { AppUserCreateRequest } from "../types/AppUser/AppUserCreateRequest";
 import { AppUserCreateResponse } from "../types/AppUser/AppUserCreateResponse";
 import { AppUserVerify } from "../types/AppUser/AppUserVerify";
+import { RegisterRequest } from "../types/AppUser/RegisterRequest";
 
-export async function register(user: AppUserCreateRequest): Promise<AppUserCreateResponse> {
+export async function register(user: RegisterRequest): Promise<AppUserCreateResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/users/register/user`, {
         method: "POST",
         headers: {
@@ -13,12 +14,12 @@ export async function register(user: AppUserCreateRequest): Promise<AppUserCreat
         body: JSON.stringify(user)
     });
 
-    if(response.status == 400) {
+    if(response.status === 400) {
         throw new Error("Bad Credentials")
     }
 
     if (!response.ok) {
-    throw new Error("Failed to register user");
+        throw new Error("Failed to register user");
     }
 
     const data: AppUserCreateResponse = await response.json();

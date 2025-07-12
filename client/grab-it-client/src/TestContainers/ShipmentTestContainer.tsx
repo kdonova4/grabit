@@ -1,8 +1,8 @@
-const AppUserTestContainer: React.FC = () => {
+const ShipmentTestContainer: React.FC = () => {
 
     return (
         <></>
     )
 }
 
-export default AppUserTestContainer;
+export default ShipmentTestContainer;
