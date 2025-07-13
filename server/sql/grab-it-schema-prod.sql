@@ -272,4 +272,6 @@ select * from bid;
 
 select * from app_user;
 
+select * from app_user_role;
+
 select * from product_category;

@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { AddressResponse } from "../../types/Address/AddressResponse";
 import { fetchAddressById } from "../../api/AddressAPI";
+import { useAuth } from "../../AuthContext";
 
 const AddressById: React.FC = () => {
 
     const [id, setId] = useState("");
     const [address, setAddress] = useState<AddressResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const { token } = useAuth();
 
     const handleFetch = async () => {
         try {
-            const data = await fetchAddressById(Number(id));
+            if(!token) {
+                throw new Error("User is not authenticated")
+            }
+            const data = await fetchAddressById(Number(id), token);
             setAddress(data);
         } catch (e) {
             setError((e as Error).message);

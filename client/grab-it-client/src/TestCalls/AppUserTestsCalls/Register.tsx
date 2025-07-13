@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AppUserCreateRequest } from "../../types/AppUser/AppUserCreateRequest";
 import { register } from "../../api/AppUserAPI";
 import { RegisterRequest } from "../../types/AppUser/RegisterRequest";
+import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
 
@@ -16,7 +17,7 @@ const Register: React.FC = () => {
     const [errors, setErrors] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
-
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,6 +29,7 @@ const Register: React.FC = () => {
             const data = await register(credentials);
             console.log(data);
             setMessage("Registration Complete");
+            navigate("/verify")
             localStorage.setItem("email", credentials.email);
         } catch (e) {
             setErrors((e as Error).message)
