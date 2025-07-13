@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../AuthContext";
 import { authenticate } from "../../api/AppUserAPI";
 import { AppUserAuthRequest } from "../../types/AppUser/AppUserAuthRequest";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
 
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
     })
     const [message, setMessage] = useState("");
     const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,6 +30,7 @@ const Login: React.FC = () => {
             console.log(data);
             login(data.jwt_token);
             setMessage("Login Succesful")
+            navigate('/');
         } catch(e) {
             setErrors((e as Error).message);
             setMessage("Login Failed")

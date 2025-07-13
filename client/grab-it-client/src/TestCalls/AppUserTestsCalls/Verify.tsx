@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppUserVerify } from "../../types/AppUser/AppUserVerify";
 import { verify } from "../../api/AppUserAPI";
+import { useNavigate } from "react-router-dom";
 
 const Verify: React.FC = () => {
 
@@ -11,6 +12,7 @@ const Verify: React.FC = () => {
     
     const [errors, setErrors] = useState<string | null>(null);
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const savedEmail = localStorage.getItem("email");
@@ -30,6 +32,7 @@ const Verify: React.FC = () => {
             console.log(data);
             localStorage.removeItem("email");
             setMessage("Verification Succesful")
+            navigate("/login")
         }catch(e) {
             setErrors((e as Error).message)
             setMessage("Verification Failed")

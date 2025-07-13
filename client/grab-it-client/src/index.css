@@ -1,1 +1,19 @@
 
+body {
+    background-color: #181a1b;
+    color: white;
+}
+
+header{
+    height: 85vh;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('https://images.steamusercontent.com/ugc/865111643820639935/E6F64A1452B8609AB04A11E4FF5A20F3C208FB67/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false');
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: white;
+}

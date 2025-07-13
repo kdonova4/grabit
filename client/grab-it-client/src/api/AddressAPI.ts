@@ -2,10 +2,20 @@ import { AddressResponse } from "../types/Address/AddressResponse";
 import { AddressCreateRequest } from "../types/Address/AddressCreateRequest";
 import { AddressUpdateRequest } from "../types/Address/AddressUpdateRequest";
 
-export async function fetchAddressByUser(userId: number): Promise<AddressResponse[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/addresses/user/${userId}`);
+export async function fetchAddressByUser(userId: number, token: string): Promise<AddressResponse[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/addresses/user/${userId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
 
-    if(!response.ok) {
+    if (response.status === 403) {
+        throw new Error("User Not Authenticated")
+    }
+
+    if (!response.ok) {
         throw new Error(`Error fetching addressess for user ${userId}`);
     }
 
@@ -13,11 +23,21 @@ export async function fetchAddressByUser(userId: number): Promise<AddressRespons
     return data;
 }
 
-export async function fetchAddressById(addressId: number): Promise<AddressResponse> {
-    const response = await fetch(`http://localhost:8080/api/v1/addresses/${addressId}`);
+export async function fetchAddressById(addressId: number, token: string): Promise<AddressResponse> {
+    const response = await fetch(`http://localhost:8080/api/v1/addresses/${addressId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
 
-    if(!response.ok) {
-        throw new Error(`Error finding address with ID ${addressId}`);
+    if (response.status === 403) {
+        throw new Error("User Not Authenticated")
+    }
+
+    if (response.status === 404) {
+        throw new Error(`Address ID ${addressId} Not Found`)
     }
 
     const data: AddressResponse = await response.json();
@@ -33,14 +53,14 @@ export async function addAddress(address: AddressCreateRequest): Promise<Address
         body: JSON.stringify(address)
     });
 
-    if(response.status !== 201) {
+    if (response.status !== 201) {
         throw new Error("Error Creating new Address");
     }
 
     return await response.json();
 }
 
-export async function updateAddress(addressId: number , address: AddressUpdateRequest): Promise<void> {
+export async function updateAddress(addressId: number, address: AddressUpdateRequest): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/addresses/${addressId}`, {
         method: "PUT",
         headers: {
@@ -49,11 +69,11 @@ export async function updateAddress(addressId: number , address: AddressUpdateRe
         body: JSON.stringify(address),
     });
 
-    if(response.status === 409) {
+    if (response.status === 409) {
         throw new Error("Address ID conflict")
     }
 
-    if(!response.ok) {
+    if (!response.ok) {
         throw new Error("Error updating Address")
     }
 
