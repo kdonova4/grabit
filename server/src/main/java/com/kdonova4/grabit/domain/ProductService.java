@@ -1,9 +1,6 @@
 package com.kdonova4.grabit.domain;
 
-import com.kdonova4.grabit.data.AppUserRepository;
-import com.kdonova4.grabit.data.BidRepository;
-import com.kdonova4.grabit.data.CategoryRepository;
-import com.kdonova4.grabit.data.ProductRepository;
+import com.kdonova4.grabit.data.*;
 import com.kdonova4.grabit.domain.mapper.ProductMapper;
 import com.kdonova4.grabit.enums.ConditionType;
 import com.kdonova4.grabit.enums.ProductStatus;
@@ -29,15 +26,16 @@ public class ProductService {
     private final AppUserRepository appUserRepository;
     private final CategoryRepository categoryRepository;
     private final BidRepository bidRepository;
-
+    private final ImageRepository imageRepository;
     private final ShoppingCartService shoppingCartService;
     private final AddressService addressService;
 
-    public ProductService(ProductRepository repository, AppUserRepository appUserRepository, CategoryRepository categoryRepository, BidRepository bidRepository, ShoppingCartService shoppingCartService, AddressService addressService) {
+    public ProductService(ProductRepository repository, AppUserRepository appUserRepository, CategoryRepository categoryRepository, BidRepository bidRepository, ImageRepository imageRepository, ShoppingCartService shoppingCartService, AddressService addressService) {
         this.repository = repository;
         this.appUserRepository = appUserRepository;
         this.categoryRepository = categoryRepository;
         this.bidRepository = bidRepository;
+        this.imageRepository = imageRepository;
         this.shoppingCartService = shoppingCartService;
         this.addressService = addressService;
     }
@@ -188,6 +186,7 @@ public class ProductService {
         } else if (product.getDescription().length() > 500) {
             result.addMessages("PRODUCT DESCRIPTION CANNOT BE GREATER THAN 500 CHARACTERS", ResultType.INVALID);
         }
+
 
         if(product.getQuantity() <= 0 && product.getProductId() == 0) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);
