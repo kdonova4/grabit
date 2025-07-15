@@ -56,27 +56,30 @@ export async function searchProducts(params: ProductSearchParams): Promise<Produ
     return data;
 }
 
-export async function createProduct(product: ProductCreateRequest): Promise<ProductResponse> {
+export async function createProduct(product: ProductCreateRequest, token: string): Promise<ProductResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/products`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(product)
     });
 
-    if(response.status !== 201) {
-        throw new Error("Error creating Product")
+   if(response.status !== 201) {
+        const errorData: string[] = await response.json();
+        throw errorData
     }
 
     const data: ProductResponse = await response.json();
     return data;
 }
 
-export async function updateProduct(productId: number, product: ProductUpdateRequest): Promise<void> {
+export async function updateProduct(productId: number, product: ProductUpdateRequest, token: string): Promise<null | string[]> {
     const response = await fetch(`http://localhost:8080/api/v1/products/${productId}`, {
         method: "PUT",
         headers: {
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify(product),
@@ -86,10 +89,13 @@ export async function updateProduct(productId: number, product: ProductUpdateReq
         throw new Error("Product ID conflict")
     }
 
-    if(!response.ok) {
-        throw new Error("Error updating Product")
+    if(response.status !== 204) {
+        const errors = await response.json();
+        console.log(errors)
+        return errors as string[];
     }
 
+    return null;
 }
 
 export async function deleteProductById(productId: number): Promise<void> {

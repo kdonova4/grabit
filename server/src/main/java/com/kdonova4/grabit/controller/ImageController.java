@@ -73,14 +73,18 @@ public class ImageController {
 
     @PostMapping(path = "/{productId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Creates An Image")
-    public ResponseEntity<Object> create(@PathVariable int productId, @RequestParam("file")MultipartFile file) {
-        Result<ImageResponseDTO> result = service.create(file, productId);
+    public ResponseEntity<Object> create(@PathVariable int productId, @RequestParam("file")MultipartFile[] files) {
 
-        if(!result.isSuccess()) {
-            return ErrorResponse.build(result);
+        for(MultipartFile f : files) {
+            Result<ImageResponseDTO> result = service.create(f, productId);
+
+            if(!result.isSuccess()) {
+                return ErrorResponse.build(result);
+            }
         }
 
-        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{imageId}")

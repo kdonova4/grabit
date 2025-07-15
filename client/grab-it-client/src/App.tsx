@@ -7,6 +7,7 @@ import NavBar from './NavBar';
 import Login from './TestCalls/AppUserTestsCalls/Login';
 import Register from './TestCalls/AppUserTestsCalls/Register';
 import Verify from './TestCalls/AppUserTestsCalls/Verify';
+import ProductForm from './ProductForm';
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
         <Route path='/login' element={<Login/>}/>
         <Route path='/register' element={<Register/>}/>
         <Route path='/verify' element={<Verify/>}/>
+        <Route path='/product/add' element={<ProductForm/>}/>
+        <Route path='/product/edit/:id' element={<ProductForm/>}/>
       </Routes>
     </Router>
       

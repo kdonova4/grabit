@@ -1,7 +1,8 @@
-import { ConditionType, ProductStatus } from "./ProductResponse";
+import { ConditionType, ProductStatus, SaleType } from "./ProductResponse";
 
-export interface ProductUpdateRequest {
+export interface ProductFormState {
     productId: number;
+    saleType: SaleType
     productName: string;
     description: string;
     price: number;
@@ -9,5 +10,6 @@ export interface ProductUpdateRequest {
     quantity: number;
     status: ProductStatus;
     winningBid: number | null;
+    userId: number;
     categoryIds: number[];
 }
