@@ -74,7 +74,7 @@ const ProductByCategory: React.FC = () => {
                                 <td>{product.winningBid}</td>
                                 <td>{product.offerPrice}</td>
                                 <td>{product.userId}</td>
-                                <td>{product.categoryIds}</td>
+
                             </tr>
                         ))}
                     </tbody>

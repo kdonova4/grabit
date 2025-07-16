@@ -20,5 +20,5 @@ public class ProductCreateDTO {
     private ConditionType conditionType;
     private int quantity;
     private int userId;
-    private List<Integer> categoryIds;
+    private int categoryId;
 }

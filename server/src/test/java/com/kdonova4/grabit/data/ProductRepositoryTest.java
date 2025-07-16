@@ -126,7 +126,7 @@ public class ProductRepositoryTest {
         Optional<AppUser> appUser = appUserRepository.findById(2);
         Optional<Category> category = categoryRepository.findById(1);
 
-        Product product = new Product(0, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, appUser.get());
+        Product product = new Product(0, Timestamp.valueOf(LocalDateTime.now()), SaleType.BUY_NOW, "Electric Guitar",  "new electric guitar i just got", new BigDecimal(250), ConditionType.EXCELLENT, 1, ProductStatus.ACTIVE, null, null, null, category.get(), appUser.get());
 
         repository.save(product);
 

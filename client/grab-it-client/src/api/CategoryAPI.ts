@@ -15,6 +15,18 @@ export async function fetchCategoryByName(name: string): Promise<Category> {
     return data;
 }
 
+export async function fetchAllCategories(): Promise<Category[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/categories`);
+
+    
+    if(!response.ok) {
+        throw new Error(`Trouble Fetching Categories`)
+    }
+
+    const data: Category[] = await response.json();
+    return data;
+}
+
 export async function fetchCategoryById(categoryId: number): Promise<Category> {
     const response = await fetch(`http://localhost:8080/api/v1/categories/${categoryId}`);
 
@@ -30,7 +42,7 @@ export async function fetchCategoryById(categoryId: number): Promise<Category> {
     return data;
 }
 
-export async function addAddress(category: Category): Promise<Category> {
+export async function addCategory(category: Category): Promise<Category> {
     const response = await fetch(`http://localhost:8080/api/v1/categories`, {
         method: "POST",
         headers: {

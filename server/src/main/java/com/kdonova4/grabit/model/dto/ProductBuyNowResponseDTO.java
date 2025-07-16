@@ -26,5 +26,5 @@ public class ProductBuyNowResponseDTO {
     private int quantity;
     private BigDecimal offerPrice;
     private int userId;
-    private List<Integer> categoryIds;
+    private int categoryId;
 }

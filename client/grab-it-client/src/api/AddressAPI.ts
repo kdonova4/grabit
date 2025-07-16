@@ -2,18 +2,14 @@ import { AddressResponse } from "../types/Address/AddressResponse";
 import { AddressCreateRequest } from "../types/Address/AddressCreateRequest";
 import { AddressUpdateRequest } from "../types/Address/AddressUpdateRequest";
 
-export async function fetchAddressByUser(userId: number, token: string): Promise<AddressResponse[]> {
+export async function fetchAddressByUser(userId: number): Promise<AddressResponse[]> {
     const response = await fetch(`http://localhost:8080/api/v1/addresses/user/${userId}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
         }
     });
 
-    if (response.status === 403) {
-        throw new Error("User Not Authenticated")
-    }
 
     if (!response.ok) {
         throw new Error(`Error fetching addressess for user ${userId}`);

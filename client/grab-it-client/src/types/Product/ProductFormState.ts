@@ -11,5 +11,5 @@ export interface ProductFormState {
     status: ProductStatus;
     winningBid: number | null;
     userId: number;
-    categoryIds: number[];
+    categoryId: number;
 }

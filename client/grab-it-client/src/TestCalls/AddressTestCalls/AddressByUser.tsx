@@ -4,12 +4,12 @@ import { fetchAddressByUser } from "../../api/AddressAPI";
 import { useAuth } from "../../AuthContext";
 
 const AddressByUser: React.FC = () => {
-
+/*
     const [userId, setUserId] = useState("");
     const [addresses, setAddresses] = useState<AddressResponse[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const { token } = useAuth();
-
+    
     const handleFetch = async () => {
         try {
             if(!token) {
@@ -23,11 +23,10 @@ const AddressByUser: React.FC = () => {
             setError((e as Error).message);
         }
     }
-
+*/
     return (
         <>
-
-            <div className="p-4">
+            {/*<div className="p-4">
                 <h2 className="text-xl font-bold mb-2">Fetch Addresses By User ID</h2>
                 <input
                     type="number"
@@ -55,7 +54,8 @@ const AddressByUser: React.FC = () => {
 
 
                 {error && <p className="text-red-600 mt-2">{error}</p>}
-            </div>
+            </div> */}
+            
         </>
     )
 }

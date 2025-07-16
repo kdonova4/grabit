@@ -48,6 +48,7 @@ create table product (
 	price numeric(10,2) not null,
 	product_condition varchar(50) not null check (product_condition in ('NEW', 'GOOD', 'EXCELLENT', 'FAIR', 'USED', 'REFURBISHED', 'DAMAGED')),
 	quantity int not null,
+	category_id int not null,
 	product_status varchar(50) not null DEFAULT 'ACTIVE' check (product_status in ('ACTIVE', 'SOLD', 'REMOVED', 'EXPIRED', 'HELD')),
 	auction_end date,
 	app_user_id int not null,
@@ -256,10 +257,10 @@ begin
 	('123 Main St', 'Springfield', 'IL', '62704', 'USA', 1),
 	('456 Elm St', 'Greenville', 'TX', '75401', 'USA', 2);
 
-	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, offer_price, app_user_id) VALUES
-	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, NULL, 2),
-	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, NULL, 2),
-	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, NULL, 2);
+	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, category_id, product_status, auction_end, winning_bid, offer_price, app_user_id) VALUES
+	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 1, 'ACTIVE', NULL, NULL, NULL, 2),
+	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 1, 'SOLD', NULL, NULL, NULL, 2),
+	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 2, 'ACTIVE', current_date + interval '2 day', NULL, NULL, 2);
 
 	INSERT INTO product_category (product_id, category_id) VALUES
 	(1, 1),
@@ -305,3 +306,5 @@ begin
 end
 $$
 
+
+select * from product;

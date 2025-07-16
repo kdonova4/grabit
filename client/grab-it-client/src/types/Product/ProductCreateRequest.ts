@@ -8,5 +8,5 @@ export interface ProductCreateRequest {
     conditionType: ConditionType;
     quantity: number;
     userId: number;
-    categoryIds: number[];
+    categoryId: number;
 }

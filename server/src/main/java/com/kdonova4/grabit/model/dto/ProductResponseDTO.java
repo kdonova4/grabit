@@ -29,5 +29,5 @@ public class ProductResponseDTO {
     private BigDecimal winningBid;
     private BigDecimal offerPrice;
     private int userId;
-    private List<Integer> categoryIds;
+    private int categoryId;
 }

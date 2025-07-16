@@ -63,15 +63,9 @@ public class Product {
     @Column(name = "offer_price")
     private BigDecimal offerPrice;
 
-    @ManyToMany
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JoinTable(
-            name = "product_category",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<Category> categories = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "app_user_id", nullable = false)

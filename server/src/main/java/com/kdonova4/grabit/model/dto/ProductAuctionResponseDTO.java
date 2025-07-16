@@ -28,5 +28,5 @@ public class ProductAuctionResponseDTO {
     private LocalDateTime auctionEnd;
     private BigDecimal winningBid;
     private int userId;
-    private List<Integer> categoryIds;
+    private int categoryId;
 }

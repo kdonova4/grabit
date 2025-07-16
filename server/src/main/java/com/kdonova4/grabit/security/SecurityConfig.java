@@ -2,6 +2,7 @@ package com.kdonova4.grabit.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -57,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/v1/users/**").permitAll()
                         .requestMatchers("/api/v1/images/product/{productId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
                         .requestMatchers("/api/v1/products/{productId}").permitAll()
                         .requestMatchers("/api/v1/products/category/{categoryId}").permitAll()
                         .requestMatchers("/api/v1/products/search").permitAll()
@@ -69,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/reviews/product/{productId}").permitAll()
                         .requestMatchers("/api/v1/reviews/seller/{sellerId}").permitAll()
                         .requestMatchers("/api/v1/bids/product/{productId}").permitAll()
+                        .requestMatchers("/api/v1/addresses/user/{userId}").permitAll()
                         .requestMatchers("/ws/**", "/topic/**").permitAll()
                         .anyRequest().authenticated()
 

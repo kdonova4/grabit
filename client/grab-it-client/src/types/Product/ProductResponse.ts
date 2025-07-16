@@ -17,5 +17,5 @@ export interface ProductResponse {
   winningBid: number | null;
   offerPrice: number | null;
   userId: number;
-  categoryIds: number[]
+  categoryId: number
 }

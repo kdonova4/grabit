@@ -22,14 +22,7 @@ public class Category {
     @Column(name = "category_name", nullable = false, length = 50)
     private String categoryName;
 
-    @ManyToMany(mappedBy = "categories")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JsonIgnore
-    private List<Product> products = new ArrayList<>();
 
-    public Category(int categoryId, String categoryName) {
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-    }
+
+
 }
