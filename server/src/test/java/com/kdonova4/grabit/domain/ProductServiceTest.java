@@ -98,7 +98,7 @@ public class ProductServiceTest {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getUser().getAppUserId(),
-                List.of()
+                1
         );
 
         Product mockOut = new Product(product);
@@ -125,7 +125,7 @@ public class ProductServiceTest {
                 product.getQuantity(),
                 product.getProductStatus(),
                 product.getWinningBid(),
-                List.of()
+                1
         );
 
         when(categoryRepository.findAllById(any(List.class))).thenReturn(List.of());
@@ -154,7 +154,7 @@ public class ProductServiceTest {
                 product.getCondition(),
                 product.getQuantity(),
                 product.getUser().getAppUserId(),
-                List.of()
+                1
         );
 
 

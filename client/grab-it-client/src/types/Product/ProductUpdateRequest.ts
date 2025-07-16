@@ -9,5 +9,5 @@ export interface ProductUpdateRequest {
     quantity: number;
     status: ProductStatus;
     winningBid: number | null;
-    categoryIds: number[];
+    categoryId: number;
 }

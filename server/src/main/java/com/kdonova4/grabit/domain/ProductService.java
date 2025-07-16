@@ -76,13 +76,17 @@ public class ProductService {
 
         Product product = ProductMapper.toProduct(productCreateDTO, user);
 
-        List<Category> categories = categoryRepository.findAllById(productCreateDTO.getCategoryIds());
-        product.setCategories(categories);
+
+        Category category = categoryRepository.findById(productCreateDTO.getCategoryId()).orElse(null);
+        product.setCategory(category);
 
         Result<ProductResponseDTO> result = validate(product);
 
         if(!result.isSuccess())
             return result;
+
+
+
 
         if(product.getProductId() != 0) {
             result.addMessages("ProductId CANNOT BE SET for 'add' operation", ResultType.INVALID);
@@ -110,8 +114,9 @@ public class ProductService {
         }
 
         Product product = ProductMapper.toProduct(productUpdateDTO, oldProduct);
-        List<Category> categories = categoryRepository.findAllById(productUpdateDTO.getCategoryIds());
-        product.setCategories(categories);
+
+        Category category = categoryRepository.findById(productUpdateDTO.getCategoryId()).orElse(null);
+        product.setCategory(category);
 
         Result<ProductResponseDTO> result = validate(product);
 
@@ -187,6 +192,9 @@ public class ProductService {
             result.addMessages("PRODUCT DESCRIPTION CANNOT BE GREATER THAN 500 CHARACTERS", ResultType.INVALID);
         }
 
+        if(product.getCategory() == null || product.getCategory().getCategoryId() <= 0) {
+            result.addMessages("PRODUCT NEEDS A CATEGORY", ResultType.INVALID);
+        }
 
         if(product.getQuantity() <= 0 && product.getProductId() == 0) {
             result.addMessages("PRODUCT QUANTITY MUST BE GREATER THAN ZERO", ResultType.INVALID);

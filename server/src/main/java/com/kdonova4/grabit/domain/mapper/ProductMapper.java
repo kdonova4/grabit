@@ -13,10 +13,7 @@ import java.util.stream.Collectors;
 public class ProductMapper {
 
     public static ProductAuctionResponseDTO toAuctionResponse(Product product) {
-        List<Integer> categoryIds = product.getCategories()
-                .stream()
-                .map(Category::getCategoryId)
-                .collect(Collectors.toList());
+
 
         return new ProductAuctionResponseDTO(
                 product.getProductId(),
@@ -31,15 +28,12 @@ public class ProductMapper {
                 product.getAuctionEnd(),
                 product.getWinningBid(),
                 product.getUser().getAppUserId(),
-                categoryIds
+                product.getCategory().getCategoryId()
         );
     }
 
     public static ProductBuyNowResponseDTO toBuyNowResponse(Product product) {
-        List<Integer> categoryIds = product.getCategories()
-                .stream()
-                .map(Category::getCategoryId)
-                .collect(Collectors.toList());
+
 
         return new ProductBuyNowResponseDTO(
                 product.getProductId(),
@@ -53,15 +47,12 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getOfferPrice(),
                 product.getUser().getAppUserId(),
-                categoryIds
+                product.getCategory().getCategoryId()
         );
     }
 
     public static ProductResponseDTO toResponseDTO(Product product) {
-        List<Integer> categoryIds = product.getCategories()
-                .stream()
-                .map(Category::getCategoryId)
-                .collect(Collectors.toList());
+
 
         return new ProductResponseDTO(
                 product.getProductId(),
@@ -77,11 +68,13 @@ public class ProductMapper {
                 product.getWinningBid(),
                 product.getOfferPrice(),
                 product.getUser().getAppUserId(),
-                categoryIds
+                product.getCategory().getCategoryId()
         );
     }
 
     public static Product toProduct(ProductCreateDTO productCreateDTO, AppUser user) {
+
+
         return new Product(
                 0,
                 null,
@@ -118,10 +111,7 @@ public class ProductMapper {
     }
 
     public static ProductUpdateDTO toUpdateDTO(Product product) {
-        List<Integer> categoryIds = product.getCategories()
-                .stream()
-                .map(Category::getCategoryId)
-                .collect(Collectors.toList());
+
 
         return new ProductUpdateDTO(
                 product.getProductId(),
@@ -132,7 +122,7 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getProductStatus(),
                 product.getWinningBid(),
-                categoryIds
+                product.getCategory().getCategoryId()
         );
     }
 }

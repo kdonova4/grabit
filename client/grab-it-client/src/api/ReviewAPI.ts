@@ -25,10 +25,11 @@ export async function fetchReviewsByProduct(productId: number): Promise<ReviewRe
 }
 
 export async function fetchReviewsBySeller(sellerId: number): Promise<ReviewResponse[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/reviews/product/${sellerId}`);
+    const response = await fetch(`http://localhost:8080/api/v1/reviews/seller/${sellerId}`);
 
     if(!response.ok) {
-        throw new Error(`Seller ID ${sellerId} Not Found`);
+        const errorData: string[] = await response.json();
+        throw errorData
     }
 
     const data: ReviewResponse[] = await response.json();

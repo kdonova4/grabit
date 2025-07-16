@@ -48,6 +48,7 @@ create table product (
 	price numeric(10,2) not null,
 	product_condition varchar(50) not null check (product_condition in ('NEW', 'GOOD', 'EXCELLENT', 'FAIR', 'USED', 'REFURBISHED', 'DAMAGED')),
 	quantity int not null,
+	category_id int not null,
 	product_status varchar(50) not null DEFAULT 'ACTIVE' check (product_status in ('ACTIVE', 'SOLD', 'REMOVED', 'EXPIRED', 'HELD')),
 	auction_end timestamp,
 	app_user_id int not null,
@@ -200,7 +201,8 @@ INSERT INTO category (category_name) VALUES
 	(2, 2),
 	(2, 1),
 	(3, 3),
-	(4, 1);
+	(4, 1),
+	(4, 2);
 
 	INSERT INTO address (street, city, "state", zip_code, country, app_user_id) VALUES
 	('123 Main St', 'Springfield', 'IL', '62704', 'USA', 1),
@@ -208,10 +210,10 @@ INSERT INTO category (category_name) VALUES
 	('456 Elm St', 'Greenville', 'TX', '75401', 'USA', 2);
 
 
-	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, product_status, auction_end, winning_bid, offer_price, app_user_id) VALUES
-	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 'ACTIVE', NULL, NULL, NULL, 2),
-	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 'SOLD', NULL, NULL, NULL, 2),
-	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 'ACTIVE', current_date + interval '2 day', NULL, NULL, 2);
+	INSERT INTO product (sale_type, product_name, description, price, product_condition, quantity, category_id, product_status, auction_end, winning_bid, offer_price, app_user_id) VALUES
+	('BUY_NOW', 'Laptop', 'Powerful gaming laptop', 1200.00, 'EXCELLENT', 1, 1, 'ACTIVE', NULL, NULL, NULL, 2),
+	('BUY_NOW', 'PC', 'Powerful gaming PC', 1500.00, 'EXCELLENT', 1, 1, 'SOLD', NULL, NULL, NULL, 2),
+	('AUCTION', 'Book Set', 'Complete fantasy trilogy', 30.00, 'GOOD', 1, 2, 'ACTIVE', current_date + interval '2 day', NULL, NULL, 2);
 
 	INSERT INTO product_category (product_id, category_id) VALUES
 	(1, 1),
@@ -240,7 +242,8 @@ INSERT INTO category (category_name) VALUES
 	(3, 2);
 
 	INSERT INTO review (rating, review_text, posted_by_id, seller_id, product_id) VALUES
-	(5, 'Great seller, cant wait!', 1, 2, 2);
+	(5, 'Great seller, cant wait!', 1, 2, 2),
+	(1, 'Terrible FUCING WOKEKEKKE', 1, 2, 3);
 
 	INSERT INTO coupon (coupon_code, discount, discount_type, expire_date, is_active) VALUES
 	('SAVE10', 10, 'PERCENTAGE', current_timestamp + interval '7 day', true);
@@ -248,7 +251,7 @@ INSERT INTO category (category_name) VALUES
 	INSERT INTO image (image_url, product_id) VALUES
 	('http://example.com/laptop.jpg', 2),
 	('http://example.com/pc.jpg', 2),
-	('http://example.com/books.jpg', 3);
+	('https://res.cloudinary.com/dhucaqc0o/image/upload/v1752634858/debwthjfruov0qbju9fn.png', 3);
 
 
 
@@ -267,6 +270,8 @@ select * from product;
 select * from offer;
 
 select * from review;
+
+select * from image;
 
 select * from bid;
 

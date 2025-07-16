@@ -9,6 +9,10 @@ import { ProductFormState } from "./types/Product/ProductFormState";
 import ImageUpload from "./ImageUpload";
 import { deleteImageById, fetchImagesByProduct, uploadImage } from "./api/ImageAPI";
 import { ImageResponse } from "./types/Image/ImageResponse";
+import Dropdown from 'react-bootstrap/Dropdown';
+import Form from 'react-bootstrap/Form';
+import { Category } from "./types/Category/Category";
+import { fetchAllCategories } from "./api/CategoryAPI";
 
 
 const PRODUCT_DEFAULT: ProductFormState = {
@@ -22,7 +26,7 @@ const PRODUCT_DEFAULT: ProductFormState = {
     status: "ACTIVE",
     winningBid: null,
     userId: 0,
-    categoryIds: []
+    categoryId: 0
 }
 
 
@@ -39,6 +43,7 @@ const ProductForm: React.FC = () => {
     const { id } = useParams();
     const [newId, setNewId] = useState<number>(0);
     const { token, appUserId } = useAuth();
+    const [categories, setCategories] = useState<Category[]>([])
 
 
     const fetchImages = async () => {
@@ -52,8 +57,17 @@ const ProductForm: React.FC = () => {
         }
     }
 
-    useEffect(() => {
+    const fetchCategories = async () => {
+        try{
+            const data = await fetchAllCategories();
+            setCategories(data)
+        } catch (e) {
+            setErrors([(e as Error).message])
+        }
+    }
 
+    useEffect(() => {
+        fetchCategories();
         if (id) {
             fetchImages();
             const data = fetchProductById(Number(id))
@@ -69,7 +83,7 @@ const ProductForm: React.FC = () => {
                         quantity: data.quantity,
                         userId: data.userId,
                         saleType: data.saleType,
-                        categoryIds: data.categoryIds
+                        categoryId: data.categoryId
                     };
                     setProduct(editProduct);
                 })
@@ -152,7 +166,7 @@ const ProductForm: React.FC = () => {
             saleType: product.saleType,
             description: product.description,
             quantity: product.quantity,
-            categoryIds: product.categoryIds,
+            categoryId: product.categoryId,
         }
 
         try {
@@ -194,7 +208,7 @@ const ProductForm: React.FC = () => {
             status: product.status,
             winningBid: product.winningBid,
             quantity: product.quantity,
-            categoryIds: product.categoryIds,
+            categoryId: product.categoryId,
         }
 
         try {
@@ -295,6 +309,22 @@ const ProductForm: React.FC = () => {
                             <option>USED</option>
                             <option>REFURBISHED</option>
                             <option>DAMAGED</option>
+                        </select>
+                    </fieldset>
+                    <fieldset className="form-group">
+                        <label htmlFor="categoryId">Category</label>
+                        <select
+                            id="categoryId"
+                            className="form-control"
+                            name="categoryId"
+                            value={product.categoryId}
+                            onChange={handleChange}
+                        >
+                            
+                            <option></option>
+                            {categories.map(category => (
+                                <option key={category.categoryId} value={category.categoryId}>{category.categoryName}</option>
+                            ))}
                         </select>
                     </fieldset>
                     <fieldset className="form-group">
