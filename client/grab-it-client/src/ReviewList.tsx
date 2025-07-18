@@ -3,12 +3,13 @@ import { ReviewResponse } from "./types/Review/ReviewResponse";
 import { Link, useParams } from "react-router-dom";
 import { fetchReviewsBySeller } from "./api/ReviewAPI";
 import { fetchProductById } from "./api/ProductApi";
+import ReviewCard from "./ReviewCard";
 
 interface ReviewListProps {
     sellerId: number;
 }
 
-interface ProductSummary {
+export interface ProductSummary {
     productName: string;
     productStatus: string;
 }
@@ -66,24 +67,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ sellerId }) => {
                 )}
 
                 {reviews.map(review => (
-                    <div key={review.reviewId} className="mt-4 p-4 border rounded">
-                        <p>Rating: {review.rating}</p>
-
-
-                        {productMap[review.productId]?.productStatus === "ACTIVE" ? (
-
-                            <p>
-                                Product:{" "}
-                                <Link to={`/product/${review.productId}`}>
-                                    {productMap[review.productId].productName}
-                                </Link>
-                            </p>
-                        ) : (
-                            <span>Product: {productMap[review.productId]?.productName}</span>
-                        )}
-                        <p className="mt-4">{review.reviewText}</p>
-                        <p>{new Date(review.createdAt).toLocaleString()}</p>
-                    </div>
+                    <ReviewCard key={review.reviewId} review={review} productMap={productMap}/>
                 ))}
             </div>
         </>

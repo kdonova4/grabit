@@ -9,6 +9,8 @@ import { ImageResponse } from "./types/Image/ImageResponse";
 import { fetchImagesByProduct } from "./api/ImageAPI";
 import { AddressResponse } from "./types/Address/AddressResponse";
 import { fetchAddressByUser } from "./api/AddressAPI";
+import { useAuth } from "./AuthContext";
+import { useCart } from "./CartContext";
 
 const ProductPage: React.FC = () => {
 
@@ -18,7 +20,10 @@ const ProductPage: React.FC = () => {
     const [addresses, setAddresses] = useState<AddressResponse[] | null>(null);
     const [value, setValue] = useState<number>(1);
     const [errors, setErrors] = useState<string[]>([]);
+    const [inCart, setInCart] = useState<boolean>();
     const { id } = useParams();
+    const { token, appUserId } = useAuth();
+    const { itemInCart, addToCart, removeFromCart, cart } = useCart();
 
     const fetchProduct = async () => {
         try {
@@ -66,9 +71,22 @@ const ProductPage: React.FC = () => {
         if (product) {
             fetchCategory();
             fetchAddress();
+            checkCart();
         }
 
-    }, [product]);
+    }, [product, cart]);
+
+
+    const checkCart = async () => {
+        if(token && appUserId) {
+            try {
+                const result = await itemInCart(appUserId, Number(id));
+                setInCart(result);
+            } catch(e) {
+                console.log(e);
+            }
+        }
+    }
 
     const fetchCategory = async () => {
         if (product) {
@@ -88,49 +106,114 @@ const ProductPage: React.FC = () => {
     ) => {
         const { name, value } = e.target;
         setValue(Number(e.target.value))
-        
+
     }
+
+
 
     return (
 
 
         <>
             <div>
-                {product && (
+                {product && product.productStatus === "ACTIVE" ? (
+
                     <div className="container">
                         {images?.map(image => (
                             <img key={image.imageId} src={image.imageUrl}></img>
                         ))}
-                        <p>{product.productName}</p>
-                        <p>${product.price.toFixed(2)}</p>
-                        <p>{product.description}</p>
-                        <p>Category: {categoryName}</p>
-                        <p>Condition: {product.conditionType}</p>
-                        <fieldset className="form-group">
-                        <label htmlFor="quantity">Quantity: &nbsp;</label>
-                        <input
-                            type="number"
-                            className="formControl"
-                            value={value}
-                            max={product.quantity}
-                            min={1}
-                            onChange={handleChange}
-                        /><p>{product.quantity} available</p>
-                        </fieldset>
-                        <p>{new Date(product.postedAt).toLocaleString()}</p>
-
-                        {Array.isArray(addresses) && addresses.length > 0 && (
+                        {product.saleType === "BUY_NOW" ? (
                             <section>
-                                <p>Shipping From: {addresses[0].city}, {addresses[0].state} {addresses[0].zipCode} {addresses[0].country}</p>
+                                <p>{product.productName}</p>
+                                <p>${product.price.toFixed(2)}</p>
+                                <p>{product.description}</p>
+                                <p>Category: {categoryName}</p>
+                                <p>Condition: {product.conditionType}</p>
+                                <fieldset className="form-group">
+                                    <label htmlFor="quantity">Quantity: &nbsp;</label>
+                                    <input
+                                        type="number"
+                                        className="formControl"
+                                        value={value}
+                                        max={product.quantity}
+                                        min={1}
+                                        onChange={handleChange}
+                                    /><p>{product.quantity} available</p>
+                                </fieldset>
+                                <p>Posted On: {new Date(product.postedAt).toLocaleString()}</p>
+
+                                {Array.isArray(addresses) && addresses.length > 0 && (
+                                    <section>
+                                        <p>Shipping From: {addresses[0].city}, {addresses[0].state} {addresses[0].zipCode} {addresses[0].country}</p>
+                                    </section>
+                                )}
+
+                                <div className="cart-section">
+                                    {token &&
+                                        (!inCart ? (
+                                            <Button
+                                                className="add-wishlist"
+                                                variant="success"
+                                                onClick={() => addToCart(Number(id), value)}
+                                            >
+                                                Add To Cart
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                className="remove-wishlist"
+                                                variant="danger"
+                                                onClick={() => removeFromCart(Number(id))}
+                                            >
+                                                Remove To Cart
+                                            </Button>
+                                        ))}
+
+                                </div>
+                                <Button type="submit">Make Offer</Button>
+                                <Button type="submit">Watch</Button>
+                                
+                            </section>
+                        ) : (
+                            <section>
+                                <p>{product.productName}</p>
+                                <p>${product.price.toFixed(2)}</p>
+                                <p>{product.description}</p>
+                                {product.auctionEnd && (
+                                    <p>Auction End Date: {new Date(product.auctionEnd).toLocaleString()}</p>
+                                )}
+                                <p>Category: {categoryName}</p>
+                                <p>Condition: {product.conditionType}</p>
+                                <fieldset className="form-group">
+                                    <label htmlFor="quantity">Quantity: &nbsp;</label>
+                                    <input
+                                        type="number"
+                                        className="formControl"
+                                        value={value}
+                                        max={product.quantity}
+                                        min={1}
+                                        onChange={handleChange}
+                                    /><p>{product.quantity} available</p>
+                                </fieldset>
+                                <p>Posted On: {new Date(product.postedAt).toLocaleString()}</p>
+
+                                {Array.isArray(addresses) && addresses.length > 0 && (
+                                    <section>
+                                        <p>Shipping From: {addresses[0].city}, {addresses[0].state} {addresses[0].zipCode} {addresses[0].country}</p>
+                                    </section>
+                                )}
+
+                                <Button type="submit">Place Bid</Button>
+                                <Button type="submit">Watch</Button>
                             </section>
                         )}
 
-                        <Button type="submit">Add To Cart</Button>
-                        <Button type="submit">Watch</Button>
+
 
 
                         <ReviewList sellerId={product.userId} />
                     </div>
+                ) : (
+                    <p>Product Not Available</p>
                 )}
             </div>
 

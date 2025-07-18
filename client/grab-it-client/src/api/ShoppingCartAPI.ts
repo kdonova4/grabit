@@ -1,21 +1,45 @@
 import { ShoppingCartDTO } from "../types/ShoppingCart/ShoppingCartDTO";
 
-export async function findCartItemsByUser(userId: number): Promise<ShoppingCartDTO[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/carts/user/${userId}`);
+export async function findCartItemsByUser(userId: number, token: string): Promise<ShoppingCartDTO[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/carts/user/${userId}`, {
+        method: "GET",
+        headers: {
+            "Constent-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
 
-    if(!response.ok) {
-        throw new Error(`User ID ${userId} Not Found`)
+    if (response.status === 403) {
+        const data: string[] = await response.json();
+        throw data;
+    }
+
+    if (!response.ok) {
+        const data: string[] = await response.json();
+        throw data;
     }
 
     const data: ShoppingCartDTO[] = await response.json();
     return data;
 }
 
-export async function findCartItemByUserAndProduct(userId: number, productId: number): Promise<ShoppingCartDTO> {
-    const response = await fetch(`http://localhost:8080/api/v1/carts/user/${userId}/product/${productId}`);
+export async function findCartItemByUserAndProduct(userId: number, productId: number, token: string): Promise<ShoppingCartDTO> {
+    const response = await fetch(`http://localhost:8080/api/v1/carts/user/${userId}/product/${productId}`, {
+        method: "GET",
+        headers: {
+            "Constent-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
 
-    if(!response.ok) {
-        throw new Error(`Cart Item not found for User ${userId} and Product ${productId}`);
+    if (response.status === 403) {
+        const data: string[] = await response.json();
+        throw data;
+    }
+
+    if (!response.ok) {
+        const data: string[] = await response.json();
+        throw data;
     }
 
     const data: ShoppingCartDTO = await response.json();
@@ -25,7 +49,7 @@ export async function findCartItemByUserAndProduct(userId: number, productId: nu
 export async function fetchCartItemById(cartId: number): Promise<ShoppingCartDTO> {
     const response = await fetch(`http://localhost:8080/api/v1/carts/${cartId}`);
 
-    if(!response.ok) {
+    if (!response.ok) {
         throw new Error(`Error finding cart item with ID ${cartId}`);
     }
 
@@ -33,17 +57,24 @@ export async function fetchCartItemById(cartId: number): Promise<ShoppingCartDTO
     return data;
 }
 
-export async function createCartItem(cart: ShoppingCartDTO): Promise<ShoppingCartDTO> {
+export async function createCartItem(cart: ShoppingCartDTO, token: string): Promise<ShoppingCartDTO> {
     const response = await fetch(`http://localhost:8080/api/v1/carts`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(cart)
     })
 
-    if(response.status !== 201) {
-        throw new Error("Error creating cart item")
+    if (response.status === 403) {
+        const data: string[] = await response.json();
+        throw data;
+    }
+
+    if (response.status !== 201) {
+        const data: string[] = await response.json();
+        throw data;
     }
 
     const data: ShoppingCartDTO = await response.json();
@@ -59,24 +90,28 @@ export async function updateCartItem(cartId: number, cart: ShoppingCartDTO): Pro
         body: JSON.stringify(cart),
     });
 
-    if(response.status === 409) {
-        throw new Error("Cart ID conflict")
+    if (response.status === 409) {
+        const data: string[] = await response.json();
+        throw data;
     }
 
-    if(!response.ok) {
-        throw new Error("Error updating Cart Item")
+    if (!response.ok) {
+        const data: string[] = await response.json();
+        throw data;
     }
 }
 
-export async function deleteCartItemById(cartId: number): Promise<void> {
+export async function deleteCartItemById(cartId: number, token: string): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/carts/${cartId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         }
     });
 
-    if(response.status !== 204) {
-        throw new Error(`Unexpected Status Code ${response.status}`)
+    if (response.status !== 204) {
+        const data: string[] = await response.json();
+        throw data;
     }
 }
