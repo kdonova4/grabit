@@ -283,7 +283,7 @@ const ProductForm: React.FC = () => {
                         />
                     </fieldset>
                     <fieldset className="form-group">
-                        <label htmlFor="price">Price</label>
+                        <label htmlFor="price">Price/Starting Bid</label>
                         <input
                             id="price"
                             name="price"

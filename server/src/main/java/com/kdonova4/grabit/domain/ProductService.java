@@ -94,7 +94,7 @@ public class ProductService {
         }
 
         if(product.getSaleType() == SaleType.AUCTION)
-            product.setAuctionEnd(LocalDateTime.now().plusSeconds(45));
+            product.setAuctionEnd(LocalDateTime.now().plusDays(1));
 
         product = repository.save(product);
 
