@@ -237,7 +237,8 @@ INSERT INTO category (category_name) VALUES
 
 	INSERT INTO shopping_cart (product_id, quantity, app_user_id) VALUES
 	(1, 1, 1),
-	(3, 3, 2);
+	(3, 3, 2),
+	(1, 3, 2);
 
 	INSERT INTO watchlist (product_id, app_user_id) VALUES
 	(3, 2);
@@ -281,3 +282,5 @@ select * from app_user;
 select * from app_user_role;
 
 select * from product_category;
+
+select * from shopping_cart;

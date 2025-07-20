@@ -1,7 +1,13 @@
 import { WatchlistDTO } from "../types/Watchlist/WatchlistDTO";
 
-export async function findWatchItemsByUser(userId: number): Promise<WatchlistDTO[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/watchlists/user/${userId}`);
+export async function findWatchItemsByUser(userId: number, token: string): Promise<WatchlistDTO[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/watchlists/user/${userId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
 
     if(!response.ok) {
         throw new Error(`User ID ${userId} Not Found`)
@@ -11,7 +17,7 @@ export async function findWatchItemsByUser(userId: number): Promise<WatchlistDTO
     return data;
 }
 
-export async function fetchWatchItemByUserAndProduct(userId: number, productId: number): Promise<WatchlistDTO> {
+export async function findWatchItemByUserAndProduct(userId: number, productId: number): Promise<WatchlistDTO> {
     const response = await fetch(`http://localhost:8080/api/v1/watchlists/user/${userId}/product/${productId}`);
 
     if(!response.ok) {
@@ -34,14 +40,19 @@ export async function fetchWatchItemById(watchId: number): Promise<WatchlistDTO>
     return data;
 }
 
-export async function createWatchItem(watchItem: WatchlistDTO): Promise<WatchlistDTO> {
+export async function createWatchItem(watchItem: WatchlistDTO, token: string): Promise<WatchlistDTO> {
     const response = await fetch(`http://localhost:8080/api/v1/watchlists`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(watchItem)
     });
+
+    if(response.status === 403) {
+        throw new Error("User not authenticated")
+    }
 
     if(response.status !== 201) {
         throw new Error("Error Creating Watch Item");
@@ -51,13 +62,18 @@ export async function createWatchItem(watchItem: WatchlistDTO): Promise<Watchlis
     return data;
 }
 
-export async function deleteWatchItemById(watchId: number): Promise<void> {
+export async function deleteWatchItemById(watchId: number, token: string): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/watchlists/${watchId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         }
     });
+
+    if(response.status === 403) {
+        throw new Error("User not authenticated")
+    }
 
     if(response.status !== 204) {
         throw new Error(`Unexpected Status Code ${response.status}`)

@@ -9,6 +9,7 @@ import Verify from './TestCalls/AppUserTestsCalls/Verify';
 import ProductForm from './ProductForm';
 import ProductPage from './ProductPage';
 import ShoppingCartPage from './ShoppingCartPage';
+import WatchPage from './WatchPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path='/product/edit/:id' element={<ProductForm/>}/>
         <Route path='/product/:id' element={<ProductPage/>}/>
         <Route path='/cart' element={<ShoppingCartPage/>}/>
+        <Route path='/watch' element={<WatchPage/>}/>
       </Routes>
     </Router>
       
