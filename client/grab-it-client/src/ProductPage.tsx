@@ -11,6 +11,7 @@ import { AddressResponse } from "./types/Address/AddressResponse";
 import { fetchAddressByUser } from "./api/AddressAPI";
 import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
+import { useWatch } from "./WatchContext";
 
 const ProductPage: React.FC = () => {
 
@@ -20,10 +21,12 @@ const ProductPage: React.FC = () => {
     const [addresses, setAddresses] = useState<AddressResponse[] | null>(null);
     const [value, setValue] = useState<number>(1);
     const [errors, setErrors] = useState<string[]>([]);
-    const [inCart, setInCart] = useState<boolean>();
+    const [inCart, setInCart] = useState<boolean | undefined>(undefined);
+    const [inWatch, setInWatch] = useState<boolean | undefined>(undefined);
     const { id } = useParams();
     const { token, appUserId } = useAuth();
     const { itemInCart, addToCart, removeFromCart, cart } = useCart();
+    const { itemInWatchlist, addToWatchlist, removeFromWatchlist, watchlist } = useWatch();
 
     const fetchProduct = async () => {
         try {
@@ -65,24 +68,51 @@ const ProductPage: React.FC = () => {
     useEffect(() => {
         fetchProduct();
         fetchImages();
-    }, [id]);
+        if(product) {
+
+            console.log(inCart)
+        }
+        
+        
+    }, [id, cart, watchlist]);
 
     useEffect(() => {
         if (product) {
             fetchCategory();
             fetchAddress();
-            checkCart();
+            
+            
         }
 
-    }, [product, cart]);
+    }, [product, cart, watchlist]);
 
+    useEffect(() => {
+        checkCart();
+    }, [cart, id]);
+
+    useEffect(() => {
+        checkWatch();
+    }, [watchlist, id]);
 
     const checkCart = async () => {
-        if(token && appUserId) {
+        console.log(inCart)
+        if (token && appUserId) {
             try {
                 const result = await itemInCart(appUserId, Number(id));
                 setInCart(result);
-            } catch(e) {
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+    const checkWatch = async () => {
+        
+        if (token && appUserId) {
+            try {
+                const result = await itemInWatchlist(Number(id));
+                setInWatch(result);
+            } catch (e) {
                 console.log(e);
             }
         }
@@ -148,9 +178,20 @@ const ProductPage: React.FC = () => {
                                     </section>
                                 )}
 
+                                {inCart !== undefined && (
+
+                                
                                 <div className="cart-section">
-                                    {token &&
-                                        (!inCart ? (
+                                    
+                                        {inCart ? (
+                                            <Button
+                                                className="remove-wishlist"
+                                                variant="danger"
+                                                onClick={() => removeFromCart(Number(id))}
+                                            >
+                                                Remove From Cart
+                                            </Button>
+                                        ) : (
                                             <Button
                                                 className="add-wishlist"
                                                 variant="success"
@@ -158,20 +199,32 @@ const ProductPage: React.FC = () => {
                                             >
                                                 Add To Cart
                                             </Button>
+                                        )}
+                                    
+                                </div>)}
+
+                                {inWatch !== undefined && (
+
+                                
+                                <div className="watch-selection">
+                                    
+                                        {(!inWatch ? (
+                                            <Button
+                                                className="add-watch"
+                                                variant="light"
+                                                onClick={() => addToWatchlist(Number(id))}
+                                            >Watch</Button>
                                         ) : (
                                             <Button
-                                                className="remove-wishlist"
-                                                variant="danger"
-                                                onClick={() => removeFromCart(Number(id))}
-                                            >
-                                                Remove To Cart
-                                            </Button>
+                                                className="remove-watch"
+                                                variant="light"
+                                                onClick={() => removeFromWatchlist(Number(id))}
+                                            >Un-Watch</Button>
                                         ))}
-
-                                </div>
+                                </div>)}
                                 <Button type="submit">Make Offer</Button>
-                                <Button type="submit">Watch</Button>
-                                
+
+
                             </section>
                         ) : (
                             <section>
@@ -203,7 +256,25 @@ const ProductPage: React.FC = () => {
                                 )}
 
                                 <Button type="submit">Place Bid</Button>
-                                <Button type="submit">Watch</Button>
+                                {inWatch !== undefined && (
+
+                                
+                                <div className="watch-selection">
+                                    
+                                        {(!inWatch ? (
+                                            <Button
+                                                className="add-watch"
+                                                variant="light"
+                                                onClick={() => addToWatchlist(Number(id))}
+                                            >Watch</Button>
+                                        ) : (
+                                            <Button
+                                                className="remove-watch"
+                                                variant="light"
+                                                onClick={() => removeFromWatchlist(Number(id))}
+                                            >Un-Watch</Button>
+                                        ))}
+                                </div>)}
                             </section>
                         )}
 

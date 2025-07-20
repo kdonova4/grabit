@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { AuthProvider } from './AuthContext';
 import { CartProvider } from './CartContext';
+import { WatchProvider } from './WatchContext';
 
 
 const root = ReactDOM.createRoot(
@@ -12,7 +13,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <AuthProvider>
     <CartProvider>
-      <App />
+      <WatchProvider>
+        <App />
+      </WatchProvider>
     </CartProvider>
     
   </AuthProvider>
