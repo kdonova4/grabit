@@ -42,12 +42,14 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // Important if using cookies or Authorization header
+        config.setAllowCredentials(true); // Important!
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
@@ -72,8 +74,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/reviews/seller/{sellerId}").permitAll()
                         .requestMatchers("/api/v1/bids/product/{productId}").permitAll()
                         .requestMatchers("/api/v1/addresses/user/{userId}").permitAll()
-                        .requestMatchers("/ws/**", "/topic/**").permitAll()
+                        .requestMatchers("/ws/**", "/app/**", "/topic/**").permitAll()
                         .anyRequest().authenticated()
+
 
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
@@ -98,15 +101,5 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
-                        .allowedMethods("*");
-            }
-        };
-    }
+
 }

@@ -12,6 +12,7 @@ import { fetchAddressByUser } from "./api/AddressAPI";
 import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 import { useWatch } from "./WatchContext";
+import BidList from "./BidList";
 
 const ProductPage: React.FC = () => {
 
@@ -280,7 +281,7 @@ const ProductPage: React.FC = () => {
 
 
 
-
+                        <BidList/>
                         <ReviewList sellerId={product.userId} />
                     </div>
                 ) : (

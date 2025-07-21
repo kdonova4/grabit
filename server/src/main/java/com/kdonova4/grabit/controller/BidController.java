@@ -7,6 +7,7 @@ import com.kdonova4.grabit.domain.mapper.BidMapper;
 import com.kdonova4.grabit.model.dto.BidCreateDTO;
 import com.kdonova4.grabit.model.dto.BidResponseDTO;
 import com.kdonova4.grabit.model.entity.AppUser;
+import com.kdonova4.grabit.model.entity.AppUserDetails;
 import com.kdonova4.grabit.model.entity.Bid;
 import com.kdonova4.grabit.model.entity.Product;
 import com.kdonova4.grabit.security.AppUserService;
@@ -17,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -93,11 +97,25 @@ public class BidController {
     @PostMapping
     @Operation(summary = "Creates A Bid")
     public ResponseEntity<Object> create(@RequestBody BidCreateDTO bid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = (String) authentication.getPrincipal();
+        System.out.println(username);
+        AppUserDetails userDetails = (AppUserDetails) appUserService.loadUserByUsername(username);
+        AppUser  user = userDetails.getAppUser();
+        int authenticatedUserId = user.getAppUserId();
+
+        if(bid.getUserId() != authenticatedUserId) {
+            return new ResponseEntity<>("Not authorized to create a review for another user", HttpStatus.FORBIDDEN);
+        }
+
         Result<BidResponseDTO> result = service.create(bid);
 
         if(!result.isSuccess()) {
             return ErrorResponse.build(result);
         }
+
+
 
         Bid actual = BidMapper.toBid(bid, productService.findById(bid.getProductId()).get(), appUserService.findUserById(bid.getUserId()).get());
 
