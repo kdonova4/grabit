@@ -245,7 +245,7 @@ INSERT INTO category (category_name) VALUES
 
 	INSERT INTO review (rating, review_text, posted_by_id, seller_id, product_id) VALUES
 	(5, 'Great seller, cant wait!', 1, 2, 2),
-	(1, 'Terrible FUCING WOKEKEKKE', 1, 2, 3);
+	(1, 'Terrible book', 1, 2, 3);
 
 	INSERT INTO coupon (coupon_code, discount, discount_type, expire_date, is_active) VALUES
 	('SAVE10', 10, 'PERCENTAGE', current_timestamp + interval '7 day', true);

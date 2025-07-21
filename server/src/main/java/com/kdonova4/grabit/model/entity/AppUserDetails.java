@@ -51,6 +51,7 @@ public class AppUserDetails implements UserDetails {
         return true;
     }
 
+
     public AppUser getAppUser() {
         return appUser;
     }
