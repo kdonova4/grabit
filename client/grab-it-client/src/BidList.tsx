@@ -3,12 +3,19 @@ import { BidResponse } from "./types/Bid/BidResponse";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import { useParams } from "react-router-dom";
+import { deleteBidById, fetchByProduct } from "./api/BidAPI";
+import { useAuth } from "./AuthContext";
+import { Button } from "react-bootstrap";
 
 const BidList: React.FC = () => {
 
     const [bids, setBids] = useState<BidResponse[]>([])
     const [connected, setConnected] = useState<boolean>(false);
     const { id } = useParams();
+    const { token, appUserId } = useAuth();
+
+
+
     useEffect(() => {
         const socket = new SockJS('http://localhost:8080/ws');
 
@@ -37,6 +44,7 @@ const BidList: React.FC = () => {
 
         stompClient.activate();
         console.log("BIDS:" + bids)
+        fetchBids();
 
         return () => {
             stompClient.deactivate();
@@ -45,6 +53,28 @@ const BidList: React.FC = () => {
         }
     }, [id])
 
+
+    const fetchBids = async () => {
+        try {
+            const data = await fetchByProduct(Number(id))
+            setBids(data);
+            console.log(data)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const deleteBid = async (bidId: number) => {
+        if(token) {
+            try {
+            await deleteBidById(bidId, token);
+        } catch (e) {
+            console.log(e);
+        }
+        }
+        
+    }
+
     return (
         <>
             <div>
@@ -52,7 +82,19 @@ const BidList: React.FC = () => {
                 {!connected && <p>Connecting to WebSocket...</p>}
                 <ul>
                     {bids.map((bid) => (
-                        <li key={bid.bidId}>Bid #{bid.bidId}: ${bid.bidAmount}</li>
+                        <div>
+                            <li key={bid.bidId}>Bid #{bid.bidId}: ${bid.bidAmount}</li>
+                            {token && bid.userId === appUserId && (
+                                <Button
+                                    className="mr-4 mb-2 mt-4"
+                                    variant="danger"
+                                    onClick={() => deleteBid(bid.bidId)}
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                        </div>
+
                     ))}
                 </ul>
             </div>

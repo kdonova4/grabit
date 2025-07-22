@@ -76,7 +76,7 @@ public class BidController {
             return ResponseEntity.notFound().build();
         }
 
-        List<Bid> bids = service.findByProduct(product.get());
+        List<Bid> bids = service.findByProductOrderByBidAmountDesc(product.get());
 
         return ResponseEntity.ok(bids.stream().map(BidMapper::toResponseDTO).toList());
     }
