@@ -49,31 +49,35 @@ export async function fetchById(bidId: number): Promise<BidResponse> {
     return data;
 }
 
-export async function createBid(bid: BidCreateRequest): Promise<BidResponse> {
+export async function createBid(bid: BidCreateRequest, token: string): Promise<BidResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/bids`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(bid)
     });
 
     if (response.status !== 201) {
-        throw new Error("Error Creating New Bid")
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 
     return await response.json();
 }
 
-export async function deleteBidById(bidId: number): Promise<void> {
+export async function deleteBidById(bidId: number, token: string): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/bids/${bidId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         }
     });
 
     if (response.status !== 204) {
-        throw new Error(`Unexpected Status Code ${response.status}`)
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 }

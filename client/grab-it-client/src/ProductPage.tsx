@@ -13,6 +13,7 @@ import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 import { useWatch } from "./WatchContext";
 import BidList from "./BidList";
+import BidForm from "./BidForm";
 
 const ProductPage: React.FC = () => {
 
@@ -28,6 +29,16 @@ const ProductPage: React.FC = () => {
     const { token, appUserId } = useAuth();
     const { itemInCart, addToCart, removeFromCart, cart } = useCart();
     const { itemInWatchlist, addToWatchlist, removeFromWatchlist, watchlist } = useWatch();
+
+    const [showModal, setShowModal] = useState<boolean>(false);
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    }
 
     const fetchProduct = async () => {
         try {
@@ -256,7 +267,7 @@ const ProductPage: React.FC = () => {
                                     </section>
                                 )}
 
-                                <Button type="submit">Place Bid</Button>
+                                <Button type="submit" onClick={handleOpenModal}>Place Bid</Button>
                                 {inWatch !== undefined && (
 
                                 
@@ -283,6 +294,10 @@ const ProductPage: React.FC = () => {
 
                         <BidList/>
                         <ReviewList sellerId={product.userId} />
+
+                        {showModal && (
+                            <BidForm onClose={handleCloseModal} showModal={showModal}/>
+                        )}
                     </div>
                 ) : (
                     <p>Product Not Available</p>
