@@ -34,23 +34,26 @@ export async function fetchById(offerId: number): Promise<OfferResponse> {
     return data;
 }
 
-export async function createOffer(offer: OfferRequest): Promise<OfferResponse> {
+export async function createOffer(offer: OfferRequest, token: string): Promise<OfferResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/offers`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(offer)
     });
+    
 
     if(response.status !== 201) {
-        throw new Error("Error creating new offer")
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 
     return await response.json();
 }
 
-export async function acceptOffer(offerId: number): Promise<void> {
+export async function acceptOffer(offerId: number, token: string): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/offers/accept/${offerId}`, {
         method: "POST"
     });

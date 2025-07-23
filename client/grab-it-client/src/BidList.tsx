@@ -79,7 +79,7 @@ const BidList: React.FC = () => {
         <>
             <div>
                 <h2>Bids for product {id}</h2>
-                {!connected && <p>Connecting to WebSocket...</p>}
+                {!connected && <p>Loading...</p>}
                 <ul>
                     {bids.map((bid) => (
                         <div>
