@@ -14,6 +14,7 @@ import { useCart } from "./CartContext";
 import { useWatch } from "./WatchContext";
 import BidList from "./BidList";
 import BidForm from "./BidForm";
+import OfferForm from "./OfferForm";
 
 const ProductPage: React.FC = () => {
 
@@ -80,20 +81,20 @@ const ProductPage: React.FC = () => {
     useEffect(() => {
         fetchProduct();
         fetchImages();
-        if(product) {
+        if (product) {
 
             console.log(inCart)
         }
-        
-        
+
+
     }, [id, cart, watchlist]);
 
     useEffect(() => {
         if (product) {
             fetchCategory();
             fetchAddress();
-            
-            
+
+
         }
 
     }, [product, cart, watchlist]);
@@ -119,7 +120,7 @@ const ProductPage: React.FC = () => {
     }
 
     const checkWatch = async () => {
-        
+
         if (token && appUserId) {
             try {
                 const result = await itemInWatchlist(Number(id));
@@ -192,9 +193,9 @@ const ProductPage: React.FC = () => {
 
                                 {inCart !== undefined && (
 
-                                
-                                <div className="cart-section">
-                                    
+
+                                    <div className="cart-section">
+
                                         {inCart ? (
                                             <Button
                                                 className="remove-wishlist"
@@ -212,14 +213,14 @@ const ProductPage: React.FC = () => {
                                                 Add To Cart
                                             </Button>
                                         )}
-                                    
-                                </div>)}
+
+                                    </div>)}
 
                                 {inWatch !== undefined && (
 
-                                
-                                <div className="watch-selection">
-                                    
+
+                                    <div className="watch-selection">
+
                                         {(!inWatch ? (
                                             <Button
                                                 className="add-watch"
@@ -233,8 +234,14 @@ const ProductPage: React.FC = () => {
                                                 onClick={() => removeFromWatchlist(Number(id))}
                                             >Un-Watch</Button>
                                         ))}
-                                </div>)}
-                                <Button type="submit">Make Offer</Button>
+                                    </div>)}
+
+
+                                <Button type="submit" onClick={handleOpenModal}>Make Offer</Button>
+
+                                {showModal && product.saleType === "BUY_NOW" && (
+                                    <OfferForm onClose={handleCloseModal} showModal={showModal} />
+                                )}
 
 
                             </section>
@@ -270,9 +277,9 @@ const ProductPage: React.FC = () => {
                                 <Button type="submit" onClick={handleOpenModal}>Place Bid</Button>
                                 {inWatch !== undefined && (
 
-                                
-                                <div className="watch-selection">
-                                    
+
+                                    <div className="watch-selection">
+
                                         {(!inWatch ? (
                                             <Button
                                                 className="add-watch"
@@ -286,17 +293,17 @@ const ProductPage: React.FC = () => {
                                                 onClick={() => removeFromWatchlist(Number(id))}
                                             >Un-Watch</Button>
                                         ))}
-                                </div>)}
+                                    </div>)}
                             </section>
                         )}
 
 
 
-                        <BidList/>
+                        <BidList />
                         <ReviewList sellerId={product.userId} />
 
-                        {showModal && (
-                            <BidForm onClose={handleCloseModal} showModal={showModal}/>
+                        {showModal && product.saleType === "AUCTION" && (
+                            <BidForm onClose={handleCloseModal} showModal={showModal} />
                         )}
                     </div>
                 ) : (
