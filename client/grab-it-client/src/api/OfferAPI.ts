@@ -1,11 +1,18 @@
 import { OfferRequest } from "../types/Offer/OfferRequest";
 import { OfferResponse } from "../types/Offer/OfferResponse";
 
-export async function fetchOfferByUser(userId: number): Promise<OfferResponse[]> {
-    const response = await fetch(`http://localhost:8080/api/v1/offers/user/${userId}`)
+export async function fetchOfferByUser(userId: number, token: string): Promise<OfferResponse[]> {
+    const response = await fetch(`http://localhost:8080/api/v1/offers/user/${userId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
 
     if(!response.ok) {
-        throw new Error(`User ID ${userId} Not Found`)
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 
     const data: OfferResponse[] = await response.json();
@@ -65,15 +72,17 @@ export async function acceptOffer(offerId: number, token: string): Promise<void>
     
 }
 
-export async function deleteOfferById(offerId: number): Promise<void> {
+export async function deleteOfferById(offerId: number, token: string): Promise<void> {
     const response = await fetch(`http://localhost:8080/api/v1/offers/${offerId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         }
     });
 
     if(response.status !== 204) {
-        throw new Error(`Unexpected Status Code ${response.status}`)
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 }
