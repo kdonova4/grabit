@@ -20,8 +20,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000"})
@@ -53,13 +56,25 @@ public class OfferController {
     public ResponseEntity<List<OfferResponseDTO>> findByUser(@PathVariable int userId) {
         Optional<AppUser> appUser = appUserService.findUserById(userId);
 
+
+
         if(appUser.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        List<Product> products = productService.findByUser(appUser.get());
 
-        List<Offer> offers = service.findByUser(appUser.get());
 
-        return ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList());
+        List<Offer> sentOffers = service.findByUser(appUser.get());
+        List<Offer> receivedOffers = new ArrayList<>();
+
+        for(Product p : products) {
+            receivedOffers.addAll(service.findByProduct(p));
+        }
+
+        List<Offer> allOffers = Stream.concat(sentOffers.stream(), receivedOffers.stream())
+                .toList();
+
+        return ResponseEntity.ok(allOffers.stream().map(OfferMapper::toResponseDTO).toList());
     }
 
     @GetMapping("/product/{productId}")
@@ -75,6 +90,8 @@ public class OfferController {
 
         return ResponseEntity.ok(offers.stream().map(OfferMapper::toResponseDTO).toList());
     }
+
+
 
     @GetMapping("/user/{userId}/product/{productId}")
     @Operation(summary = "Finds Offer by User and Product")
