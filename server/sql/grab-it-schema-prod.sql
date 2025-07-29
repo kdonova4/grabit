@@ -267,6 +267,8 @@ select * from payment;
 
 select * from app_user;
 
+select * from address;
+
 select * from product;
 
 select * from offer;

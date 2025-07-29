@@ -3,6 +3,8 @@ import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 import { ProductResponse } from "./types/Product/ProductResponse";
 import { fetchProductById } from "./api/ProductApi";
+import { Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 
 export interface ProductSummary {
@@ -50,7 +52,7 @@ const ShoppingCartPage: React.FC = () => {
 
     return (
         <>
-            <div>
+            <div className="container">
                 {cart.length > 0 ? (
                     <div>
 
@@ -68,11 +70,15 @@ const ShoppingCartPage: React.FC = () => {
                             </div>
 
                         ))}
+                        <Link className='btn btn-primary mr-4' type="button" to={'/checkout'}>Checkout</Link>
                     </div>
                 ) : (
                     <></>
                 )}
+                
             </div>
+
+            
         </>
     )
 }

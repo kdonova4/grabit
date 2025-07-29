@@ -40,17 +40,19 @@ export async function fetchAddressById(addressId: number, token: string): Promis
     return data;
 }
 
-export async function addAddress(address: AddressCreateRequest): Promise<AddressResponse> {
+export async function createAddress(address: AddressCreateRequest, token: string): Promise<AddressResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/addresses`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(address)
     });
 
     if (response.status !== 201) {
-        throw new Error("Error Creating new Address");
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 
     return await response.json();

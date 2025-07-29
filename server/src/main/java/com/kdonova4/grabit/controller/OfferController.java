@@ -165,7 +165,20 @@ public class OfferController {
             return ErrorResponse.build(result);
         }
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(OfferMapper.toResponseDTO(result.getPayload()), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('SELLER')")
+    @PostMapping("/reject/{offerId}")
+    @Operation(summary = "Rejects An Offer By ID")
+    public ResponseEntity<Object> rejectOffer(@PathVariable int offerId) {
+        Result<Offer> result = service.rejectOffer(offerId);
+
+        if(!result.isSuccess()) {
+            return ErrorResponse.build(result);
+        }
+
+        return new ResponseEntity<>(OfferMapper.toResponseDTO(result.getPayload()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER')")

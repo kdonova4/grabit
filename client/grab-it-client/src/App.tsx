@@ -11,6 +11,7 @@ import ProductPage from './ProductPage';
 import ShoppingCartPage from './ShoppingCartPage';
 import WatchPage from './WatchPage';
 import ProfilePage from './ProfilePage';
+import CheckoutPage from './CheckoutPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path='/cart' element={<ShoppingCartPage/>}/>
         <Route path='/watch' element={<WatchPage/>}/>
         <Route path='/profile' element={<ProfilePage/>}/>
+        <Route path='/checkout' element={<CheckoutPage/>}/>
 
       </Routes>
     </Router>
