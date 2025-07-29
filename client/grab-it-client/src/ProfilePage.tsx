@@ -1,3 +1,4 @@
+import AddressForm from "./AddressForm";
 import OfferList from "./OfferList";
 
 const ProfilePage: React.FC = () => {
@@ -5,6 +6,7 @@ const ProfilePage: React.FC = () => {
     return(
         <>
 <OfferList/>
+<AddressForm/>
         </>
     )
 }

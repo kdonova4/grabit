@@ -87,6 +87,27 @@ public class OfferService {
         }
     }
 
+    public Result<Offer> rejectOffer(int offerId) {
+        Optional<Offer> optional = findById(offerId);
+        Result<Offer> result = new Result<>();
+
+        if(optional.isEmpty()) {
+            result.addMessages("OFFER NOT FOUND", ResultType.NOT_FOUND);
+            return result;
+        }
+
+        Offer offer = optional.get();
+
+        if(offer.getOfferStatus() == OfferStatus.EXPIRED) {
+            result.addMessages("OFFER EXPIRED", ResultType.INVALID);
+            return result;
+        }
+
+        offer.setOfferStatus(OfferStatus.REJECTED);
+        Offer resultOffer = repository.save(offer);
+        result.setPayload(resultOffer);
+        return result;
+    }
 
     @Transactional
     public Result<Offer> acceptOffer(int offerId) {
@@ -109,9 +130,9 @@ public class OfferService {
         offer.getProduct().setOfferPrice(offer.getOfferAmount());
         offer.setOfferStatus(OfferStatus.ACCEPTED);
 
-        repository.save(offer);
+        Offer resultOffer = repository.save(offer);
         productRepository.save(offer.getProduct());
-
+        result.setPayload(resultOffer);
         return result;
     }
 

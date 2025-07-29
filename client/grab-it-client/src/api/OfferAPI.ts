@@ -60,16 +60,39 @@ export async function createOffer(offer: OfferRequest, token: string): Promise<O
     return await response.json();
 }
 
-export async function acceptOffer(offerId: number, token: string): Promise<void> {
+export async function acceptOffer(offerId: number, token: string): Promise<OfferResponse> {
     const response = await fetch(`http://localhost:8080/api/v1/offers/accept/${offerId}`, {
-        method: "POST"
+        method: "POST",
+        headers: {
+            "Content-Type": "applicatio/json",
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if(!response.ok) {
-        throw new Error("Error accepting offer")
+        const errorData: string[] = await response.json();
+        throw errorData;
     }
 
-    
+    return await response.json();
+}
+
+export async function rejectOffer(offerId: number, token: string): Promise<OfferResponse> {
+    const response = await fetch(`http://localhost:8080/api/v1/offers/reject/${offerId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "applicatio/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    if(!response.ok) {
+        const errorData: string[] = await response.json();
+        throw errorData;
+    }
+
+    const data: OfferResponse = await response.json();
+    return data;
 }
 
 export async function deleteOfferById(offerId: number, token: string): Promise<void> {
